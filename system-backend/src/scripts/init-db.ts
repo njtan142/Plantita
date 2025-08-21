@@ -5,7 +5,11 @@
  * This script initializes the database with proper migrations and setup
  */
 
-import { initializeDatabase, testDatabaseConnection, closeDatabaseConnection } from '../config/database';
+import {
+  initializeDatabase,
+  testDatabaseConnection,
+  closeDatabaseConnection,
+} from '../config/database';
 import { env } from '../config/environment';
 
 async function main() {
@@ -20,7 +24,9 @@ async function main() {
     const isConnected = await testDatabaseConnection();
 
     if (!isConnected) {
-      console.error('❌ Failed to connect to database. Please check your connection settings.');
+      console.error(
+        '❌ Failed to connect to database. Please check your connection settings.'
+      );
       process.exit(1);
     }
 
@@ -29,7 +35,6 @@ async function main() {
     await initializeDatabase();
 
     console.log('\n✅ Database initialization completed successfully!');
-
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
     process.exit(1);
@@ -46,7 +51,7 @@ async function main() {
 
 // Handle script execution
 if (require.main === module) {
-  main().catch((error) => {
+  main().catch(error => {
     console.error('💥 Script execution failed:', error);
     process.exit(1);
   });

@@ -10,7 +10,9 @@ async function startServer(): Promise<void> {
 
     // Start the server
     const server = app.listen(env.PORT, env.HOST, () => {
-      console.log(`🚀 System Backend Server is running on http://${env.HOST}:${env.PORT}`);
+      console.log(
+        `🚀 System Backend Server is running on http://${env.HOST}:${env.PORT}`
+      );
       console.log(`📝 Environment: ${env.NODE_ENV}`);
       console.log(`🏥 Health check: http://${env.HOST}:${env.PORT}/health`);
       console.log(`🔌 API endpoint: http://${env.HOST}:${env.PORT}/api`);
@@ -35,7 +37,9 @@ async function startServer(): Promise<void> {
 
       // Force close server after 10 seconds
       setTimeout(() => {
-        console.error('❌ Could not close connections in time, forcefully shutting down');
+        console.error(
+          '❌ Could not close connections in time, forcefully shutting down'
+        );
         process.exit(1);
       }, 10000);
     };
@@ -45,7 +49,7 @@ async function startServer(): Promise<void> {
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
     // Handle uncaught exceptions
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', error => {
       console.error('💥 Uncaught Exception:', error);
       process.exit(1);
     });
@@ -55,7 +59,6 @@ async function startServer(): Promise<void> {
       console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
       process.exit(1);
     });
-
   } catch (error) {
     console.error('💥 Failed to start server:', error);
     process.exit(1);

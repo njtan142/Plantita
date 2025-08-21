@@ -9,20 +9,24 @@ import { getDatabaseHealth } from './config/database';
 // Load environment variables
 dotenv.config();
 
-const app = express();
+const app: express.Application = express();
 
 // Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 
 // CORS configuration
-app.use(cors({
-  origin: env.ALLOWED_ORIGINS,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+app.use(
+  cors({
+    origin: env.ALLOWED_ORIGINS,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
 
 // Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
@@ -41,8 +45,10 @@ app.get('/health', (req, res) => {
     status: 'ok',
     timestamp: new Date().toISOString(),
     environment: env.NODE_ENV,
-    version: '1.0.0'
+    version: '1.0.0',
   });
+});
+
 // Database health check endpoint
 app.get('/health/database', async (req, res) => {
   try {
@@ -52,18 +58,17 @@ app.get('/health/database', async (req, res) => {
       timestamp: new Date().toISOString(),
       database: {
         connectionCount: dbHealth.connectionCount,
-        pendingMigrations: dbHealth.pendingMigrations
-      }
+        pendingMigrations: dbHealth.pendingMigrations,
+      },
     });
   } catch (error) {
     res.status(500).json({
       status: 'error',
       timestamp: new Date().toISOString(),
       message: 'Failed to check database health',
-      error: env.NODE_ENV === 'development' ? error : undefined
+      error: env.NODE_ENV === 'development' ? error : undefined,
     });
   }
-});
 });
 
 // API routes prefix
@@ -73,8 +78,8 @@ app.get('/api', (req, res) => {
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      api: '/api'
-    }
+      api: '/api',
+    },
   });
 });
 
@@ -83,22 +88,29 @@ app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'Endpoint not found',
-    path: req.originalUrl
+    path: req.originalUrl,
   });
 });
 
 // Global error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error('Error:', err);
 
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal server error';
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Internal server error';
 
-  res.status(statusCode).json({
-    success: false,
-    message,
-    ...(env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-});
+    res.status(statusCode).json({
+      success: false,
+      message,
+      ...(env.NODE_ENV === 'development' && { stack: err.stack }),
+    });
+  }
+);
 
 export default app;

@@ -11,9 +11,12 @@ export const sequelize = new Sequelize({
   database: env.DB_NAME,
   username: env.DB_USER,
   password: env.DB_PASSWORD,
-  logging: env.NODE_ENV === 'development' ? (sql: string, timing?: number) => {
-    console.log(`[DB Query] ${sql}${timing ? ` (${timing}ms)` : ''}`);
-  } : false,
+  logging:
+    env.NODE_ENV === 'development'
+      ? (sql: string, timing?: number) => {
+          console.log(`[DB Query] ${sql}${timing ? ` (${timing}ms)` : ''}`);
+        }
+      : false,
   pool: {
     max: 20,
     min: 5,
@@ -90,7 +93,8 @@ async function runMigrations(): Promise<void> {
     return;
   }
 
-  const migrationFiles = fs.readdirSync(migrationsPath)
+  const migrationFiles = fs
+    .readdirSync(migrationsPath)
     .filter(file => file.endsWith('.sql'))
     .sort();
 
@@ -111,7 +115,9 @@ async function runMigrations(): Promise<void> {
 // Get list of executed migrations
 async function getExecutedMigrations(): Promise<string[]> {
   try {
-    const [results] = await sequelize.query('SELECT name FROM migrations ORDER BY executed_at ASC');
+    const [results] = await sequelize.query(
+      'SELECT name FROM migrations ORDER BY executed_at ASC'
+    );
     return (results as any[]).map(row => row.name);
   } catch (error) {
     console.error('❌ Failed to get executed migrations:', error);
@@ -136,7 +142,7 @@ async function executeMigration(filename: string): Promise<void> {
 async function recordMigration(filename: string): Promise<void> {
   try {
     await sequelize.query('INSERT INTO migrations (name) VALUES (?)', {
-      replacements: [filename]
+      replacements: [filename],
     });
   } catch (error) {
     console.error(`❌ Failed to record migration: ${filename}`, error);
@@ -145,7 +151,9 @@ async function recordMigration(filename: string): Promise<void> {
 }
 
 // Create database backup
-export async function createDatabaseBackup(backupPath?: string): Promise<string> {
+export async function createDatabaseBackup(
+  backupPath?: string
+): Promise<string> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupFile = backupPath || `backup-${timestamp}.sql`;
 
@@ -164,10 +172,14 @@ export async function createDatabaseBackup(backupPath?: string): Promise<string>
 }
 
 // Restore database from backup
-export async function restoreDatabaseFromBackup(backupPath: string): Promise<void> {
+export async function restoreDatabaseFromBackup(
+  backupPath: string
+): Promise<void> {
   try {
     console.log(`ℹ️  Restoring database from backup: ${backupPath}`);
-    console.log('ℹ️  Note: For production use, implement pg_restore integration');
+    console.log(
+      'ℹ️  Note: For production use, implement pg_restore integration'
+    );
 
     // Log restore operation (implement actual restore logic as needed)
     console.log(`✅ Database restored from: ${backupPath}`);
@@ -188,9 +200,12 @@ export async function getDatabaseHealth(): Promise<{
     await sequelize.authenticate();
 
     // Get connection count
-    const [results] = await sequelize.query('SELECT COUNT(*) as count FROM pg_stat_activity WHERE datname = ?', {
-      replacements: [env.DB_NAME]
-    });
+    const [results] = await sequelize.query(
+      'SELECT COUNT(*) as count FROM pg_stat_activity WHERE datname = ?',
+      {
+        replacements: [env.DB_NAME],
+      }
+    );
     const connectionCount = parseInt((results as any[])[0].count);
 
     // Get pending migrations
@@ -198,24 +213,27 @@ export async function getDatabaseHealth(): Promise<{
     let pendingMigrations: string[] = [];
 
     if (fs.existsSync(migrationsPath)) {
-      const migrationFiles = fs.readdirSync(migrationsPath)
+      const migrationFiles = fs
+        .readdirSync(migrationsPath)
         .filter(file => file.endsWith('.sql'))
         .sort();
       const executedMigrations = await getExecutedMigrations();
-      pendingMigrations = migrationFiles.filter(file => !executedMigrations.includes(file));
+      pendingMigrations = migrationFiles.filter(
+        file => !executedMigrations.includes(file)
+      );
     }
 
     return {
       status: 'healthy',
       connectionCount,
-      pendingMigrations
+      pendingMigrations,
     };
   } catch (error) {
     console.error('❌ Database health check failed:', error);
     return {
       status: 'unhealthy',
       connectionCount: 0,
-      pendingMigrations: []
+      pendingMigrations: [],
     };
   }
 }
