@@ -112,6 +112,18 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  # Testing dependencies
+  mockito: ^5.4.4
+  build_runner: ^2.4.9
+  integration_test:
+    sdk: flutter
+  coverage: ^1.7.2
+  flutter_driver:
+    sdk: flutter
+  provider_test: ^1.0.0
+  network_image_mock: ^2.1.1
+  faker: ^2.1.0
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
