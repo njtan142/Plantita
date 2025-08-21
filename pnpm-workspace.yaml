@@ -1,0 +1,7 @@
+packages:
+  - 'system-backend'
+  - 'admin-dashboard'
+  - 'user-app'
+  - 'uploader-app'
+  - 'shared'
+  - 'docker'

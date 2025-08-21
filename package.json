@@ -1,0 +1,62 @@
+{
+  "name": "plantita-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Social media application monorepo",
+  "keywords": [
+    "monorepo",
+    "social-media",
+    "typescript",
+    "react",
+    "flutter"
+  ],
+  "author": "Plantita Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "workspaces": [
+    "system-backend",
+    "admin-dashboard",
+    "user-app",
+    "uploader-app",
+    "shared",
+    "docker"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:dev": "pnpm -r build:dev",
+    "watch": "pnpm -r --parallel watch",
+    "clean": "pnpm -r clean",
+    "dev": "pnpm -r --parallel dev",
+    "dev:admin": "pnpm --filter admin-dashboard dev",
+    "dev:user-app": "pnpm --filter user-app dev",
+    "dev:uploader-app": "pnpm --filter uploader-app dev",
+    "dev:backend": "pnpm --filter system-backend dev",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "format": "pnpm -r format",
+    "format:check": "pnpm -r format:check",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm -r test:watch",
+    "test:coverage": "pnpm -r test:coverage",
+    "typecheck": "pnpm -r typecheck",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  }
+}
