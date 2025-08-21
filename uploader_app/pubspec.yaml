@@ -83,6 +83,24 @@ dependencies:
   # Screen util for responsive sizing
   flutter_screenutil: ^5.9.3
 
+  # Material 3 design system
+  material_design_icons_flutter: ^7.0.7296
+
+  # Better web support
+  universal_html: ^2.2.4
+
+  # Enhanced image handling
+  cached_network_image: ^3.3.1
+
+  # Form validation
+  form_field_validator: ^1.1.0
+
+  # Enhanced animations
+  flutter_staggered_animations: ^1.1.1
+
+  # Better loading indicators
+  flutter_spinkit: ^5.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
