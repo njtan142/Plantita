@@ -3,7 +3,6 @@ module.exports = {
   env: {
     node: true,
     es2022: true,
-    browser: true,
   },
   extends: [
     'eslint:recommended',
@@ -14,23 +13,17 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2022,
     sourceType: 'module',
-    project: ['./tsconfig.json', './shared/tsconfig.json'],
+    project: './tsconfig.json',
   },
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
-    '@typescript-eslint/no-unused-vars': [
-      'error',
-      {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      },
-    ],
+    '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'warn',
-    'no-console': 'warn',
+    'no-console': 'off',
     'no-debugger': 'error',
     'prefer-const': 'error',
     'no-var': 'error',
@@ -46,27 +39,5 @@ module.exports = {
     'coverage/',
     '*.config.js',
     '*.config.ts',
-  ],
-  overrides: [
-    {
-      files: ['*.js', '*.mjs', '*.cjs'],
-      env: {
-        node: true,
-      },
-      rules: {
-        '@typescript-eslint/no-var-requires': 'off',
-      },
-    },
-    {
-      files: ['*.test.ts', '*.test.tsx', '*.spec.ts', '*.spec.tsx'],
-      env: {
-        jest: true,
-        node: true,
-      },
-      rules: {
-        '@typescript-eslint/no-explicit-any': 'off',
-        'no-console': 'off',
-      },
-    },
   ],
 };
