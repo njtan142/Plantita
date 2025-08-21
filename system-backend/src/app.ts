@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { env } from './config/environment';
+import { getDatabaseHealth } from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -42,6 +43,27 @@ app.get('/health', (req, res) => {
     environment: env.NODE_ENV,
     version: '1.0.0'
   });
+// Database health check endpoint
+app.get('/health/database', async (req, res) => {
+  try {
+    const dbHealth = await getDatabaseHealth();
+    res.json({
+      status: dbHealth.status,
+      timestamp: new Date().toISOString(),
+      database: {
+        connectionCount: dbHealth.connectionCount,
+        pendingMigrations: dbHealth.pendingMigrations
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      message: 'Failed to check database health',
+      error: env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
+});
 });
 
 // API routes prefix
