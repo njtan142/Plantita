@@ -1,7 +1,6 @@
 import apiClient from '@/lib/api-client';
 import {
   Media,
-  CreateMediaData,
   UpdateMediaData,
   MediaQueryParams,
   MediaStats,

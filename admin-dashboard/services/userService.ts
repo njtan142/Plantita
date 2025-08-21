@@ -4,7 +4,6 @@ import {
   CreateUserData,
   UpdateUserData,
   UserQueryParams,
-  PaginatedResponse,
   ApiResponse
 } from '@/types/api';
 

@@ -164,10 +164,20 @@ function getErrorCode(data: unknown): string | undefined {
   return undefined;
 }
 
-function getErrorDetails(data: unknown): unknown {
+function getErrorDetails(data: unknown): Record<string, string | string[]> | undefined {
   if (data && typeof data === 'object') {
-    if ('details' in data) return data.details;
-    if ('errors' in data) return data.errors;
+    if ('details' in data) {
+      const details = data.details;
+      if (details && typeof details === 'object' && !Array.isArray(details)) {
+        return details as Record<string, string | string[]>;
+      }
+    }
+    if ('errors' in data) {
+      const errors = data.errors;
+      if (errors && typeof errors === 'object' && !Array.isArray(errors)) {
+        return errors as Record<string, string | string[]>;
+      }
+    }
   }
   return undefined;
 }

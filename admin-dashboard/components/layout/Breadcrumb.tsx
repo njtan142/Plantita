@@ -65,13 +65,13 @@ export function Breadcrumb() {
 
   return (
     <nav className="flex items-center space-x-1 text-sm text-gray-600">
-      {breadcrumbs.map((item, index) => (
+      {breadcrumbs.map((item, _index) => (
         <div key={item.href} className="flex items-center">
-          {index > 0 && (
+          {_index > 0 && (
             <ChevronRight className="h-4 w-4 mx-1 text-gray-400" />
           )}
 
-          {index === breadcrumbs.length - 1 ? (
+          {_index === breadcrumbs.length - 1 ? (
             // Last item (current page) - not clickable
             <span className="font-medium text-gray-900 flex items-center">
               {item.icon && <item.icon className="h-4 w-4 mr-1" />}
@@ -83,7 +83,7 @@ export function Breadcrumb() {
               href={item.href}
               className={cn(
                 'flex items-center hover:text-gray-900 transition-colors',
-                index === 0 ? 'hover:text-blue-600' : ''
+                _index === 0 ? 'hover:text-blue-600' : ''
               )}
             >
               {item.icon && <item.icon className="h-4 w-4 mr-1" />}

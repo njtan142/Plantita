@@ -1,5 +1,5 @@
 // Base API response structure
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
@@ -173,7 +173,7 @@ export interface ApiError {
   message: string;
   code?: string;
   statusCode: number;
-  details?: any;
+  details?: Record<string, string | string[]>;
 }
 
 // Auth types (for future use)
