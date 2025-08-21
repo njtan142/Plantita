@@ -10,7 +10,7 @@ import {
 
 export class UserService {
   // Get paginated list of users
-  async getUsers(params?: UserQueryParams): Promise<PaginatedResponse<User>> {
+  async getUsers(params?: UserQueryParams): Promise<ApiResponse<User[]>> {
     const queryParams = new URLSearchParams();
 
     if (params?.page) queryParams.append('page', params.page.toString());

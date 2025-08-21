@@ -5,7 +5,13 @@ import { usePathname } from 'next/navigation';
 import { ChevronRight, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const navigationItems = [
+interface BreadcrumbItem {
+  name: string;
+  href: string;
+  icon?: React.ComponentType<{ className?: string }>;
+}
+
+const navigationItems: BreadcrumbItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Users', href: '/dashboard/users' },
   { name: 'Media', href: '/dashboard/media' },
@@ -17,8 +23,8 @@ export function Breadcrumb() {
   const pathname = usePathname();
 
   // Generate breadcrumb items based on current path
-  const getBreadcrumbs = () => {
-    const breadcrumbs = [{ name: 'Dashboard', href: '/dashboard', icon: Home }];
+  const getBreadcrumbs = (): BreadcrumbItem[] => {
+    const breadcrumbs: BreadcrumbItem[] = [{ name: 'Dashboard', href: '/dashboard', icon: Home }];
 
     if (pathname === '/dashboard') {
       return breadcrumbs;
@@ -32,7 +38,8 @@ export function Breadcrumb() {
     if (currentItem) {
       breadcrumbs.push({
         name: currentItem.name,
-        href: currentItem.href
+        href: currentItem.href,
+        icon: currentItem.icon
       });
 
       // Add sub-paths if any
@@ -41,7 +48,7 @@ export function Breadcrumb() {
         const subPaths = subPath.split('/').filter(Boolean);
         let currentPath = currentItem.href;
 
-        subPaths.forEach((pathSegment, index) => {
+        subPaths.forEach((pathSegment) => {
           currentPath += `/${pathSegment}`;
           breadcrumbs.push({
             name: pathSegment.charAt(0).toUpperCase() + pathSegment.slice(1),

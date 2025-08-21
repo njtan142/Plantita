@@ -69,8 +69,8 @@ axiosInstance.interceptors.response.use(
       apiError = {
         message: getErrorMessage(data, status),
         statusCode: status,
-        code: data?.code,
-        details: data?.details || data?.errors,
+        code: getErrorCode(data),
+        details: getErrorDetails(data),
       };
 
       // Handle specific status codes
@@ -133,9 +133,13 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-function getErrorMessage(data: any, status: number): string {
-  if (data?.message) return data.message;
-  if (data?.error) return data.error;
+function getErrorMessage(data: unknown, status: number): string {
+  if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string') {
+    return data.message;
+  }
+  if (data && typeof data === 'object' && 'error' in data && typeof data.error === 'string') {
+    return data.error;
+  }
   if (typeof data === 'string') return data;
 
   // Default messages based on status code
@@ -151,6 +155,21 @@ function getErrorMessage(data: any, status: number): string {
     case 503: return 'Service unavailable - please try again later';
     default: return 'An error occurred - please try again';
   }
+}
+
+function getErrorCode(data: unknown): string | undefined {
+  if (data && typeof data === 'object' && 'code' in data && typeof data.code === 'string') {
+    return data.code;
+  }
+  return undefined;
+}
+
+function getErrorDetails(data: unknown): unknown {
+  if (data && typeof data === 'object') {
+    if ('details' in data) return data.details;
+    if ('errors' in data) return data.errors;
+  }
+  return undefined;
 }
 
 function handleUnauthorizedError(): void {
@@ -190,33 +209,33 @@ class ApiClient {
   }
 
   // Generic HTTP methods
-  async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.get<ApiResponse<T>>(url, config);
     return response.data;
   }
 
-  async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.post<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.put<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.patch<ApiResponse<T>>(url, data, config);
     return response.data;
   }
 
-  async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await this.axiosInstance.delete<ApiResponse<T>>(url, config);
     return response.data;
   }
 
   // File upload method
-  async upload<T = any>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  async upload<T = unknown>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const uploadConfig = {
       ...config,
       headers: {
