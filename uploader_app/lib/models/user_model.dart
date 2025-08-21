@@ -6,6 +6,8 @@ class User {
   final String firstName;
   final String lastName;
   final String? profileImageUrl;
+  final String? department;
+  final String? employeeId;
   final bool isActive;
   final DateTime createdAt;
   final DateTime? lastLoginAt;
@@ -17,6 +19,8 @@ class User {
     required this.firstName,
     required this.lastName,
     this.profileImageUrl,
+    this.department,
+    this.employeeId,
     required this.isActive,
     required this.createdAt,
     this.lastLoginAt,
@@ -37,6 +41,8 @@ class User {
       firstName: json['first_name'] as String,
       lastName: json['last_name'] as String,
       profileImageUrl: json['profile_image_url'] as String?,
+      department: json['department'] as String?,
+      employeeId: json['employee_id'] as String?,
       isActive: json['is_active'] as bool? ?? true,
       createdAt: DateTime.parse(json['created_at'] as String),
       lastLoginAt: json['last_login_at'] != null
@@ -54,6 +60,8 @@ class User {
       'first_name': firstName,
       'last_name': lastName,
       'profile_image_url': profileImageUrl,
+      'department': department,
+      'employee_id': employeeId,
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
       'last_login_at': lastLoginAt?.toIso8601String(),
@@ -68,6 +76,8 @@ class User {
     String? firstName,
     String? lastName,
     String? profileImageUrl,
+    String? department,
+    String? employeeId,
     bool? isActive,
     DateTime? createdAt,
     DateTime? lastLoginAt,
@@ -79,6 +89,8 @@ class User {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      department: department ?? this.department,
+      employeeId: employeeId ?? this.employeeId,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
