@@ -1,113 +1,126 @@
-/// User model representing a user in the system that can be associated with uploads
-class User {
-  final int id;
+import 'dart:convert';
+
+class UserModel {
+  final String id;
   final String username;
   final String email;
   final String firstName;
   final String lastName;
-  final String? profileImageUrl;
-  final String? department;
-  final String? employeeId;
+  final String? avatar;
   final bool isActive;
   final DateTime createdAt;
-  final DateTime? lastLoginAt;
+  final DateTime updatedAt;
 
-  const User({
+  const UserModel({
     required this.id,
     required this.username,
     required this.email,
     required this.firstName,
     required this.lastName,
-    this.profileImageUrl,
-    this.department,
-    this.employeeId,
+    this.avatar,
     required this.isActive,
     required this.createdAt,
-    this.lastLoginAt,
+    required this.updatedAt,
   });
 
-  /// Full name getter
-  String get fullName => '$firstName $lastName'.trim();
+  // Get full name
+  String get fullName => '$firstName $lastName';
 
-  /// Display name for UI
-  String get displayName => fullName.isNotEmpty ? fullName : username;
+  // Create from JSON
+  factory UserModel.fromJson(String jsonString) {
+    final Map<String, dynamic> json = jsonDecode(jsonString);
+    return UserModel.fromMap(json);
+  }
 
-  /// Create User from JSON response
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] as int,
-      username: json['username'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      firstName: json['first_name'] as String? ?? '',
-      lastName: json['last_name'] as String? ?? '',
-      profileImageUrl: json['profile_image_url'] as String?,
-      department: json['department'] as String?,
-      employeeId: json['employee_id'] as String?,
-      isActive: json['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(json['created_at'] as String? ?? DateTime.now().toIso8601String()),
-      lastLoginAt: json['last_login_at'] != null
-          ? DateTime.parse(json['last_login_at'] as String)
-          : null,
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      id: map['id'] as String,
+      username: map['username'] as String,
+      email: map['email'] as String,
+      firstName: map['firstName'] as String,
+      lastName: map['lastName'] as String,
+      avatar: map['avatar'] as String?,
+      isActive: map['isActive'] as bool? ?? true,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
     );
   }
 
-  /// Convert User to JSON for API requests
-  Map<String, dynamic> toJson() {
+  // Convert to JSON
+  String toJson() {
+    return jsonEncode(toMap());
+  }
+
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'username': username,
       'email': email,
-      'first_name': firstName,
-      'last_name': lastName,
-      'profile_image_url': profileImageUrl,
-      'department': department,
-      'employee_id': employeeId,
-      'is_active': isActive,
-      'created_at': createdAt.toIso8601String(),
-      'last_login_at': lastLoginAt?.toIso8601String(),
+      'firstName': firstName,
+      'lastName': lastName,
+      'avatar': avatar,
+      'isActive': isActive,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
-  /// Create a copy of User with updated fields
-  User copyWith({
-    int? id,
+  // Copy with method
+  UserModel copyWith({
+    String? id,
     String? username,
     String? email,
     String? firstName,
     String? lastName,
-    String? profileImageUrl,
-    String? department,
-    String? employeeId,
+    String? avatar,
     bool? isActive,
     DateTime? createdAt,
-    DateTime? lastLoginAt,
+    DateTime? updatedAt,
   }) {
-    return User(
+    return UserModel(
       id: id ?? this.id,
       username: username ?? this.username,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-      department: department ?? this.department,
-      employeeId: employeeId ?? this.employeeId,
+      avatar: avatar ?? this.avatar,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
-      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is User && other.id == id && other.username == username;
+
+    return other is UserModel &&
+        other.id == id &&
+        other.username == username &&
+        other.email == email &&
+        other.firstName == firstName &&
+        other.lastName == lastName &&
+        other.avatar == avatar &&
+        other.isActive == isActive &&
+        other.createdAt == createdAt &&
+        other.updatedAt == updatedAt;
   }
 
   @override
-  int get hashCode => id.hashCode ^ username.hashCode;
+  int get hashCode {
+    return id.hashCode ^
+        username.hashCode ^
+        email.hashCode ^
+        firstName.hashCode ^
+        lastName.hashCode ^
+        avatar.hashCode ^
+        isActive.hashCode ^
+        createdAt.hashCode ^
+        updatedAt.hashCode;
+  }
 
   @override
   String toString() {
-    return 'User(id: $id, username: $username, name: $fullName)';
+    return 'UserModel(id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName, avatar: $avatar, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }

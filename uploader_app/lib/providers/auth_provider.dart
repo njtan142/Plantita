@@ -1,231 +1,236 @@
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../models/auth_token_model.dart';
+import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../models/user_model.dart';
+import '../models/auth_token_model.dart';
 import '../services/auth_service.dart';
-import 'base_provider.dart';
+import '../constants/app_constants.dart';
 
-class AuthProvider extends BaseProvider {
-  final AuthService _authService;
+class AuthProvider extends ChangeNotifier {
+  final AuthService _authService = AuthService();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
-  AuthToken? _authToken;
-  User? _currentUser;
-  bool _isAuthenticated = false;
+  UserModel? _currentUser;
+  AuthTokenModel? _authToken;
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _isInitialized = false;
 
-  AuthProvider(this._authService);
-
-  AuthToken? get authToken => _authToken;
-  User? get currentUser => _currentUser;
-  bool get isAuthenticated => _isAuthenticated;
-
-  @override
-  Future<void> onInitialize() async {
-    await _loadPersistedAuth();
+  // Getters
+  UserModel? get currentUser => _currentUser;
+  AuthTokenModel? get authToken => _authToken;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get isAuthenticated => _currentUser != null && _authToken != null && !_isTokenExpired;
+  bool get isInitialized => _isInitialized;
+  bool get _isTokenExpired {
+    if (_authToken == null) return true;
+    return JwtDecoder.isExpired(_authToken!.accessToken);
   }
 
-  Future<void> _loadPersistedAuth() async {
+  // Initialize auth state
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+
+    _setLoading(true);
+    _clearError();
+
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final tokenJson = prefs.getString('auth_token');
-      final userJson = prefs.getString('current_user');
+      await _loadStoredAuthData();
+      _isInitialized = true;
+    } catch (e) {
+      _setError('Failed to initialize authentication: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
 
-      if (tokenJson != null && userJson != null) {
-        _authToken = AuthToken.fromJson(tokenJson);
-        _currentUser = User.fromJson(userJson);
+  // Load stored authentication data
+  Future<void> _loadStoredAuthData() async {
+    try {
+      final tokenString = await _secureStorage.read(key: AppConstants.tokenKey);
+      final userString = await _secureStorage.read(key: AppConstants.userKey);
 
-        // Check if token is still valid
-        if (_authToken!.isExpired) {
-          await logout();
+      if (tokenString != null && userString != null) {
+        final token = AuthTokenModel.fromJson(tokenString);
+        final user = UserModel.fromJson(userString);
+
+        if (!_isTokenExpired) {
+          _authToken = token;
+          _currentUser = user;
         } else {
-          _isAuthenticated = true;
+          // Token expired, clear stored data
+          await _clearStoredAuthData();
         }
       }
     } catch (e) {
-      debugPrint('Error loading persisted auth: $e');
-      await logout();
+      _setError('Failed to load authentication data: $e');
+      await _clearStoredAuthData();
     }
   }
 
-  Future<void> _persistAuth() async {
+  // Login
+  Future<bool> login(String username, String password) async {
+    _setLoading(true);
+    _clearError();
+
     try {
-      final prefs = await SharedPreferences.getInstance();
-      if (_authToken != null && _currentUser != null) {
-        await prefs.setString('auth_token', _authToken!.toJson());
-        await prefs.setString('current_user', _currentUser!.toJson());
-      }
+      final authData = await _authService.login(username, password);
+
+      _authToken = authData['token'];
+      _currentUser = authData['user'];
+
+      // Store auth data securely
+      await _storeAuthData();
+
+      _setLoading(false);
+      notifyListeners();
+      return true;
     } catch (e) {
-      debugPrint('Error persisting auth: $e');
-    }
-  }
-
-  Future<void> _clearPersistedAuth() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('auth_token');
-      await prefs.remove('current_user');
-    } catch (e) {
-      debugPrint('Error clearing persisted auth: $e');
-    }
-  }
-
-  Future<bool> login(String email, String password) async {
-    try {
-      setLoading(true);
-      clearError();
-
-      final response = await _authService.login(email, password);
-
-      if (response.success && response.data != null) {
-        _authToken = response.data!.token;
-        _currentUser = response.data!.user;
-        _isAuthenticated = true;
-
-        await _persistAuth();
-        notifyListeners();
-        return true;
-      } else {
-        setError(response.message ?? 'Login failed');
-        return false;
-      }
-    } catch (e) {
-      setError(e.toString());
+      _setError(e.toString());
+      _setLoading(false);
       return false;
-    } finally {
-      setLoading(false);
     }
   }
 
-  Future<bool> register(String email, String password, String name) async {
+  // Register
+  Future<bool> register(String username, String email, String password, String firstName, String lastName) async {
+    _setLoading(true);
+    _clearError();
+
     try {
-      setLoading(true);
-      clearError();
+      final authData = await _authService.register(username, email, password, firstName, lastName);
 
-      final response = await _authService.register(email, password, name);
+      _authToken = authData['token'];
+      _currentUser = authData['user'];
 
-      if (response.success && response.data != null) {
-        _authToken = response.data!.token;
-        _currentUser = response.data!.user;
-        _isAuthenticated = true;
+      // Store auth data securely
+      await _storeAuthData();
 
-        await _persistAuth();
-        notifyListeners();
-        return true;
-      } else {
-        setError(response.message ?? 'Registration failed');
-        return false;
-      }
+      _setLoading(false);
+      notifyListeners();
+      return true;
     } catch (e) {
-      setError(e.toString());
+      _setError(e.toString());
+      _setLoading(false);
       return false;
-    } finally {
-      setLoading(false);
     }
   }
 
-  Future<bool> forgotPassword(String email) async {
-    try {
-      setLoading(true);
-      clearError();
-
-      final response = await _authService.forgotPassword(email);
-
-      if (response.success) {
-        return true;
-      } else {
-        setError(response.message ?? 'Failed to send reset email');
-        return false;
-      }
-    } catch (e) {
-      setError(e.toString());
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  // Logout
   Future<void> logout() async {
-    try {
-      setLoading(true);
-      clearError();
+    _setLoading(true);
+    _clearError();
 
-      // Call logout API if token exists
+    try {
       if (_authToken != null) {
         await _authService.logout(_authToken!.accessToken);
       }
     } catch (e) {
-      debugPrint('Error during logout API call: $e');
-    } finally {
-      // Always clear local state regardless of API call result
-      _authToken = null;
-      _currentUser = null;
-      _isAuthenticated = false;
-
-      await _clearPersistedAuth();
-      setLoading(false);
-      notifyListeners();
+      // Ignore logout errors
     }
+
+    await _clearStoredAuthData();
+    _clearAuthState();
+    _setLoading(false);
+    notifyListeners();
   }
 
+  // Refresh token
   Future<bool> refreshToken() async {
+    if (_authToken == null) return false;
+
     try {
-      if (_authToken == null) return false;
-
-      final response = await _authService.refreshToken(_authToken!.refreshToken);
-
-      if (response.success && response.data != null) {
-        _authToken = response.data;
-        await _persistAuth();
-        notifyListeners();
-        return true;
-      } else {
-        await logout();
-        return false;
-      }
+      final newToken = await _authService.refreshToken(_authToken!.refreshToken);
+      _authToken = newToken;
+      await _storeAuthData();
+      notifyListeners();
+      return true;
     } catch (e) {
-      debugPrint('Error refreshing token: $e');
       await logout();
       return false;
     }
   }
 
-  Future<bool> updateProfile(User updatedUser) async {
+  // Store authentication data
+  Future<void> _storeAuthData() async {
     try {
-      if (_currentUser == null || _authToken == null) return false;
-
-      setLoading(true);
-      clearError();
-
-      final response = await _authService.updateProfile(
-        _authToken!.accessToken,
-        updatedUser,
-      );
-
-      if (response.success && response.data != null) {
-        _currentUser = response.data;
-        await _persistAuth();
-        notifyListeners();
-        return true;
-      } else {
-        setError(response.message ?? 'Failed to update profile');
-        return false;
+      if (_authToken != null && _currentUser != null) {
+        await _secureStorage.write(
+          key: AppConstants.tokenKey,
+          value: _authToken!.toJson(),
+        );
+        await _secureStorage.write(
+          key: AppConstants.userKey,
+          value: _currentUser!.toJson(),
+        );
       }
     } catch (e) {
-      setError(e.toString());
-      return false;
-    } finally {
-      setLoading(false);
+      _setError('Failed to store authentication data: $e');
     }
   }
 
-  String? getAuthHeader() {
-    return _authToken?.accessToken != null
-        ? 'Bearer ${_authToken!.accessToken}'
-        : null;
+  // Clear stored authentication data
+  Future<void> _clearStoredAuthData() async {
+    try {
+      await _secureStorage.delete(key: AppConstants.tokenKey);
+      await _secureStorage.delete(key: AppConstants.userKey);
+    } catch (e) {
+      // Ignore storage errors
+    }
   }
 
-  @override
-  void onDispose() {
-    // Cleanup resources
-    super.onDispose();
+  // Clear authentication state
+  void _clearAuthState() {
+    _currentUser = null;
+    _authToken = null;
+  }
+
+  // Update user profile
+  Future<bool> updateProfile(Map<String, dynamic> updates) async {
+    if (_currentUser == null || _authToken == null) return false;
+
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final updatedUser = await _authService.updateProfile(_authToken!.accessToken, updates);
+      _currentUser = updatedUser;
+      await _storeAuthData();
+
+      _setLoading(false);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // Helper methods
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  // Reset provider
+  void reset() {
+    _clearAuthState();
+    _isLoading = false;
+    _errorMessage = null;
+    _isInitialized = false;
+    notifyListeners();
   }
 }
