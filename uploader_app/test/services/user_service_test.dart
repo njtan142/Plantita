@@ -46,7 +46,7 @@ void main() {
       // Arrange
       final cachedUsers = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'cacheduser',
           email: 'cached@example.com',
           firstName: 'Cached',
@@ -56,16 +56,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      );
-
       // Simulate cached data
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      );
       userService.setCachedUsersForTesting(cachedUsers);
       userService.setLastFetchTimeForTesting(DateTime.now().subtract(const Duration(minutes: 15)));
 
@@ -82,7 +73,7 @@ void main() {
       // Arrange
       final apiUsers = [
         UserModel(
-          id: '2',
+          id: 2,
           username: 'apiuser',
           email: 'api@example.com',
           firstName: 'API',
@@ -107,8 +98,8 @@ void main() {
 
       when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => apiResponse);
-      when(mockPrefs.setString(any, any)).thenAnswer((_) async {});
-      when(mockPrefs.setInt(any, any)).thenAnswer((_) async {});
+      when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
+      when(mockPrefs.setInt(any, any)).thenAnswer((_) async => true);
 
       // Act
       final result = await userService.fetchUsers(forceRefresh: true);
@@ -122,10 +113,8 @@ void main() {
 
     test('fetchUsers handles API errors gracefully', () async {
       // Arrange
-      final errorResponse = ApiResponse.error(message: 'API Error');
-
       when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => errorResponse);
+          .thenAnswer((_) async => ApiResponse.error(message: 'API Error') as ApiResponse<PaginatedResponse<UserModel>>);
 
       // Act
       final result = await userService.fetchUsers(forceRefresh: true);
@@ -140,7 +129,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -149,7 +138,7 @@ void main() {
           createdAt: DateTime.now(),
         ),
         UserModel(
-          id: '2',
+          id: 2,
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -159,10 +148,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = users;
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final result = await userService.searchUsers('john');
@@ -177,7 +163,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'user1',
           email: 'user1@example.com',
           firstName: 'User',
@@ -187,10 +173,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = users;
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final result = await userService.searchUsers('');
@@ -204,7 +187,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'cacheduser',
           email: 'cached@example.com',
           firstName: 'Cached',
@@ -214,10 +197,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = users;
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final result = await userService.getUserById(1);
@@ -231,7 +211,7 @@ void main() {
     test('getUserById fetches from API when not cached', () async {
       // Arrange
       final apiUser = UserModel(
-        id: '2',
+        id: 2,
         username: 'apiuser',
         email: 'api@example.com',
         firstName: 'API',
@@ -243,8 +223,8 @@ void main() {
 
       when(mockHttpClient.get<UserModel>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => apiResponse);
-      when(mockPrefs.setString(any, any)).thenAnswer((_) async {});
-      when(mockPrefs.setInt(any, any)).thenAnswer((_) async {});
+      when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
+      when(mockPrefs.setInt(any, any)).thenAnswer((_) async => true);
 
       // Act
       final result = await userService.getUserById(2);
@@ -259,7 +239,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -268,7 +248,7 @@ void main() {
           createdAt: DateTime.now(),
         ),
         UserModel(
-          id: '2',
+          id: 2,
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -278,10 +258,6 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      );
       userService.setCachedUsersForTesting(users);
 
       // Act
@@ -296,7 +272,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -305,7 +281,7 @@ void main() {
           createdAt: DateTime.now(),
         ),
         UserModel(
-          id: '2',
+          id: 2,
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -315,10 +291,6 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      );
       userService.setCachedUsersForTesting(users);
 
       // Act
@@ -336,7 +308,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'active_user',
           email: 'active@example.com',
           firstName: 'Active',
@@ -345,7 +317,7 @@ void main() {
           createdAt: DateTime.now(),
         ),
         UserModel(
-          id: '2',
+          id: 2,
           username: 'inactive_user',
           email: 'inactive@example.com',
           firstName: 'Inactive',
@@ -355,10 +327,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = users;
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final selectableUsers = userService.getUsersForSelection();
@@ -372,7 +341,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -381,7 +350,7 @@ void main() {
           createdAt: DateTime.now(),
         ),
         UserModel(
-          id: '2',
+          id: 2,
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -391,10 +360,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = users;
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final filteredUsers = userService.getUsersForSelection(searchQuery: 'john');
@@ -408,7 +374,7 @@ void main() {
       // Arrange
       final apiUsers = [
         UserModel(
-          id: '3',
+          id: 3,
           username: 'refreshed_user',
           email: 'refreshed@example.com',
           firstName: 'Refreshed',
@@ -432,8 +398,8 @@ void main() {
 
       when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => ApiResponse.success(paginatedResponse));
-      when(mockPrefs.setString(any, any)).thenAnswer((_) async {});
-      when(mockPrefs.setInt(any, any)).thenAnswer((_) async {});
+      when(mockPrefs.setString(any, any)).thenAnswer((_) async => true);
+      when(mockPrefs.setInt(any, any)).thenAnswer((_) async => true);
 
       // Act
       await userService.refreshUsers();
@@ -445,12 +411,9 @@ void main() {
 
     test('clearCache removes all cached data', () async {
       // Arrange
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = [
+      userService.setCachedUsersForTesting([
         UserModel(
-          id: '1',
+          id: 1,
           username: 'testuser',
           email: 'test@example.com',
           firstName: 'Test',
@@ -458,17 +421,17 @@ void main() {
           isActive: true,
           createdAt: DateTime.now(),
         ),
-      ];
+      ]);
 
-      when(mockPrefs.remove('cached_users')).thenAnswer((_) async {});
-      when(mockPrefs.remove('users_cache_timestamp')).thenAnswer((_) async {});
+      when(mockPrefs.remove('cached_users')).thenAnswer((_) async => true);
+      when(mockPrefs.remove('users_cache_timestamp')).thenAnswer((_) async => true);
 
       // Act
       await userService.clearCache();
 
       // Assert
       expect(userService.currentUsers.isEmpty, true);
-      expect(userService._lastFetchTime, null);
+      expect(userService.lastFetchTimeForTesting, null);
       verify(mockPrefs.remove('cached_users')).called(1);
       verify(mockPrefs.remove('users_cache_timestamp')).called(1);
     });
@@ -477,7 +440,7 @@ void main() {
       // Arrange
       final users = [
         UserModel(
-          id: '1',
+          id: 1,
           username: 'active_user',
           email: 'active@example.com',
           firstName: 'Active',
@@ -486,7 +449,7 @@ void main() {
           createdAt: DateTime.now().subtract(const Duration(days: 5)),
         ),
         UserModel(
-          id: '2',
+          id: 2,
           username: 'inactive_user',
           email: 'inactive@example.com',
           firstName: 'Inactive',
@@ -495,7 +458,7 @@ void main() {
           createdAt: DateTime.now().subtract(const Duration(days: 10)),
         ),
         UserModel(
-          id: '3',
+          id: 3,
           username: 'recent_user',
           email: 'recent@example.com',
           firstName: 'Recent',
@@ -505,10 +468,7 @@ void main() {
         ),
       ];
 
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      ).._cachedUsers = users;
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final stats = userService.getUserStats();
@@ -522,10 +482,7 @@ void main() {
 
     test('dispose closes all stream controllers', () {
       // Arrange
-      userService = UserService(
-        httpClient: mockHttpClient,
-        prefs: mockPrefs,
-      );
+      // Use the userService instance from setUp
 
       // Act
       userService.dispose();
@@ -541,8 +498,8 @@ void main() {
       userService.loadingStream.listen(loadingStates.add);
 
       // Act
-      userService._loadingController.add(true);
-      userService._loadingController.add(false);
+      userService.addLoadingStateForTesting(true);
+      userService.addLoadingStateForTesting(false);
 
       // Wait for stream events
       await Future.delayed(const Duration(milliseconds: 10));
@@ -555,7 +512,7 @@ void main() {
       // Arrange
       final userUpdates = <List<UserModel>>[];
       final testUser = UserModel(
-        id: '1',
+        id: 1,
         username: 'testuser',
         email: 'test@example.com',
         firstName: 'Test',
@@ -567,7 +524,7 @@ void main() {
       userService.usersStream.listen(userUpdates.add);
 
       // Act
-      userService._usersController.add([testUser]);
+      userService.addUsersUpdateForTesting([testUser]);
 
       // Wait for stream events
       await Future.delayed(const Duration(milliseconds: 10));
