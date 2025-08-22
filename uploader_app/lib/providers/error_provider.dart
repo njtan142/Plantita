@@ -23,7 +23,7 @@ enum ErrorSeverity {
 }
 
 class ErrorProvider extends BaseProvider {
-  List<AppError> _errors = [];
+  final List<AppError> _errors = [];
   bool _showErrorDialog = false;
 
   List<AppError> get errors => _errors;

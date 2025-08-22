@@ -2,6 +2,8 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 /// Comprehensive test runner for the Flutter uploader app
 class TestRunner {
   static const String testDirectory = 'test';
@@ -22,7 +24,9 @@ class TestRunner {
 
   /// Run all unit tests
   Future<bool> runUnitTests() async {
-    print('🧪 Running Unit Tests...');
+    if (kDebugMode) {
+      print('🧪 Running Unit Tests...');
+    }
 
     final result = await Process.run('flutter', [
       'test',
@@ -30,9 +34,13 @@ class TestRunner {
       '--test-randomize-ordering-seed=random',
     ]);
 
-    print('STDOUT: ${result.stdout}');
+    if (kDebugMode) {
+      print('STDOUT: ${result.stdout}');
+    }
     if (result.stderr.isNotEmpty) {
-      print('STDERR: ${result.stderr}');
+      if (kDebugMode) {
+        print('STDERR: ${result.stderr}');
+      }
     }
 
     return result.exitCode == 0;
@@ -40,7 +48,9 @@ class TestRunner {
 
   /// Run widget tests
   Future<bool> runWidgetTests() async {
-    print('🎨 Running Widget Tests...');
+    if (kDebugMode) {
+      print('🎨 Running Widget Tests...');
+    }
 
     final result = await Process.run('flutter', [
       'test',
@@ -48,9 +58,13 @@ class TestRunner {
       'test/widget_test.dart',
     ]);
 
-    print('STDOUT: ${result.stdout}');
+    if (kDebugMode) {
+      print('STDOUT: ${result.stdout}');
+    }
     if (result.stderr.isNotEmpty) {
-      print('STDERR: ${result.stderr}');
+      if (kDebugMode) {
+        print('STDERR: ${result.stderr}');
+      }
     }
 
     return result.exitCode == 0;
@@ -58,7 +72,9 @@ class TestRunner {
 
   /// Run integration tests
   Future<bool> runIntegrationTests() async {
-    print('🔗 Running Integration Tests...');
+    if (kDebugMode) {
+      print('🔗 Running Integration Tests...');
+    }
 
     final result = await Process.run('flutter', [
       'test',
@@ -66,9 +82,13 @@ class TestRunner {
       '--coverage',
     ]);
 
-    print('STDOUT: ${result.stdout}');
+    if (kDebugMode) {
+      print('STDOUT: ${result.stdout}');
+    }
     if (result.stderr.isNotEmpty) {
-      print('STDERR: ${result.stderr}');
+      if (kDebugMode) {
+        print('STDERR: ${result.stderr}');
+      }
     }
 
     return result.exitCode == 0;
@@ -76,7 +96,9 @@ class TestRunner {
 
   /// Generate coverage report
   Future<bool> generateCoverageReport() async {
-    print('📊 Generating Coverage Report...');
+    if (kDebugMode) {
+      print('📊 Generating Coverage Report...');
+    }
 
     // Create coverage directory if it doesn't exist
     final coverageDir = Directory(coverageDirectory);
@@ -91,11 +113,15 @@ class TestRunner {
     ]);
 
     if (result.exitCode != 0) {
-      print('Failed to generate HTML coverage report: ${result.stderr}');
+      if (kDebugMode) {
+        print('Failed to generate HTML coverage report: ${result.stderr}');
+      }
       return false;
     }
 
-    print('Coverage report generated in coverage/html/');
+    if (kDebugMode) {
+      print('Coverage report generated in coverage/html/');
+    }
     return true;
   }
 
@@ -138,50 +164,77 @@ class TestRunner {
   Future<TestResults> runAllTests() async {
     final results = TestResults();
 
-    print('🚀 Starting Comprehensive Test Suite');
-    print('=' * 50);
+    if (kDebugMode) {
+      print('🚀 Starting Comprehensive Test Suite');
+    }
+    if (kDebugMode) {
+      print('=' * 50);
+    }
 
     // Run unit tests
     results.unitTestsPassed = await runUnitTests();
-    print('Unit Tests: ${results.unitTestsPassed ? '✅ PASSED' : '❌ FAILED'}');
+    if (kDebugMode) {
+      print('Unit Tests: ${results.unitTestsPassed ? '✅ PASSED' : '❌ FAILED'}');
+    }
 
     // Run widget tests
     results.widgetTestsPassed = await runWidgetTests();
-    print('Widget Tests: ${results.widgetTestsPassed ? '✅ PASSED' : '❌ FAILED'}');
+    if (kDebugMode) {
+      print('Widget Tests: ${results.widgetTestsPassed ? '✅ PASSED' : '❌ FAILED'}');
+    }
 
     // Run integration tests
     results.integrationTestsPassed = await runIntegrationTests();
-    print('Integration Tests: ${results.integrationTestsPassed ? '✅ PASSED' : '❌ FAILED'}');
+    if (kDebugMode) {
+      print('Integration Tests: ${results.integrationTestsPassed ? '✅ PASSED' : '❌ FAILED'}');
+    }
 
     // Generate coverage report
     results.coverageGenerated = await generateCoverageReport();
-    print('Coverage Report: ${results.coverageGenerated ? '✅ GENERATED' : '❌ FAILED'}');
+    if (kDebugMode) {
+      print('Coverage Report: ${results.coverageGenerated ? '✅ GENERATED' : '❌ FAILED'}');
+    }
 
     // Analyze coverage
     results.coverageData = await analyzeCoverage();
 
-    print('\n📈 Test Results Summary:');
-    print('=' * 50);
+    if (kDebugMode) {
+      print('
+📈 Test Results Summary:');
+    }
+    if (kDebugMode) {
+      print('=' * 50);
+    }
 
     if (results.coverageData.containsKey('coveragePercentage')) {
       final coverage = results.coverageData['coveragePercentage'];
-      print('Code Coverage: ${coverage.toStringAsFixed(2)}%');
-      print('Minimum Required: ${minimumCoverage}%');
-      print('Coverage Status: ${results.coverageData['meetsMinimum'] ? '✅ MET' : '❌ NOT MET'}');
+      if (kDebugMode) {
+        print('Code Coverage: ${coverage.toStringAsFixed(2)}%');
+      }
+      if (kDebugMode) {
+        print('Minimum Required: ${minimumCoverage}%');
+      }
+      if (kDebugMode) {
+        print('Coverage Status: ${results.coverageData['meetsMinimum'] ? '✅ MET' : '❌ NOT MET'}');
+      }
     }
 
     results.allTestsPassed = results.unitTestsPassed &&
                           results.widgetTestsPassed &&
                           results.integrationTestsPassed;
 
-    print('Overall Status: ${results.allTestsPassed ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}');
+    if (kDebugMode) {
+      print('Overall Status: ${results.allTestsPassed ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}');
+    }
 
     return results;
   }
 
   /// Run tests for specific service
   Future<bool> runServiceTests(String serviceName) async {
-    print('🔧 Running $serviceName Tests...');
+    if (kDebugMode) {
+      print('🔧 Running $serviceName Tests...');
+    }
 
     final result = await Process.run('flutter', [
       'test',
@@ -189,9 +242,13 @@ class TestRunner {
       'test/services/${serviceName.toLowerCase()}_service_test.dart',
     ]);
 
-    print('STDOUT: ${result.stdout}');
+    if (kDebugMode) {
+      print('STDOUT: ${result.stdout}');
+    }
     if (result.stderr.isNotEmpty) {
-      print('STDERR: ${result.stderr}');
+      if (kDebugMode) {
+        print('STDERR: ${result.stderr}');
+      }
     }
 
     return result.exitCode == 0;
@@ -199,7 +256,9 @@ class TestRunner {
 
   /// Run tests for specific model
   Future<bool> runModelTests(String modelName) async {
-    print('📝 Running $modelName Model Tests...');
+    if (kDebugMode) {
+      print('📝 Running $modelName Model Tests...');
+    }
 
     final result = await Process.run('flutter', [
       'test',
@@ -207,9 +266,13 @@ class TestRunner {
       'test/models/${modelName.toLowerCase()}_model_test.dart',
     ]);
 
-    print('STDOUT: ${result.stdout}');
+    if (kDebugMode) {
+      print('STDOUT: ${result.stdout}');
+    }
     if (result.stderr.isNotEmpty) {
-      print('STDERR: ${result.stderr}');
+      if (kDebugMode) {
+        print('STDERR: ${result.stderr}');
+      }
     }
 
     return result.exitCode == 0;
@@ -217,7 +280,9 @@ class TestRunner {
 
   /// Clean test artifacts
   Future<void> cleanTestArtifacts() async {
-    print('🧹 Cleaning test artifacts...');
+    if (kDebugMode) {
+      print('🧹 Cleaning test artifacts...');
+    }
 
     final coverageDir = Directory(coverageDirectory);
     if (coverageDir.existsSync()) {
@@ -229,7 +294,9 @@ class TestRunner {
       testCoverageDir.deleteSync(recursive: true);
     }
 
-    print('Test artifacts cleaned successfully');
+    if (kDebugMode) {
+      print('Test artifacts cleaned successfully');
+    }
   }
 }
 
@@ -288,7 +355,9 @@ void main(List<String> arguments) async {
 
       case 'service':
         if (arguments.length < 2) {
-          print('Usage: dart test_runner.dart service <ServiceName>');
+          if (kDebugMode) {
+            print('Usage: dart test_runner.dart service <ServiceName>');
+          }
           exit(1);
         }
         final success = await runner.runServiceTests(arguments[1]);
@@ -296,14 +365,18 @@ void main(List<String> arguments) async {
 
       case 'model':
         if (arguments.length < 2) {
-          print('Usage: dart test_runner.dart model <ModelName>');
+          if (kDebugMode) {
+            print('Usage: dart test_runner.dart model <ModelName>');
+          }
           exit(1);
         }
         final success = await runner.runModelTests(arguments[1]);
         exit(success ? 0 : 1);
 
       default:
-        print('Usage: dart test_runner.dart [unit|widget|integration|coverage|clean|service|model]');
+        if (kDebugMode) {
+          print('Usage: dart test_runner.dart [unit|widget|integration|coverage|clean|service|model]');
+        }
         exit(1);
     }
   }

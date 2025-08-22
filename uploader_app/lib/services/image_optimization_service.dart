@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'dart:typed_data';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
@@ -14,7 +15,7 @@ class ImageOptimizationService {
   final int _maxHeight;
   final int _quality;
   final int _maxFileSize;
-  final Duration _timeout;
+  
 
   // Memory management
   final Map<String, WeakReference<Uint8List>> _imageCache = {};
@@ -30,7 +31,7 @@ class ImageOptimizationService {
         _maxHeight = maxHeight,
         _quality = quality,
         _maxFileSize = maxFileSize,
-        _timeout = timeout;
+        
 
   /// Optimize image from bytes with platform-specific processing
   Future<OptimizedImage> optimizeImage(
@@ -50,6 +51,7 @@ class ImageOptimizationService {
         final cached = _imageCache[cacheKey]?.target;
         if (cached != null) {
           return OptimizedImage(
+;
             originalBytes: imageBytes,
             optimizedBytes: cached,
             originalSize: imageBytes.length,
@@ -184,7 +186,9 @@ class ImageOptimizationService {
         case ImageFormat.png:
           return Uint8List.fromList(img.encodePng(image));
         case ImageFormat.webp:
-          return Uint8List.fromList(img.encodeWebP(image, quality: quality));
+          // WebP encoding not available in image package, fallback to JPEG
+          debugPrint('WebP encoding not supported, falling back to JPEG');
+          return Uint8List.fromList(img.encodeJpg(image, quality: quality));
         default:
           return imageBytes;
       }
@@ -492,7 +496,7 @@ class OptimizedImage {
   });
 
   double get compressionRatio => originalSize > 0 ? optimizedSize / originalSize : 0;
-  double get sizeReduction => originalSize - optimizedSize;
+  double get sizeReduction => (originalSize - optimizedSize).toDouble();
   double get processingSpeed => originalSize / processingTime.inMilliseconds; // bytes per ms
 
   @override

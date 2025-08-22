@@ -1,4 +1,4 @@
-/// Export all model classes for easy importing
+// Export all model classes for easy importing
 export 'user_model.dart';
 export 'employee_model.dart';
 export 'auth_token_model.dart';

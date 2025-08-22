@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:coverage/coverage.dart' as coverage;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,9 +49,13 @@ class TestConfig {
         baseDirectory: 'lib/',
       );
 
-      print('Coverage report generated at: $coverageOutputPath');
+      if (kDebugMode) {
+        print('Coverage report generated at: $coverageOutputPath');
+      }
     } catch (e) {
-      print('Failed to generate coverage report: $e');
+      if (kDebugMode) {
+        print('Failed to generate coverage report: $e');
+      }
     }
   }
 
@@ -71,12 +76,18 @@ class TestConfig {
 
       final coveragePercentage = totalLines > 0 ? (coveredLines / totalLines) * 100 : 0;
 
-      print('Test Coverage: ${coveragePercentage.toStringAsFixed(2)}%');
-      print('Minimum Required: ${minimumCoveragePercentage.toStringAsFixed(2)}%');
+      if (kDebugMode) {
+        print('Test Coverage: ${coveragePercentage.toStringAsFixed(2)}%');
+      }
+      if (kDebugMode) {
+        print('Minimum Required: ${minimumCoveragePercentage.toStringAsFixed(2)}%');
+      }
 
       return coveragePercentage >= minimumCoveragePercentage;
     } catch (e) {
-      print('Failed to validate coverage: $e');
+      if (kDebugMode) {
+        print('Failed to validate coverage: $e');
+      }
       return false;
     }
   }
