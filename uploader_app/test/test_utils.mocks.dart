@@ -461,12 +461,12 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
   }
 
   @override
-  _i9.Stream<List<_i2.User>> get usersStream =>
+  _i9.Stream<List<_i2.UserModel>> get usersStream =>
       (super.noSuchMethod(
             Invocation.getter(#usersStream),
-            returnValue: _i9.Stream<List<_i2.User>>.empty(),
+            returnValue: _i9.Stream<List<_i2.UserModel>>.empty(),
           )
-          as _i9.Stream<List<_i2.User>>);
+          as _i9.Stream<List<_i2.UserModel>>);
 
   @override
   _i9.Stream<bool> get loadingStream =>
@@ -477,12 +477,12 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
           as _i9.Stream<bool>);
 
   @override
-  List<_i2.User> get currentUsers =>
+  List<_i2.UserModel> get currentUsers =>
       (super.noSuchMethod(
             Invocation.getter(#currentUsers),
-            returnValue: <_i2.User>[],
+            returnValue: <_i2.UserModel>[],
           )
-          as List<_i2.User>);
+          as List<_i2.UserModel>);
 
   @override
   bool get isLoading =>
@@ -499,7 +499,7 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
           as _i9.Future<void>);
 
   @override
-  _i9.Future<_i2.ApiResponse<List<_i2.User>>> fetchUsers({
+  _i9.Future<_i2.ApiResponse<List<_i2.UserModel>>> fetchUsers({
     bool? forceRefresh = false,
     Map<String, dynamic>? filters,
   }) =>
@@ -508,8 +508,8 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
               #forceRefresh: forceRefresh,
               #filters: filters,
             }),
-            returnValue: _i9.Future<_i2.ApiResponse<List<_i2.User>>>.value(
-              _FakeApiResponse_0<List<_i2.User>>(
+            returnValue: _i9.Future<_i2.ApiResponse<List<_i2.UserModel>>>.value(
+              _FakeApiResponse_0<List<_i2.UserModel>>(
                 this,
                 Invocation.method(#fetchUsers, [], {
                   #forceRefresh: forceRefresh,
@@ -518,36 +518,36 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
               ),
             ),
           )
-          as _i9.Future<_i2.ApiResponse<List<_i2.User>>>);
+          as _i9.Future<_i2.ApiResponse<List<_i2.UserModel>>>);
 
   @override
-  _i9.Future<_i2.ApiResponse<List<_i2.User>>> searchUsers(String? query) =>
+  _i9.Future<_i2.ApiResponse<List<_i2.UserModel>>> searchUsers(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#searchUsers, [query]),
-            returnValue: _i9.Future<_i2.ApiResponse<List<_i2.User>>>.value(
-              _FakeApiResponse_0<List<_i2.User>>(
+            returnValue: _i9.Future<_i2.ApiResponse<List<_i2.UserModel>>>.value(
+              _FakeApiResponse_0<List<_i2.UserModel>>(
                 this,
                 Invocation.method(#searchUsers, [query]),
               ),
             ),
           )
-          as _i9.Future<_i2.ApiResponse<List<_i2.User>>>);
+          as _i9.Future<_i2.ApiResponse<List<_i2.UserModel>>>);
 
   @override
-  _i9.Future<_i2.ApiResponse<_i2.User>> getUserById(int? userId) =>
+  _i9.Future<_i2.ApiResponse<_i2.UserModel>> getUserById(int? userId) =>
       (super.noSuchMethod(
             Invocation.method(#getUserById, [userId]),
-            returnValue: _i9.Future<_i2.ApiResponse<_i2.User>>.value(
-              _FakeApiResponse_0<_i2.User>(
+            returnValue: _i9.Future<_i2.ApiResponse<_i2.UserModel>>.value(
+              _FakeApiResponse_0<_i2.UserModel>(
                 this,
                 Invocation.method(#getUserById, [userId]),
               ),
             ),
           )
-          as _i9.Future<_i2.ApiResponse<_i2.User>>);
+          as _i9.Future<_i2.ApiResponse<_i2.UserModel>>);
 
   @override
-  List<_i2.User> filterUsers({
+  List<_i2.UserModel> filterUsers({
     String? username,
     String? email,
     String? firstName,
@@ -566,19 +566,19 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
               #createdAfter: createdAfter,
               #createdBefore: createdBefore,
             }),
-            returnValue: <_i2.User>[],
+            returnValue: <_i2.UserModel>[],
           )
-          as List<_i2.User>);
+          as List<_i2.UserModel>);
 
   @override
-  List<_i2.User> getUsersForSelection({String? searchQuery}) =>
+  List<_i2.UserModel> getUsersForSelection({String? searchQuery}) =>
       (super.noSuchMethod(
             Invocation.method(#getUsersForSelection, [], {
               #searchQuery: searchQuery,
             }),
-            returnValue: <_i2.User>[],
+            returnValue: <_i2.UserModel>[],
           )
-          as List<_i2.User>);
+          as List<_i2.UserModel>);
 
   @override
   _i9.Future<void> refreshUsers() =>

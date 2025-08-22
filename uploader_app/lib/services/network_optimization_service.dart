@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uploader_app/models/api_response_model.dart';
 import 'http_client_service.dart';
 
 /// Network optimization service with connection pooling and intelligent caching
@@ -63,7 +64,7 @@ class NetworkOptimizationService {
   /// Initialize the service
   void _initializeService() {
     // Set up connectivity monitoring
-    _connectivity.onConnectivityChanged.listen(_onConnectivityChanged);
+    _connectivity.onConnectivityChanged.listen(_onConnectivityChanged as void Function(List<ConnectivityResult> event)?);
 
     // Load cache durations for different endpoints
     _setupCacheDurations();
@@ -116,7 +117,7 @@ class NetworkOptimizationService {
     try {
       final result = await _connectivity.checkConnectivity();
       if (result != _currentConnectivity) {
-        _onConnectivityChanged(result);
+        _onConnectivityChanged(result as ConnectivityResult);
       }
     } catch (e) {
       debugPrint('Error checking connectivity: $e');
@@ -156,7 +157,7 @@ class NetworkOptimizationService {
 
     // Create pending request
     final completer = Completer<OptimizedResponse>();
-    _pendingRequests[cacheKey] = completer;
+    _pendingRequests[cacheKey] = completer as Completer<http.Response>;
 
     try {
       // Get connection from pool

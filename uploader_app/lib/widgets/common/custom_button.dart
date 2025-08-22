@@ -57,7 +57,7 @@ class CustomButton extends StatelessWidget {
             ),
             padding: padding ?? EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
             elevation: 2,
-            shadowColor: (backgroundColor ?? theme.colorScheme.primary).withOpacity(0.3),
+            shadowColor: (backgroundColor ?? theme.colorScheme.primary).withAlpha((255 * 0.3).round()),
           );
 
     final buttonChild = isLoading

@@ -1,18 +1,14 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
-import '../../services/file_selection_service.dart';
 import '../../utils/responsive_config.dart';
 import '../common/custom_button.dart';
 
 class FilePickerInterface extends StatefulWidget {
-  final User? selectedUser;
+  final UserModel? selectedUser;
   final Function(List<PlatformFile> files)? onFilesSelected;
   final int maxFiles;
   final List<String> allowedExtensions;

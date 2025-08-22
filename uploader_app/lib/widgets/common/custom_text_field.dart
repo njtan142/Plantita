@@ -130,7 +130,7 @@ class CustomTextField extends StatelessWidget {
         ),
         hintStyle: TextStyle(
           fontSize: 16.sp,
-          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+          color: theme.colorScheme.onSurfaceVariant.withAlpha((255 * 0.6).round()),
         ),
         errorStyle: TextStyle(
           fontSize: 12.sp,

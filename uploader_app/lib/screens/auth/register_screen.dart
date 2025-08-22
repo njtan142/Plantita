@@ -171,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                       'Join Plantita Media Management',
                       style: TextStyle(
                         fontSize: responsive.subtitleFontSize,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withAlpha((255 * 0.9).round()),
                       ),
                     ),
 
@@ -189,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                         borderRadius: BorderRadius.circular(24.r),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withAlpha((255 * 0.1).round()),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),

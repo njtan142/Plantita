@@ -1,18 +1,15 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../models/user_model.dart';
-import '../../services/web_camera_service.dart';
 import '../../utils/responsive_config.dart';
 import '../common/custom_button.dart';
 
 class WebCameraInterface extends StatefulWidget {
-  final User? selectedUser;
+  final UserModel? selectedUser;
   final Function(Uint8List imageData)? onImageCaptured;
 
   const WebCameraInterface({

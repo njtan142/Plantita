@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:uploader_app/services/performance_monitor_service.dart';
 
 /// Mobile-specific performance optimization service
 class MobilePerformanceService {
@@ -121,7 +123,7 @@ class MobilePerformanceService {
   /// Initialize device information
   Future<void> _initializeDeviceInfo() async {
     try {
-      if (Platform.isAndroid) {
+      if (html.Platform.isAndroid) {
         _androidInfo = await _deviceInfo.androidInfo;
         _eventController.add(MobilePerformanceEvent(
           type: MobilePerformanceEventType.deviceInfoLoaded,
@@ -132,7 +134,7 @@ class MobilePerformanceService {
             'manufacturer': _androidInfo!.manufacturer,
           },
         ));
-      } else if (Platform.isIOS) {
+      } else if (html.Platform.isIOS) {
         _iosInfo = await _deviceInfo.iosInfo;
         _eventController.add(MobilePerformanceEvent(
           type: MobilePerformanceEventType.deviceInfoLoaded,
@@ -424,7 +426,7 @@ class MobilePerformanceService {
   /// Get device performance capabilities
   Map<String, dynamic> getDeviceCapabilities() {
     return {
-      'platform': Platform.isAndroid ? 'android' : Platform.isIOS ? 'ios' : 'unknown',
+      'platform': html.Platform.isAndroid ? 'android' : html.Platform.isIOS ? 'ios' : 'unknown',
       'batteryLevel': _batteryLevel,
       'batteryState': _batteryState.name,
       'lowMemoryMode': _isLowMemoryMode,

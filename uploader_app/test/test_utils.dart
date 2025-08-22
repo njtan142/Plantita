@@ -53,8 +53,8 @@ class TestUtils {
   }
 
   // Create mock data
-  static User createMockUser() {
-    return User(
+  static UserModel createMockUser() {
+    return UserModel(
       id: faker.randomGenerator.integer(1000),
       name: faker.person.name(),
       email: faker.internet.email(),
@@ -127,8 +127,8 @@ class TestUtils {
 
 // Custom matchers for common test scenarios
 class TestMatchers {
-  static Matcher equalsUser(User expected) {
-    return isA<User>()
+  static Matcher equalsUser(UserModel expected) {
+    return isA<UserModel>()
         .having((u) => u.id, 'id', expected.id)
         .having((u) => u.name, 'name', expected.name)
         .having((u) => u.email, 'email', expected.email);

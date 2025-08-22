@@ -18,7 +18,7 @@ void main() {
     };
 
     test('User.fromJson creates User correctly', () {
-      final user = User.fromJson(testUserJson);
+      final user = UserModel.fromJson(testUserJson);
 
       expect(user.id, 1);
       expect(user.username, 'testuser');
@@ -44,7 +44,7 @@ void main() {
         'created_at': '2024-01-01T10:00:00Z',
       };
 
-      final user = User.fromJson(minimalUserJson);
+      final user = UserModel.fromJson(minimalUserJson);
 
       expect(user.id, 2);
       expect(user.username, 'minimaluser');
@@ -59,7 +59,7 @@ void main() {
     });
 
     test('User.toJson converts User to JSON correctly', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -89,7 +89,7 @@ void main() {
     });
 
     test('User.fullName returns correct full name', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -103,7 +103,7 @@ void main() {
     });
 
     test('User.displayName returns fullName when not empty', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -117,7 +117,7 @@ void main() {
     });
 
     test('User.displayName returns username when fullName is empty', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -131,7 +131,7 @@ void main() {
     });
 
     test('User.copyWith creates new User with updated fields', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -155,7 +155,7 @@ void main() {
     });
 
     test('User.copyWith returns same object when no changes', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -173,7 +173,7 @@ void main() {
     });
 
     test('User equality and hashCode work correctly', () {
-      final user1 = User(
+      final user1 = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -183,7 +183,7 @@ void main() {
         createdAt: DateTime.now(),
       );
 
-      final user2 = User(
+      final user2 = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -193,7 +193,7 @@ void main() {
         createdAt: DateTime.now(),
       );
 
-      final user3 = User(
+      final user3 = UserModel(
         id: 2,
         username: 'differentuser',
         email: 'different@example.com',
@@ -210,7 +210,7 @@ void main() {
     });
 
     test('User.toString returns correct string representation', () {
-      final user = User(
+      final user = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -226,7 +226,7 @@ void main() {
     });
 
     test('User serialization is reversible', () {
-      final originalUser = User(
+      final originalUser = UserModel(
         id: 1,
         username: 'testuser',
         email: 'test@example.com',
@@ -241,7 +241,7 @@ void main() {
       );
 
       final json = originalUser.toJson();
-      final deserializedUser = User.fromJson(json);
+      final deserializedUser = UserModel.fromJson(json);
 
       expect(deserializedUser.id, originalUser.id);
       expect(deserializedUser.username, originalUser.username);

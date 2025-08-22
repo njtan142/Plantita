@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uploader_app/services/http_client_service.dart';
 import '../models/models.dart';
 import '../services/performance_monitor_service.dart';
 import '../services/network_optimization_service.dart';

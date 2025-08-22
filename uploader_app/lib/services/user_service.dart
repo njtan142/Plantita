@@ -20,14 +20,16 @@ class UserService {
   bool _isLoading = false;
 
   // Stream controllers for reactive updates
-  final StreamController<List<UserModel>> _usersController = StreamController<List<UserModel>>.broadcast();
-  final StreamController<bool> _loadingController = StreamController<bool>.broadcast();
+  final StreamController<List<UserModel>> _usersController =
+      StreamController<List<UserModel>>.broadcast();
+  final StreamController<bool> _loadingController =
+      StreamController<bool>.broadcast();
 
   UserService({
     required HttpClientService httpClient,
     required SharedPreferences prefs,
-  })  : _httpClient = httpClient,
-        _prefs = prefs;
+  }) : _httpClient = httpClient,
+       _prefs = prefs;
 
   /// Stream of users for reactive updates
   Stream<List<UserModel>> get usersStream => _usersController.stream;
@@ -88,7 +90,10 @@ class UserService {
       final response = await _httpClient.get<PaginatedResponse<UserModel>>(
         '/users',
         queryParams: queryParams,
-        fromJson: (json) => PaginatedResponse<UserModel>.fromJson(json, (userJson) => UserModel.fromJson(userJson)),
+        fromJson: (json) => PaginatedResponse<UserModel>.fromJson(
+          json,
+          (userJson) => UserModel.fromJson(userJson),
+        ),
       );
 
       if (response.success && response.data != null) {
@@ -116,7 +121,9 @@ class UserService {
       _isLoading = false;
       _loadingController.add(false);
 
-      return ApiResponse.error(message: 'Failed to fetch users: ${e.toString()}');
+      return ApiResponse.error(
+        message: 'Failed to fetch users: ${e.toString()}',
+      );
     }
   }
 
@@ -132,7 +139,12 @@ class UserService {
         queryParams: {'q': query},
         fromJson: (dynamic json) {
           if (json is List) {
-            return json.map<UserModel>((userJson) => UserModel.fromJson(userJson as Map<String, dynamic>)).toList();
+            return json
+                .map<UserModel>(
+                  (userJson) =>
+                      UserModel.fromJson(userJson as Map<String, dynamic>),
+                )
+                .toList();
           }
           return <UserModel>[];
         },
@@ -142,13 +154,9 @@ class UserService {
         return response;
       }
 
-      return response;
-
       if (response.success && response.data != null) {
         return response;
       }
-
-      return response;
 
       if (response.success && response.data != null) {
         // Update cache with search results but don't replace main cache
@@ -164,10 +172,10 @@ class UserService {
   /// Get user by ID
   Future<ApiResponse<UserModel>> getUserById(int userId) async {
     // Check cache first
-    final cachedUser = _cachedUsers.where((user) => user.id == userId).cast<User?>().firstWhere(
-          (element) => true,
-          orElse: () => null,
-        );
+    final cachedUser = _cachedUsers
+        .where((user) => user.id == userId)
+        .cast<UserModel?>()
+        .firstWhere((element) => true, orElse: () => null);
 
     if (cachedUser != null) {
       return ApiResponse.success(cachedUser);
@@ -176,7 +184,7 @@ class UserService {
     try {
       final response = await _httpClient.get<UserModel>(
         '/users/$userId',
-        fromJson: (json) => User.fromJson(json),
+        fromJson: (json) => UserModel.fromJson(json),
       );
 
       // Add to cache if successful
@@ -188,7 +196,9 @@ class UserService {
 
       return response;
     } catch (e) {
-      return ApiResponse.error(message: 'Failed to fetch user: ${e.toString()}');
+      return ApiResponse.error(
+        message: 'Failed to fetch user: ${e.toString()}',
+      );
     }
   }
 
@@ -203,16 +213,20 @@ class UserService {
     DateTime? createdBefore,
   }) {
     return _cachedUsers.where((user) {
-      if (username != null && !user.username.toLowerCase().contains(username.toLowerCase())) {
+      if (username != null &&
+          !user.username.toLowerCase().contains(username.toLowerCase())) {
         return false;
       }
-      if (email != null && !user.email.toLowerCase().contains(email.toLowerCase())) {
+      if (email != null &&
+          !user.email.toLowerCase().contains(email.toLowerCase())) {
         return false;
       }
-      if (firstName != null && !user.firstName.toLowerCase().contains(firstName.toLowerCase())) {
+      if (firstName != null &&
+          !user.firstName.toLowerCase().contains(firstName.toLowerCase())) {
         return false;
       }
-      if (lastName != null && !user.lastName.toLowerCase().contains(lastName.toLowerCase())) {
+      if (lastName != null &&
+          !user.lastName.toLowerCase().contains(lastName.toLowerCase())) {
         return false;
       }
       if (isActive != null && user.isActive != isActive) {
@@ -234,12 +248,15 @@ class UserService {
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
       final query = searchQuery.toLowerCase();
-      users = users.where((user) =>
-          user.username.toLowerCase().contains(query) ||
-          user.firstName.toLowerCase().contains(query) ||
-          user.lastName.toLowerCase().contains(query) ||
-          user.email.toLowerCase().contains(query)
-      ).toList();
+      users = users
+          .where(
+            (user) =>
+                user.username.toLowerCase().contains(query) ||
+                user.firstName.toLowerCase().contains(query) ||
+                user.lastName.toLowerCase().contains(query) ||
+                user.email.toLowerCase().contains(query),
+          )
+          .toList();
     }
 
     return users;
@@ -269,7 +286,9 @@ class UserService {
         final cachedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
         if (DateTime.now().difference(cachedTime) < _cacheValidityDuration) {
           final usersList = jsonDecode(usersJson) as List;
-          _cachedUsers = usersList.map((userJson) => User.fromJson(userJson)).toList();
+          _cachedUsers = usersList
+              .map((userJson) => UserModel.fromJson(userJson))
+              .toList();
           _lastFetchTime = cachedTime;
         }
       }

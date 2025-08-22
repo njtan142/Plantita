@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
 import '../../utils/responsive_config.dart';
 
 class UserSearchDropdown extends StatefulWidget {
-  final User? selectedUser;
-  final Function(User)? onUserSelected;
+  final UserModel? selectedUser;
+  final Function(UserModel)? onUserSelected;
   final String? hintText;
   final String? labelText;
   final bool enabled;
@@ -28,7 +27,7 @@ class UserSearchDropdown extends StatefulWidget {
 
 class _UserSearchDropdownState extends State<UserSearchDropdown> {
   final TextEditingController _controller = TextEditingController();
-  User? _currentUser;
+  UserModel? _currentUser;
 
   @override
   void initState() {
@@ -231,7 +230,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
     return [];
   }
 
-  Widget _buildUserSuggestion(BuildContext context, User user) {
+  Widget _buildUserSuggestion(BuildContext context, UserModel user) {
     final responsive = ResponsiveConfig(context);
     final theme = Theme.of(context);
 
@@ -412,7 +411,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
     );
   }
 
-  void _onUserSelected(User user) {
+  void _onUserSelected(UserModel user) {
     setState(() {
       _currentUser = user;
       _controller.text = user.displayName;

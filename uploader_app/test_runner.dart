@@ -199,8 +199,7 @@ class TestRunner {
     results.coverageData = await analyzeCoverage();
 
     if (kDebugMode) {
-      debugPrint('
-📈 Test Results Summary:');
+      debugPrint('📈 Test Results Summary:');
     }
     if (kDebugMode) {
       debugPrint('=' * 50);

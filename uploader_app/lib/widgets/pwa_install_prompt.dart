@@ -173,7 +173,7 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
           gradient: LinearGradient(
             colors: [
               Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withOpacity(0.8),
+              Theme.of(context).primaryColor.withAlpha((255 * 0.8).round()),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -204,13 +204,11 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Install as an app for a better experience',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 14,
-                        ),
-                      ),
+ Text('Install as an app for a better experience',
+ style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+ color: Colors.white.withAlpha((255 * 0.9).round()),
+ ),
+ ),
                     ],
                   ),
                 ),
@@ -218,7 +216,7 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
                   onPressed: _dismissPrompt,
                   icon: Icon(
                     Icons.close,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withAlpha((255 * 0.7).round()),
                     size: 20,
                   ),
                 ),
@@ -349,7 +347,7 @@ class PWABackgroundSyncIndicator extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withAlpha((255 * 0.1).round()),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(

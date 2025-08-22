@@ -11,7 +11,7 @@ import '../../utils/responsive_config.dart';
 import '../common/custom_button.dart';
 
 class UploadProgressInterface extends StatefulWidget {
-  final User? selectedUser;
+  final UserModel? selectedUser;
   final List<PlatformFile> selectedFiles;
   final Function(List<UploadResult> results)? onUploadComplete;
 
@@ -739,7 +739,7 @@ enum UploadStatus {
 
 class UploadItem {
   final PlatformFile file;
-  final User? user;
+  final UserModel? user;
   UploadStatus status;
   double progress;
   UploadResult? result;
