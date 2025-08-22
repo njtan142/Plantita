@@ -92,7 +92,7 @@ class UserService {
         queryParams: queryParams,
         fromJson: (json) => PaginatedResponse<UserModel>.fromJson(
           json,
-          (userJson) => UserModel.fromJson(userJson),
+          (userJson) => UserModel.fromJson(userJson as String),
         ),
       );
 
@@ -142,7 +142,7 @@ class UserService {
             return json
                 .map<UserModel>(
                   (userJson) =>
-                      UserModel.fromJson(userJson as Map<String, dynamic>),
+                      UserModel.fromJson(userJson as String),
                 )
                 .toList();
           }
@@ -184,7 +184,7 @@ class UserService {
     try {
       final response = await _httpClient.get<UserModel>(
         '/users/$userId',
-        fromJson: (json) => UserModel.fromJson(json),
+        fromJson: (json) => UserModel.fromJson(json as String),
       );
 
       // Add to cache if successful

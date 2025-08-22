@@ -1,15 +1,17 @@
 import 'dart:convert';
 
 class UserModel {
-  final String id;
+  final int id;
   final String username;
   final String email;
   final String firstName;
   final String lastName;
-  final String? avatar;
+  final String? profileImageUrl;
+  final String? department;
+  final String? employeeId;
   final bool isActive;
   final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? lastLoginAt;
 
   const UserModel({
     required this.id,
@@ -17,14 +19,19 @@ class UserModel {
     required this.email,
     required this.firstName,
     required this.lastName,
-    this.avatar,
+    this.profileImageUrl,
+    this.department,
+    this.employeeId,
     required this.isActive,
     required this.createdAt,
-    required this.updatedAt,
+    this.lastLoginAt,
   });
 
   // Get full name
-  String get fullName => '$firstName $lastName';
+  String get fullName => '$firstName $lastName'.trim();
+
+  // Get display name
+  String get displayName => fullName.isNotEmpty ? fullName : username;
 
   // Create from JSON
   factory UserModel.fromJson(String jsonString) {
@@ -34,15 +41,19 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] as String,
+      id: map['id'] as int,
       username: map['username'] as String,
       email: map['email'] as String,
-      firstName: map['firstName'] as String,
-      lastName: map['lastName'] as String,
-      avatar: map['avatar'] as String?,
-      isActive: map['isActive'] as bool? ?? true,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
+      firstName: map['first_name'] as String,
+      lastName: map['last_name'] as String,
+      profileImageUrl: map['profile_image_url'] as String?,
+      department: map['department'] as String?,
+      employeeId: map['employee_id'] as String?,
+      isActive: map['is_active'] as bool? ?? true,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      lastLoginAt: map['last_login_at'] != null
+          ? DateTime.parse(map['last_login_at'] as String)
+          : null,
     );
   }
 
@@ -56,26 +67,30 @@ class UserModel {
       'id': id,
       'username': username,
       'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'avatar': avatar,
-      'isActive': isActive,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'first_name': firstName,
+      'last_name': lastName,
+      'profile_image_url': profileImageUrl,
+      'department': department,
+      'employee_id': employeeId,
+      'is_active': isActive,
+      'created_at': createdAt.toIso8601String(),
+      'last_login_at': lastLoginAt?.toIso8601String(),
     };
   }
 
   // Copy with method
   UserModel copyWith({
-    String? id,
+    int? id,
     String? username,
     String? email,
     String? firstName,
     String? lastName,
-    String? avatar,
+    String? profileImageUrl,
+    String? department,
+    String? employeeId,
     bool? isActive,
     DateTime? createdAt,
-    DateTime? updatedAt,
+    DateTime? lastLoginAt,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -83,10 +98,12 @@ class UserModel {
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      avatar: avatar ?? this.avatar,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      department: department ?? this.department,
+      employeeId: employeeId ?? this.employeeId,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
     );
   }
 
@@ -100,10 +117,12 @@ class UserModel {
         other.email == email &&
         other.firstName == firstName &&
         other.lastName == lastName &&
-        other.avatar == avatar &&
+        other.profileImageUrl == profileImageUrl &&
+        other.department == department &&
+        other.employeeId == employeeId &&
         other.isActive == isActive &&
         other.createdAt == createdAt &&
-        other.updatedAt == updatedAt;
+        other.lastLoginAt == lastLoginAt;
   }
 
   @override
@@ -113,14 +132,16 @@ class UserModel {
         email.hashCode ^
         firstName.hashCode ^
         lastName.hashCode ^
-        avatar.hashCode ^
+        profileImageUrl.hashCode ^
+        department.hashCode ^
+        employeeId.hashCode ^
         isActive.hashCode ^
         createdAt.hashCode ^
-        updatedAt.hashCode;
+        lastLoginAt.hashCode;
   }
 
   @override
   String toString() {
-    return 'UserModel(id: $id, username: $username, email: $email, firstName: $firstName, lastName: $lastName, avatar: $avatar, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'User(id: $id, username: $username, name: $fullName)';
   }
 }

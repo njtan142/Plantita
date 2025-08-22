@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
-import 'package:provider_test/provider_test.dart';
 import 'package:faker/faker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -11,7 +9,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'package:uploader_app/models/models.dart';
 import 'package:uploader_app/services/services.dart';
-import 'package:uploader_app/providers/providers.dart';
 
 // Generate mocks
 @GenerateMocks([

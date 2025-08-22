@@ -59,7 +59,7 @@ void main() {
       expect(token.expiresAt, futureDate);
     });
 
-    test('AuthTokenModel.toJson converts AuthTokenModel to JSON correctly', () {
+    test('AuthTokenModel.toMap converts AuthTokenModel to Map correctly', () {
       final expiresAt = DateTime.now().add(const Duration(hours: 1));
       final token = AuthTokenModel(
         accessToken: 'access_token_123',
@@ -68,7 +68,7 @@ void main() {
         tokenType: 'Bearer',
       );
 
-      final json = token.toJson();
+      final json = token.toMap();
 
       expect(json['access_token'], 'access_token_123');
       expect(json['refresh_token'], 'refresh_token_456');
@@ -327,8 +327,8 @@ void main() {
         tokenType: 'Bearer',
       );
 
-      final json = originalToken.toJson();
-      final deserializedToken = AuthTokenModel.fromJson(json);
+      final jsonString = originalToken.toJson();
+      final deserializedToken = AuthTokenModel.fromJson(jsonString);
 
       expect(deserializedToken.accessToken, originalToken.accessToken);
       expect(deserializedToken.refreshToken, originalToken.refreshToken);

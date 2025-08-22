@@ -17,8 +17,8 @@ void main() {
       'last_login_at': '2024-01-15T10:00:00Z',
     };
 
-    test('User.fromJson creates User correctly', () {
-      final user = UserModel.fromJson(testUserJson as String);
+    test('User.fromMap creates User correctly', () {
+      final user = UserModel.fromMap(testUserJson);
 
       expect(user.id, 1);
       expect(user.username, 'testuser');
@@ -33,7 +33,7 @@ void main() {
       expect(user.lastLoginAt, DateTime.parse('2024-01-15T10:00:00Z'));
     });
 
-    test('User.fromJson handles null optional fields', () {
+    test('User.fromMap handles null optional fields', () {
       final minimalUserJson = {
         'id': 2,
         'username': 'minimaluser',
@@ -44,7 +44,7 @@ void main() {
         'created_at': '2024-01-01T10:00:00Z',
       };
 
-      final user = UserModel.fromJson(minimalUserJson as String);
+      final user = UserModel.fromMap(minimalUserJson);
 
       expect(user.id, 2);
       expect(user.username, 'minimaluser');
@@ -58,7 +58,7 @@ void main() {
       expect(user.lastLoginAt, null);
     });
 
-    test('User.toJson converts User to JSON correctly', () {
+    test('User.toMap converts User to Map correctly', () {
       final user = UserModel(
         id: 1,
         username: 'testuser',
@@ -73,7 +73,7 @@ void main() {
         lastLoginAt: DateTime.parse('2024-01-15T10:00:00Z'),
       );
 
-      final json = user.toJson();
+      final json = user.toMap();
 
       expect(json['id'], 1);
       expect(json['username'], 'testuser');
