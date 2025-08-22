@@ -84,9 +84,13 @@ class AnalyticsService {
 
       // Enable crash collection
       await _crashlytics?.setCrashlyticsCollectionEnabled(true);
+       // Set user information
+       debugPrint('Analytics: Attempting to set user identifier to anonymous-user');
+       debugPrint('Analytics: FirebaseCrashlytics instance: $_crashlytics');
+       debugPrint('Analytics: Available methods on FirebaseCrashlytics: ${FirebaseCrashlytics.instance.runtimeType}');
 
       // Set user information
-      await _crashlytics?.setUserId('anonymous-user');
+      await _crashlytics?.setUserIdentifier('anonymous-user');
 
       // Set custom keys
       await _crashlytics?.setCustomKey('environment', EnvironmentConfig.currentEnvironment);
@@ -115,6 +119,42 @@ class AnalyticsService {
     }
   }
 
+  /// Log event
+  Future<void> logEvent({
+    required String name,
+    Map<String, Object?>? parameters,
+  }) async {
+    if (!isEnabled || _analytics == null) return;
+
+    try {
+      // Debug logging for type issue
+      debugPrint('Analytics: Attempting to log event: $name');
+      debugPrint('Analytics: Parameters type: ${parameters?.runtimeType}');
+      debugPrint('Analytics: Parameters value: $parameters');
+
+      if (parameters != null) {
+        // Check for null values in the map
+        final nullValues = parameters.entries
+            .where((entry) => entry.value == null)
+            .map((entry) => entry.key)
+            .toList();
+        if (nullValues.isNotEmpty) {
+          debugPrint('Analytics: Found null values for keys: $nullValues');
+        }
+      }
+
+      await _analytics?.logEvent(
+        name: name,
+        parameters: parameters,
+      );
+
+      debugPrint('Analytics: Event logged: $name');
+    } catch (e) {
+      debugPrint('Analytics: Failed to log event: $e');
+      debugPrint('Analytics: Error type: ${e.runtimeType}');
+      debugPrint('Analytics: Stack trace: ${StackTrace.current}');
+    }
+  }
   /// Log event
   Future<void> logEvent({
     required String name,
@@ -286,7 +326,7 @@ class AnalyticsService {
 
     try {
       await _analytics?.setUserId(id: userId);
-      await _crashlytics?.setUserId(userId);
+      await _crashlytics?.setUserIdentifier(userId);
 
       debugPrint('Analytics: User ID set: $userId');
     } catch (e) {

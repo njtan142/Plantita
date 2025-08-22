@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:html' as html;
-import 'dart:ui' as ui;
 
 /// Camera device information
 class CameraDevice {

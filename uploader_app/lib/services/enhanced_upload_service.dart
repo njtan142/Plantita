@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:background_fetch/background_fetch.dart';
+
 import '../models/models.dart';
 import 'http_client_service.dart';
 import 'performance_monitor_service.dart';
@@ -105,41 +104,17 @@ class EnhancedUploadService {
   /// Initialize background tasks for mobile
   Future<void> _initializeBackgroundTasks() async {
     try {
-      // Configure background fetch
-      await BackgroundFetch.configure(
-        BackgroundFetchConfig(
-          minimumFetchInterval: _backgroundTaskInterval.inMinutes,
-          stopOnTerminate: false,
-          enableHeadless: true,
-          requiresBatteryNotLow: true,
-          requiresCharging: false,
-          requiresDeviceIdle: false,
-          requiresStorageNotLow: true,
-          startOnBoot: true,
-        ),
-        _onBackgroundFetch,
-      );
+      // Use Timer-based approach for background processing when app is active
+      _backgroundTaskTimer = Timer.periodic(_backgroundTaskInterval, (_) {
+        if (!kIsWeb) {
+          _processOfflineQueueInBackground();
+        }
+      });
 
       _isBackgroundTaskRegistered = true;
-      debugPrint('📱 Background task registered for offline upload processing');
+      debugPrint('📱 Background task timer registered for offline upload processing');
     } catch (e) {
       debugPrint('Error initializing background tasks: $e');
-    }
-  }
-
-  /// Handle background fetch events
-  void _onBackgroundFetch(String taskId) async {
-    debugPrint('📱 Background fetch triggered: $taskId');
-
-    try {
-      // Process offline queue in background
-      await _processOfflineQueueInBackground();
-
-      // Complete the task
-      BackgroundFetch.finish(taskId);
-    } catch (e) {
-      debugPrint('Error in background fetch: $e');
-      BackgroundFetch.finish(taskId);
     }
   }
 
@@ -228,7 +203,6 @@ class EnhancedUploadService {
       _uploadEventController.add(UploadEvent(
         type: UploadEventType.uploadQueued,
         upload: upload,
-        isOffline: !isOnline,
       ));
 
       // End performance tracking
@@ -339,27 +313,28 @@ class EnhancedUploadService {
 
   /// Handle upload failure
   Future<void> _handleUploadFailure(EnhancedUploadQueueItem queueItem, String error) async {
-    queueItem.retryCount++;
+    final newRetryCount = queueItem.retryCount + 1;
+    final updatedQueueItem = queueItem.copyWith(retryCount: newRetryCount);
 
-    if (queueItem.retryCount < _maxRetries) {
+    if (newRetryCount < _maxRetries) {
       // Retry after delay
-      Timer(_retryDelay * queueItem.retryCount, () {
-        if (queueItem.allowBackgroundUpload) {
-          _addToOfflineQueue(queueItem);
+      Timer(_retryDelay * newRetryCount, () {
+        if (updatedQueueItem.allowBackgroundUpload) {
+          _addToOfflineQueue(updatedQueueItem);
         } else {
-          _activeUploads.add(queueItem);
+          _activeUploads.add(updatedQueueItem);
           _processActiveUploads();
         }
       });
     } else {
       // Max retries reached
-      final failedUpload = queueItem.upload.copyWith(
+      final failedUpload = updatedQueueItem.upload.copyWith(
         status: UploadStatus.failed,
         errorMessage: error,
         completedAt: DateTime.now(),
       );
 
-      _failedUploads.add(queueItem.copyWith(upload: failedUpload));
+      _failedUploads.add(updatedQueueItem.copyWith(upload: failedUpload));
 
       _uploadEventController.add(UploadEvent(
         type: UploadEventType.uploadFailed,
@@ -367,7 +342,7 @@ class EnhancedUploadService {
         error: error,
       ));
 
-      queueItem.onError?.call(error);
+      updatedQueueItem.onError?.call(error);
     }
   }
 

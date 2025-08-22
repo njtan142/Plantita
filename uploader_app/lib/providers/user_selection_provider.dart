@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import '../services/user_service.dart';
 import 'base_provider.dart';
@@ -6,18 +5,18 @@ import 'base_provider.dart';
 class UserSelectionProvider extends BaseProvider {
   final UserService _userService;
 
-  List<User> _searchResults = [];
-  User? _selectedUser;
+  List<UserModel> _searchResults = [];
+  UserModel? _selectedUser;
   String _searchQuery = '';
 
   UserSelectionProvider(this._userService);
 
-  List<User> get searchResults => _searchResults;
-  User? get selectedUser => _selectedUser;
+  List<UserModel> get searchResults => _searchResults;
+  UserModel? get selectedUser => _selectedUser;
   String get searchQuery => _searchQuery;
   bool get hasSelectedUser => _selectedUser != null;
 
-  void selectUser(User user) {
+  void selectUser(UserModel user) {
     _selectedUser = user;
     notifyListeners();
   }

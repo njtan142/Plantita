@@ -1,7 +1,6 @@
 #!/usr/bin/env dart
 
 import 'dart:io';
-import 'package:path/path.dart' as path;
 
 /// Comprehensive test runner for the Flutter uploader app
 class TestRunner {

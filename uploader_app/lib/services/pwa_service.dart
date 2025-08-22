@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import '../config/environment_config.dart';
 
 /// PWA Service for managing Progressive Web App functionality
