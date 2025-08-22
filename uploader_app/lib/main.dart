@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'constants/app_constants.dart';
 import 'utils/env_config.dart';
 import 'utils/responsive_config.dart';
@@ -42,9 +40,8 @@ class MyApp extends StatelessWidget {
         typography: Typography.material2021(),
 
         // Component themes
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
-          margin: EdgeInsets.zero,
         ),
 
         appBarTheme: const AppBarTheme(
@@ -71,9 +68,8 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         typography: Typography.material2021(),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 2,
-          margin: EdgeInsets.zero,
         ),
         appBarTheme: const AppBarTheme(
           centerTitle: false,

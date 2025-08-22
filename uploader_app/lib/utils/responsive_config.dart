@@ -1,31 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 
-/// Configuration for responsive design framework
+/// Configuration for responsive design
 class ResponsiveConfig {
   final BuildContext context;
 
   const ResponsiveConfig(this.context);
 
-  /// Returns the responsive wrapper for the app
+  /// Returns the responsive wrapper for the app (simplified for now)
   static Widget getResponsiveWrapper({
     required Widget child,
     required BuildContext context,
   }) {
-    return ResponsiveWrapper.builder(
-      child,
-      maxWidth: 1200,
-      minWidth: 480,
-      defaultScale: true,
-      breakpoints: [
-        const ResponsiveBreakpoint.resize(480, name: MOBILE),
-        const ResponsiveBreakpoint.autoScale(800, name: TABLET),
-        const ResponsiveBreakpoint.resize(1000, name: DESKTOP),
-      ],
-      background: Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
-      ),
-    );
+    return child; // Simplified wrapper - can be enhanced later
   }
 
   /// Returns true if the current screen is mobile

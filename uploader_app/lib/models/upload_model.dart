@@ -10,6 +10,24 @@ enum UploadStatus {
   cancelled,
 }
 
+/// Extension to provide readable string representation of UploadStatus
+extension UploadStatusExtension on UploadStatus {
+  String get displayName {
+    switch (this) {
+      case UploadStatus.pending:
+        return 'Pending';
+      case UploadStatus.uploading:
+        return 'Uploading';
+      case UploadStatus.completed:
+        return 'Completed';
+      case UploadStatus.failed:
+        return 'Failed';
+      case UploadStatus.cancelled:
+        return 'Cancelled';
+    }
+  }
+}
+
 /// Upload model representing a file upload with progress tracking
 class Upload {
   final String id;
@@ -55,7 +73,12 @@ class Upload {
       unitIndex++;
     }
 
-    return '${size.toStringAsFixed(1)} ${units[unitIndex]}';
+    // Don't show decimal places for bytes, but show for larger units
+    if (unitIndex == 0) {
+      return '${size.toInt()} ${units[unitIndex]}';
+    } else {
+      return '${size.toStringAsFixed(1)} ${units[unitIndex]}';
+    }
   }
 
   /// Check if upload is in progress
@@ -174,7 +197,7 @@ class Upload {
 
   @override
   String toString() {
-    return 'Upload(id: $id, fileName: $fileName, status: $status, progress: $progressPercentage%)';
+    return 'Upload(id: $id, fileName: $fileName, status: ${status.name}, progress: $progressPercentage%)';
   }
 }
 

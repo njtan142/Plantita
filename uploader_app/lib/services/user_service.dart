@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import 'http_client_service.dart';
@@ -314,6 +315,37 @@ class UserService {
   void dispose() {
     _usersController.close();
     _loadingController.close();
+  }
+
+  // Testing methods - not for production use
+  @visibleForTesting
+  void setCachedUsersForTesting(List<User> users) {
+    _cachedUsers = users;
+    _usersController.add(_cachedUsers);
+  }
+
+  @visibleForTesting
+  void setLastFetchTimeForTesting(DateTime? time) {
+    _lastFetchTime = time;
+  }
+
+  @visibleForTesting
+  bool get isCacheValidForTesting => _isCacheValid;
+
+  @visibleForTesting
+  DateTime? get lastFetchTimeForTesting => _lastFetchTime;
+
+  @visibleForTesting
+  List<User> get cachedUsersForTesting => List.unmodifiable(_cachedUsers);
+
+  @visibleForTesting
+  void addLoadingStateForTesting(bool isLoading) {
+    _loadingController.add(isLoading);
+  }
+
+  @visibleForTesting
+  void addUsersUpdateForTesting(List<User> users) {
+    _usersController.add(users);
   }
 }
 

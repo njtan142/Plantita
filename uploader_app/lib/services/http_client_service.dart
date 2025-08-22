@@ -309,7 +309,7 @@ class HttpClientService {
           return ApiResponse.success(
             responseBody as T,
             statusCode: statusCode,
-            message: responseBody['message'] as String?,
+            message: (responseBody is Map<String, dynamic>) ? responseBody['message'] as String? : null,
           );
         }
       } else {

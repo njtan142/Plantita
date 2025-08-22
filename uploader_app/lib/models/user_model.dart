@@ -27,7 +27,7 @@ class User {
   });
 
   /// Full name getter
-  String get fullName => '$firstName $lastName';
+  String get fullName => '$firstName $lastName'.trim();
 
   /// Display name for UI
   String get displayName => fullName.isNotEmpty ? fullName : username;

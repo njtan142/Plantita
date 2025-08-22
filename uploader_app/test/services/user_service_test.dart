@@ -66,8 +66,9 @@ void main() {
       userService = UserService(
         httpClient: mockHttpClient,
         prefs: mockPrefs,
-      ).._cachedUsers = cachedUsers
-        .._lastFetchTime = DateTime.now().subtract(const Duration(minutes: 15));
+      );
+      userService.setCachedUsersForTesting(cachedUsers);
+      userService.setLastFetchTimeForTesting(DateTime.now().subtract(const Duration(minutes: 15)));
 
       // Act
       final result = await userService.fetchUsers();
@@ -281,7 +282,8 @@ void main() {
       userService = UserService(
         httpClient: mockHttpClient,
         prefs: mockPrefs,
-      ).._cachedUsers = users;
+      );
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final filteredUsers = userService.filterUsers(username: 'john');
@@ -317,7 +319,8 @@ void main() {
       userService = UserService(
         httpClient: mockHttpClient,
         prefs: mockPrefs,
-      ).._cachedUsers = users;
+      );
+      userService.setCachedUsersForTesting(users);
 
       // Act
       final filteredUsers = userService.filterUsers(
