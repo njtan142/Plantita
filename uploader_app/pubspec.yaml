@@ -101,7 +101,46 @@ dependencies:
   # Better loading indicators
   flutter_spinkit: ^5.2.1
 
-dev_dependencies:
+  # PWA and Web Deployment Dependencies
+  # Service worker for offline functionality
+  flutter_service_worker: ^0.0.2
+
+  # PWA install prompt
+  flutter_pwa_install: ^0.1.0
+
+  # Background sync for failed uploads
+  workmanager: ^0.5.2
+
+  # Push notifications
+  firebase_messaging: ^15.0.2
+
+  # Performance monitoring
+  firebase_performance: ^0.10.0+2
+
+  # Crash reporting and error tracking
+  firebase_crashlytics: ^4.0.2
+
+  # Analytics tracking
+  firebase_analytics: ^11.0.1
+
+  # Web-specific utilities
+  url_launcher: ^6.3.0
+  share_plus: ^9.0.0
+
+  # Security and optimization
+  flutter_secure_storage_web: ^1.2.0
+
+  # Web app manifest and PWA features
+  flutter_web_plugins:
+    sdk: flutter
+
+  # SEO and meta tags for web
+  flutter_seo: ^0.1.0
+
+  # Performance optimization
+  flutter_lighthouse: ^1.0.0
+
+  dev_dependencies:
   flutter_test:
     sdk: flutter
 

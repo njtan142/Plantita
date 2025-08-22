@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantita Uploader - Offline</title>
+    <meta name="description" content="You're currently offline. Plantita Uploader will work when connection is restored.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .offline-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            margin: 2rem;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .features {
+            text-align: left;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .features h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features li {
+            padding: 0.25rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .features li::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .retry-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .status {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .status.connecting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        @media (max-width: 480px) {
+            .offline-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="icon">
+            📱
+        </div>
+        <h1>You're Offline</h1>
+        <p class="subtitle">
+            Don't worry! Plantita Uploader works offline. Your uploads will be saved and synced when you're back online.
+        </p>
+
+        <div class="features">
+            <h3>Available Offline:</h3>
+            <ul>
+                <li>Upload media files</li>
+                <li>View upload queue</li>
+                <li>Access saved settings</li>
+                <li>Background sync enabled</li>
+            </ul>
+        </div>
+
+        <div id="status" class="status offline">
+            🔴 Currently offline
+        </div>
+
+        <button class="retry-btn" onclick="checkConnection()">
+            Check Connection
+        </button>
+    </div>
+
+    <script>
+        // Check connection status
+        function checkConnection() {
+            const status = document.getElementById('status');
+
+            status.className = 'status connecting';
+            status.textContent = '🔄 Checking connection...';
+
+            if (navigator.onLine) {
+                status.className = 'status online';
+                status.textContent = '🟢 Connection restored!';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                status.className = 'status offline';
+                status.textContent = '🔴 Still offline - will retry automatically';
+                setTimeout(checkConnection, 5000);
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            const status = document.getElementById('status');
+            status.className = 'status online';
+            status.textContent = '🟢 Connection restored!';
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+
+        window.addEventListener('offline', () => {
+            const status = document.getElementById('status');
+            status.className = 'status offline';
+            status.textContent = '🔴 Connection lost';
+        });
+
+        // Auto-check connection every 30 seconds
+        setInterval(() => {
+            if (!navigator.onLine) {
+                checkConnection();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
