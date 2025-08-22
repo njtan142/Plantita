@@ -46,8 +46,8 @@ void main() {
     test('fetchUsers returns cached data when valid', () async {
       // Arrange
       final cachedUsers = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'cacheduser',
           email: 'cached@example.com',
           firstName: 'Cached',
@@ -76,14 +76,14 @@ void main() {
       // Assert
       expect(result.success, true);
       expect(result.data, cachedUsers);
-      verifyNever(mockHttpClient.get<PaginatedResponse<User>>(any, fromJson: anyNamed('fromJson')));
+      verifyNever(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')));
     });
 
     test('fetchUsers fetches fresh data when forceRefresh is true', () async {
       // Arrange
       final apiUsers = [
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'apiuser',
           email: 'api@example.com',
           firstName: 'API',
@@ -106,7 +106,7 @@ void main() {
       );
       final apiResponse = ApiResponse.success(paginatedResponse);
 
-      when(mockHttpClient.get<PaginatedResponse<User>>(any, fromJson: anyNamed('fromJson')))
+      when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => apiResponse);
       when(mockPrefs.setString(any, any)).thenAnswer((_) async {});
       when(mockPrefs.setInt(any, any)).thenAnswer((_) async {});
@@ -118,14 +118,14 @@ void main() {
       expect(result.success, true);
       expect(result.data, apiUsers);
       expect(userService.currentUsers, apiUsers);
-      verify(mockHttpClient.get<PaginatedResponse<User>>(any, fromJson: anyNamed('fromJson'))).called(1);
+      verify(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson'))).called(1);
     });
 
     test('fetchUsers handles API errors gracefully', () async {
       // Arrange
       final errorResponse = ApiResponse.error(message: 'API Error');
 
-      when(mockHttpClient.get<PaginatedResponse<User>>(any, fromJson: anyNamed('fromJson')))
+      when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => errorResponse);
 
       // Act
@@ -140,8 +140,8 @@ void main() {
     test('searchUsers returns filtered cached results for non-empty query', () async {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -149,8 +149,8 @@ void main() {
           isActive: true,
           createdAt: DateTime.now(),
         ),
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -177,8 +177,8 @@ void main() {
     test('searchUsers returns all cached results for empty query', () async {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'user1',
           email: 'user1@example.com',
           firstName: 'User',
@@ -204,8 +204,8 @@ void main() {
     test('getUserById returns cached user if available', () async {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'cacheduser',
           email: 'cached@example.com',
           firstName: 'Cached',
@@ -226,13 +226,13 @@ void main() {
       // Assert
       expect(result.success, true);
       expect(result.data?.username, 'cacheduser');
-      verifyNever(mockHttpClient.get<User>(any, fromJson: anyNamed('fromJson')));
+      verifyNever(mockHttpClient.get<UserModel>(any, fromJson: anyNamed('fromJson')));
     });
 
     test('getUserById fetches from API when not cached', () async {
       // Arrange
-      final apiUser = User(
-        id: 2,
+      final apiUser = UserModel(
+        id: '2',
         username: 'apiuser',
         email: 'api@example.com',
         firstName: 'API',
@@ -242,7 +242,7 @@ void main() {
       );
       final apiResponse = ApiResponse.success(apiUser);
 
-      when(mockHttpClient.get<User>(any, fromJson: anyNamed('fromJson')))
+      when(mockHttpClient.get<UserModel>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => apiResponse);
       when(mockPrefs.setString(any, any)).thenAnswer((_) async {});
       when(mockPrefs.setInt(any, any)).thenAnswer((_) async {});
@@ -259,8 +259,8 @@ void main() {
     test('filterUsers filters by username correctly', () {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -268,8 +268,8 @@ void main() {
           isActive: true,
           createdAt: DateTime.now(),
         ),
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -296,8 +296,8 @@ void main() {
     test('filterUsers filters by multiple criteria', () {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -305,8 +305,8 @@ void main() {
           isActive: true,
           createdAt: DateTime.now(),
         ),
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -336,8 +336,8 @@ void main() {
     test('getUsersForSelection returns only active users', () {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'active_user',
           email: 'active@example.com',
           firstName: 'Active',
@@ -345,8 +345,8 @@ void main() {
           isActive: true,
           createdAt: DateTime.now(),
         ),
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'inactive_user',
           email: 'inactive@example.com',
           firstName: 'Inactive',
@@ -372,8 +372,8 @@ void main() {
     test('getUsersForSelection filters by search query', () {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'john_doe',
           email: 'john@example.com',
           firstName: 'John',
@@ -381,8 +381,8 @@ void main() {
           isActive: true,
           createdAt: DateTime.now(),
         ),
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'jane_smith',
           email: 'jane@example.com',
           firstName: 'Jane',
@@ -408,8 +408,8 @@ void main() {
     test('refreshUsers forces data refresh', () async {
       // Arrange
       final apiUsers = [
-        User(
-          id: 3,
+        UserModel(
+          id: '3',
           username: 'refreshed_user',
           email: 'refreshed@example.com',
           firstName: 'Refreshed',
@@ -431,7 +431,7 @@ void main() {
         ),
       );
 
-      when(mockHttpClient.get<PaginatedResponse<User>>(any, fromJson: anyNamed('fromJson')))
+      when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
           .thenAnswer((_) async => ApiResponse.success(paginatedResponse));
       when(mockPrefs.setString(any, any)).thenAnswer((_) async {});
       when(mockPrefs.setInt(any, any)).thenAnswer((_) async {});
@@ -441,7 +441,7 @@ void main() {
 
       // Assert
       expect(userService.currentUsers, apiUsers);
-      verify(mockHttpClient.get<PaginatedResponse<User>>(any, fromJson: anyNamed('fromJson'))).called(1);
+      verify(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson'))).called(1);
     });
 
     test('clearCache removes all cached data', () async {
@@ -450,8 +450,8 @@ void main() {
         httpClient: mockHttpClient,
         prefs: mockPrefs,
       ).._cachedUsers = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'testuser',
           email: 'test@example.com',
           firstName: 'Test',
@@ -477,8 +477,8 @@ void main() {
     test('getUserStats returns correct statistics', () {
       // Arrange
       final users = [
-        User(
-          id: 1,
+        UserModel(
+          id: '1',
           username: 'active_user',
           email: 'active@example.com',
           firstName: 'Active',
@@ -486,8 +486,8 @@ void main() {
           isActive: true,
           createdAt: DateTime.now().subtract(const Duration(days: 5)),
         ),
-        User(
-          id: 2,
+        UserModel(
+          id: '2',
           username: 'inactive_user',
           email: 'inactive@example.com',
           firstName: 'Inactive',
@@ -495,8 +495,8 @@ void main() {
           isActive: false,
           createdAt: DateTime.now().subtract(const Duration(days: 10)),
         ),
-        User(
-          id: 3,
+        UserModel(
+          id: '3',
           username: 'recent_user',
           email: 'recent@example.com',
           firstName: 'Recent',
@@ -554,9 +554,9 @@ void main() {
 
     test('usersStream emits user updates correctly', () async {
       // Arrange
-      final userUpdates = <List<User>>[];
-      final testUser = User(
-        id: 1,
+      final userUpdates = <List<UserModel>>[];
+      final testUser = UserModel(
+        id: '1',
         username: 'testuser',
         email: 'test@example.com',
         firstName: 'Test',

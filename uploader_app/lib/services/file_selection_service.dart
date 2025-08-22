@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
+import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
+
+// Web-specific imports with conditional compilation
+import 'dart:html' as html show File, InputElement, FileReader, FileList;
 
 /// Selected file information
 class SelectedFile {
@@ -50,12 +53,12 @@ class SelectedFile {
   String get extension => name.split('.').last.toLowerCase();
 
   /// Create SelectedFile from web file
-  factory SelectedFile.fromWebFile(html.File file, {Uint8List? previewData}) {
+  factory SelectedFile.fromWebFile(dynamic file, {Uint8List? previewData}) {
     return SelectedFile(
-      name: file.name,
-      path: file.name, // Web files don't have paths
-      size: file.size,
-      mimeType: file.type ?? 'application/octet-stream',
+      name: _getWebFileName(file),
+      path: _getWebFileName(file), // Web files don't have paths
+      size: _getWebFileSize(file),
+      mimeType: _getWebFileType(file),
       selectedAt: DateTime.now(),
       previewData: previewData,
     );
@@ -73,6 +76,31 @@ class SelectedFile {
       selectedAt: DateTime.now(),
       previewData: previewData,
     );
+  }
+
+  // Helper methods for web file properties
+  static String _getWebFileName(dynamic file) {
+    try {
+      return file.name ?? 'unknown';
+    } catch (e) {
+      return 'unknown';
+    }
+  }
+
+  static int _getWebFileSize(dynamic file) {
+    try {
+      return file.size ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  static String _getWebFileType(dynamic file) {
+    try {
+      return file.type ?? 'application/octet-stream';
+    } catch (e) {
+      return 'application/octet-stream';
+    }
   }
 
   @override
@@ -129,6 +157,30 @@ class FileSelectionService {
   final StreamController<List<SelectedFile>> _filesController = StreamController<List<SelectedFile>>.broadcast();
   final StreamController<double> _progressController = StreamController<double>.broadcast();
 
+  // Helper methods for web file properties
+  String _getWebFileName(dynamic file) {
+    try {
+      return file.name ?? 'unknown';
+    } catch (e) {
+      return 'unknown';
+    }
+  }
+
+  int _getWebFileSize(dynamic file) {
+    try {
+      return file.size ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  String _getWebFileType(dynamic file) {
+    try {
+      return file.type ?? 'application/octet-stream';
+    } catch (e) {
+      return 'application/octet-stream';
+    }
+  }
   List<SelectedFile> _selectedFiles = [];
   FileSelectionConfig _config = const FileSelectionConfig();
 
@@ -294,19 +346,23 @@ class FileSelectionService {
   }
 
   /// Validate web file
-  Future<bool> _validateFile(html.File file, FileSelectionConfig config) async {
-    // Check file size
-    if (file.size! > config.maxFileSize) {
-      throw FileSelectionException('File "${file.name}" exceeds maximum size of ${config.maxFileSize ~/ (1024 * 1024)}MB');
-    }
+  Future<bool> _validateFile(dynamic file, FileSelectionConfig config) async {
+    try {
+      final size = _getWebFileSize(file);
+      if (size > config.maxFileSize) {
+        throw FileSelectionException('File "${_getWebFileName(file)}" exceeds maximum size of ${config.maxFileSize ~/ (1024 * 1024)}MB');
+      }
 
-    // Check file extension
-    final extension = file.name!.split('.').last.toLowerCase();
-    if (!config.allowedExtensions.contains(extension)) {
-      throw FileSelectionException('File type "$extension" is not allowed');
-    }
+      final name = _getWebFileName(file);
+      final extension = name.split('.').last.toLowerCase();
+      if (!config.allowedExtensions.contains(extension)) {
+        throw FileSelectionException('File type "$extension" is not allowed');
+      }
 
-    return true;
+      return true;
+    } catch (e) {
+      rethrow;
+    }
   }
 
   /// Validate platform file
@@ -325,11 +381,12 @@ class FileSelectionService {
   }
 
   /// Process web file
-  Future<SelectedFile> _processWebFile(html.File file, FileSelectionConfig config) async {
+  Future<SelectedFile> _processWebFile(dynamic file, FileSelectionConfig config) async {
     Uint8List? previewData;
 
     // Create preview for images
-    if (config.compressImages && file.type!.startsWith('image/')) {
+    final type = _getWebFileType(file);
+    if (config.compressImages && type.startsWith('image/')) {
       previewData = await _generateWebImagePreview(file, config);
     }
 
@@ -369,7 +426,7 @@ class FileSelectionService {
   }
 
   /// Generate image preview for web files
-  Future<Uint8List> _generateWebImagePreview(html.File file, FileSelectionConfig config) async {
+  Future<Uint8List> _generateWebImagePreview(dynamic file, FileSelectionConfig config) async {
     final reader = html.FileReader();
     reader.readAsArrayBuffer(file);
 

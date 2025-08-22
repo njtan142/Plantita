@@ -132,20 +132,30 @@ class AnalyticsService {
       debugPrint('Analytics: Parameters type: ${parameters?.runtimeType}');
       debugPrint('Analytics: Parameters value: $parameters');
 
-      if (parameters != null) {
-        // Check for null values in the map
+      // Filter out null values to match Firebase Analytics expectations
+      final Map<String, Object>? filteredParameters = parameters != null
+          ? parameters.entries
+              .where((entry) => entry.value != null)
+              .cast<MapEntry<String, Object>>()
+              .fold<Map<String, Object>>({}, (map, entry) {
+                map[entry.key] = entry.value;
+                return map;
+              })
+          : null;
+
+      if (parameters != null && filteredParameters != null) {
         final nullValues = parameters.entries
             .where((entry) => entry.value == null)
             .map((entry) => entry.key)
             .toList();
         if (nullValues.isNotEmpty) {
-          debugPrint('Analytics: Found null values for keys: $nullValues');
+          debugPrint('Analytics: Filtered out null values for keys: $nullValues');
         }
       }
 
       await _analytics?.logEvent(
         name: name,
-        parameters: parameters,
+        parameters: filteredParameters,
       );
 
       debugPrint('Analytics: Event logged: $name');
@@ -153,24 +163,6 @@ class AnalyticsService {
       debugPrint('Analytics: Failed to log event: $e');
       debugPrint('Analytics: Error type: ${e.runtimeType}');
       debugPrint('Analytics: Stack trace: ${StackTrace.current}');
-    }
-  }
-  /// Log event
-  Future<void> logEvent({
-    required String name,
-    Map<String, Object?>? parameters,
-  }) async {
-    if (!isEnabled || _analytics == null) return;
-
-    try {
-      await _analytics?.logEvent(
-        name: name,
-        parameters: parameters,
-      );
-
-      debugPrint('Analytics: Event logged: $name');
-    } catch (e) {
-      debugPrint('Analytics: Failed to log event: $e');
     }
   }
 
