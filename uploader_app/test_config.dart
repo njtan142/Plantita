@@ -50,11 +50,11 @@ class TestConfig {
       );
 
       if (kDebugMode) {
-        print('Coverage report generated at: $coverageOutputPath');
+        debugPrint('Coverage report generated at: $coverageOutputPath');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to generate coverage report: $e');
+        debugPrint('Failed to generate coverage report: $e');
       }
     }
   }
@@ -77,16 +77,16 @@ class TestConfig {
       final coveragePercentage = totalLines > 0 ? (coveredLines / totalLines) * 100 : 0;
 
       if (kDebugMode) {
-        print('Test Coverage: ${coveragePercentage.toStringAsFixed(2)}%');
+        debugPrint('Test Coverage: ${coveragePercentage.toStringAsFixed(2)}%');
       }
       if (kDebugMode) {
-        print('Minimum Required: ${minimumCoveragePercentage.toStringAsFixed(2)}%');
+        debugPrint('Minimum Required: ${minimumCoveragePercentage.toStringAsFixed(2)}%');
       }
 
       return coveragePercentage >= minimumCoveragePercentage;
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to validate coverage: $e');
+        debugPrint('Failed to validate coverage: $e');
       }
       return false;
     }

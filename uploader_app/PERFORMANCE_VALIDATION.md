@@ -36,7 +36,7 @@ final result = await optimizer.optimizeImage(
   imageBytes,
   quality: ImageQuality.high,
   format: ImageFormat.webp,
-  onProgress: (progress) => print('Progress: $progress'),
+  onProgress: (progress) => debugPrint('Progress: $progress'),
 );
 
 print('Original: ${result.originalSize} bytes');

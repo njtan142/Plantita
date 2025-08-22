@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:js' as js;
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as web_html;
@@ -452,18 +453,62 @@ class WebPerformanceService {
         // Draw and compress image
         ctx.drawImageScaled(img, 0, 0, newWidth, newHeight);
 
-        // Convert to blob
-        canvas.toBlob((blob) async {
-          if (blob != null) {
-            final reader = web_html.FileReader();
-            reader.readAsArrayBuffer(blob);
-            reader.onLoadEnd.listen((_) {
-              completer.complete(reader.result as Uint8List?);
-            });
-          } else {
-            completer.complete(null);
-          }
-        }, 'image/jpeg', quality);
+        debugPrint('About to call toBlob with quality: $quality');
+        debugPrint('Canvas dimensions: ${canvas.width}x${canvas.height}');
+        debugPrint('Image dimensions: ${img.width}x${img.height}');
+
+        try {
+          // Use JavaScript interop for canvas.toBlob
+          final canvasJS = js.JsObject.fromBrowserObject(canvas);
+
+          canvasJS.callMethod('toBlob', [
+            js.allowInterop((js.JsObject? blobJS) {
+              debugPrint('JavaScript toBlob callback triggered, blob is: ${blobJS != null ? 'not null' : 'null'}');
+              if (blobJS != null) {
+                debugPrint('Blob size: ${blobJS['size']} bytes');
+
+                // Convert JS blob to Dart bytes using FileReader
+                final reader = web_html.FileReader();
+                // Create a proper blob from the JS object
+                final blob = html.Blob([], blobJS['type']);
+                reader.readAsArrayBuffer(blob);
+
+                reader.onLoadEnd.listen((_) {
+                  debugPrint('FileReader onLoadEnd triggered, result type: ${reader.result.runtimeType}');
+                  try {
+                    final result = reader.result;
+                    if (result is Uint8List) {
+                      debugPrint('Converting result to Uint8List, length: ${result.length}');
+                      completer.complete(result);
+                    } else if (result is ByteBuffer) {
+                      debugPrint('Converting ByteBuffer to Uint8List');
+                      completer.complete(Uint8List.view(result));
+                    } else {
+                      debugPrint('Unexpected result type: ${result.runtimeType}');
+                      completer.complete(null);
+                    }
+                  } catch (e) {
+                    debugPrint('Error processing FileReader result: $e');
+                    completer.complete(null);
+                  }
+                });
+
+                reader.onError.listen((_) {
+                  debugPrint('FileReader error occurred');
+                  completer.complete(null);
+                });
+              } else {
+                debugPrint('Blob is null, completing with null');
+                completer.complete(null);
+              }
+            }),
+            'image/jpeg',
+            quality
+          ]);
+        } catch (e) {
+          debugPrint('Error calling toBlob: $e');
+          completer.complete(null);
+        }
       });
 
       img.onError.listen((_) {

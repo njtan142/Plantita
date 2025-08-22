@@ -116,9 +116,9 @@ class Logger {
       stackTrace: _enableStackTrace ? stackTrace : null,
     );
 
-    // Also print to console in debug mode
+    // Also debugPrint to console in debug mode
     if (kDebugMode) {
-      print(logMessage);
+      debugPrint(logMessage);
     }
   }
 
