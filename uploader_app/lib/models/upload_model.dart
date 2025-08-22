@@ -2,9 +2,6 @@ import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'user_model.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
-import 'package:http/http.dart' as http;
 
 /// Upload status enumeration
 enum UploadStatus {
@@ -200,10 +197,13 @@ class Upload {
   @override
   int get hashCode => id.hashCode;
 
+
   @override
   String toString() {
     return 'Upload(id: $id, fileName: $fileName, status: ${status.name}, progress: $progressPercentage%)';
   }
+}
+
 /// UploadModel for use with UploadProvider - matches the expected interface
 class UploadModel {
   final String id;
@@ -262,7 +262,6 @@ class UploadModel {
   String toString() {
     return 'UploadModel(id: $id, fileName: ${file.name}, status: ${status.name}, progress: $progress%)';
   }
-}
 }
 
 /// Upload queue item for managing concurrent uploads

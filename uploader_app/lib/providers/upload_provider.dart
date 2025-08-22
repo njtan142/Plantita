@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/models.dart';
 import '../services/upload_service.dart';
 import '../services/file_selection_service.dart';
@@ -10,9 +10,9 @@ class UploadModelProvider extends BaseProvider {
   final FileSelectionService _fileSelectionService;
   final UserSelectionProvider _userSelectionProvider;
 
-  List<UploadModel> _uploadQueue = [];
-  List<UploadModel> _completedUploadModels = [];
-  List<UploadModel> _failedUploadModels = [];
+  final List<UploadModel> _uploadQueue = [];
+  final List<UploadModel> _completedUploadModels = [];
+  final List<UploadModel> _failedUploadModels = [];
   bool _isUploadModeling = false;
 
   UploadModelProvider(
@@ -35,7 +35,7 @@ class UploadModelProvider extends BaseProvider {
     }
 
     final newUploadModels = files.map((file) => UploadModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString() + '_' + file.name,
+      id: '${DateTime.now().millisecondsSinceEpoch}_${file.name}',
       file: file,
       user: _userSelectionProvider.selectedUser!,
       status: UploadStatus.pending,
@@ -111,9 +111,9 @@ class UploadModelProvider extends BaseProvider {
         mimeType: upload.file.extension != null
           ? 'application/${upload.file.extension}'
           : 'application/octet-stream',
-        userId: upload.user.id,
+        userId: int.tryParse(upload.user.id) ?? 0,
         onProgress: (progress) {
-          upload.progress = progress;
+          upload.progress = progress as int;
           notifyListeners();
         },
       );

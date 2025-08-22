@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:retry/retry.dart';
 import '../models/models.dart';
@@ -93,7 +90,7 @@ class UploadService {
   int get queuedUploads => _uploadQueue.length;
 
   /// Upload file with user association
-  Future<Upload> uploadFile({
+  Future<ApiResponse<Upload>> uploadFile({
     required String fileName,
     required List<int> fileBytes,
     required String mimeType,
@@ -132,11 +129,11 @@ class UploadService {
     // Process queue
     _processUploadQueue();
 
-    return upload;
+    return ApiResponse.success(upload, message: 'Upload queued successfully');
   }
 
   /// Upload file from path with user association
-  Future<Upload> uploadFileFromPath({
+  Future<ApiResponse<Upload>> uploadFileFromPath({
     required String filePath,
     required String fileName,
     required int fileSize,
@@ -176,7 +173,7 @@ class UploadService {
     // Process queue
     _processUploadQueue();
 
-    return upload;
+    return ApiResponse.success(upload, message: 'Upload queued successfully');
   }
 
   /// Process upload queue with concurrency control
