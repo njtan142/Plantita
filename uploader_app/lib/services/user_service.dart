@@ -15,12 +15,12 @@ class UserService {
   final SharedPreferences _prefs;
 
   // In-memory cache
-  List<User> _cachedUsers = [];
+  List<UserModel> _cachedUsers = [];
   DateTime? _lastFetchTime;
   bool _isLoading = false;
 
   // Stream controllers for reactive updates
-  final StreamController<List<User>> _usersController = StreamController<List<User>>.broadcast();
+  final StreamController<List<UserModel>> _usersController = StreamController<List<UserModel>>.broadcast();
   final StreamController<bool> _loadingController = StreamController<bool>.broadcast();
 
   UserService({
@@ -30,13 +30,13 @@ class UserService {
         _prefs = prefs;
 
   /// Stream of users for reactive updates
-  Stream<List<User>> get usersStream => _usersController.stream;
+  Stream<List<UserModel>> get usersStream => _usersController.stream;
 
   /// Stream of loading state
   Stream<bool> get loadingStream => _loadingController.stream;
 
   /// Current cached users
-  List<User> get currentUsers => List.unmodifiable(_cachedUsers);
+  List<UserModel> get currentUsers => List.unmodifiable(_cachedUsers);
 
   /// Check if data is currently loading
   bool get isLoading => _isLoading;
@@ -61,7 +61,7 @@ class UserService {
   }
 
   /// Fetch all users from API with caching
-  Future<ApiResponse<List<User>>> fetchUsers({
+  Future<ApiResponse<List<UserModel>>> fetchUsers({
     bool forceRefresh = false,
     Map<String, dynamic>? filters,
   }) async {
@@ -85,10 +85,10 @@ class UserService {
         queryParams.addAll(filters);
       }
 
-      final response = await _httpClient.get<PaginatedResponse<User>>(
+      final response = await _httpClient.get<PaginatedResponse<UserModel>>(
         '/users',
         queryParams: queryParams,
-        fromJson: (json) => PaginatedResponse<User>.fromJson(json, (userJson) => User.fromJson(userJson)),
+        fromJson: (json) => PaginatedResponse<UserModel>.fromJson(json, (userJson) => UserModel.fromJson(userJson)),
       );
 
       if (response.success && response.data != null) {
@@ -121,20 +121,20 @@ class UserService {
   }
 
   /// Search users by query
-  Future<ApiResponse<List<User>>> searchUsers(String query) async {
+  Future<ApiResponse<List<UserModel>>> searchUsers(String query) async {
     if (query.trim().isEmpty) {
       return ApiResponse.success(_cachedUsers);
     }
 
     try {
-      final response = await _httpClient.get<List<User>>(
+      final response = await _httpClient.get<List<UserModel>>(
         '/users/search',
         queryParams: {'q': query},
         fromJson: (dynamic json) {
           if (json is List) {
-            return json.map<User>((userJson) => User.fromJson(userJson as Map<String, dynamic>)).toList();
+            return json.map<UserModel>((userJson) => UserModel.fromJson(userJson as Map<String, dynamic>)).toList();
           }
-          return <User>[];
+          return <UserModel>[];
         },
       );
 
@@ -162,7 +162,7 @@ class UserService {
   }
 
   /// Get user by ID
-  Future<ApiResponse<User>> getUserById(int userId) async {
+  Future<ApiResponse<UserModel>> getUserById(int userId) async {
     // Check cache first
     final cachedUser = _cachedUsers.where((user) => user.id == userId).cast<User?>().firstWhere(
           (element) => true,
@@ -174,7 +174,7 @@ class UserService {
     }
 
     try {
-      final response = await _httpClient.get<User>(
+      final response = await _httpClient.get<UserModel>(
         '/users/$userId',
         fromJson: (json) => User.fromJson(json),
       );
@@ -193,7 +193,7 @@ class UserService {
   }
 
   /// Filter users by criteria
-  List<User> filterUsers({
+  List<UserModel> filterUsers({
     String? username,
     String? email,
     String? firstName,
@@ -229,7 +229,7 @@ class UserService {
   }
 
   /// Get users for selection (active users only)
-  List<User> getUsersForSelection({String? searchQuery}) {
+  List<UserModel> getUsersForSelection({String? searchQuery}) {
     var users = _cachedUsers.where((user) => user.isActive).toList();
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
@@ -280,7 +280,7 @@ class UserService {
   }
 
   /// Save users to local cache
-  Future<void> _saveUsersToCache(List<User> users) async {
+  Future<void> _saveUsersToCache(List<UserModel> users) async {
     try {
       final usersJson = jsonEncode(users.map((user) => user.toJson()).toList());
       final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -319,7 +319,7 @@ class UserService {
 
   // Testing methods - not for production use
   @visibleForTesting
-  void setCachedUsersForTesting(List<User> users) {
+  void setCachedUsersForTesting(List<UserModel> users) {
     _cachedUsers = users;
     _usersController.add(_cachedUsers);
   }
@@ -336,7 +336,7 @@ class UserService {
   DateTime? get lastFetchTimeForTesting => _lastFetchTime;
 
   @visibleForTesting
-  List<User> get cachedUsersForTesting => List.unmodifiable(_cachedUsers);
+  List<UserModel> get cachedUsersForTesting => List.unmodifiable(_cachedUsers);
 
   @visibleForTesting
   void addLoadingStateForTesting(bool isLoading) {
@@ -344,7 +344,7 @@ class UserService {
   }
 
   @visibleForTesting
-  void addUsersUpdateForTesting(List<User> users) {
+  void addUsersUpdateForTesting(List<UserModel> users) {
     _usersController.add(users);
   }
 }

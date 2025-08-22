@@ -136,10 +136,14 @@ class PWAService {
     if (!isBackgroundSyncEnabled) return;
 
     try {
-      // Request background sync permission
-      if ('serviceWorker' in html.window.navigator &&
-          'sync' in html.window.navigator.serviceWorker) {
-        debugPrint('PWA: Background sync available');
+      // Check if service worker and background sync are supported
+      if (html.window.navigator.serviceWorker != null) {
+        // Try to register for background sync by checking if the API is available
+        final registration = await html.window.navigator.serviceWorker!.ready;
+        // Background sync is supported if we can access the sync property without error
+        if (registration.sync != null) {
+          debugPrint('PWA: Background sync available');
+        }
       }
     } catch (e) {
       debugPrint('PWA: Background sync setup failed: $e');
@@ -148,8 +152,8 @@ class PWAService {
 
   /// Request notification permission
   Future<String> _requestNotificationPermission() async {
-    if (html.window.Notification.supported) {
-      final permission = await html.window.Notification.requestPermission();
+    if (html.Notification.supported) {
+      final permission = await html.Notification.requestPermission();
       return permission.toString();
     }
     return 'denied';
@@ -238,7 +242,7 @@ class PWAService {
     try {
       final tasks = await _loadStoredSyncTasks();
       tasks[task.id] = task.toJson();
-      await html.window.localStorage['pwa_sync_tasks'] = jsonEncode(tasks);
+      html.window.localStorage['pwa_sync_tasks'] = jsonEncode(tasks);
     } catch (e) {
       debugPrint('PWA: Failed to store sync task: $e');
     }
@@ -249,7 +253,7 @@ class PWAService {
     try {
       final tasks = await _loadStoredSyncTasks();
       tasks.remove(taskId);
-      await html.window.localStorage['pwa_sync_tasks'] = jsonEncode(tasks);
+      html.window.localStorage['pwa_sync_tasks'] = jsonEncode(tasks);
     } catch (e) {
       debugPrint('PWA: Failed to remove stored sync task: $e');
     }
@@ -270,8 +274,8 @@ class PWAService {
 
   /// Get PWA installation status
   bool get isInstalled {
-    return html.window.matchMedia('(display-mode: standalone)').matches ||
-           html.window.navigator.standalone == true;
+    // Check if app is running in standalone mode (PWA)
+    return html.window.matchMedia('(display-mode: standalone)').matches;
   }
 
   /// Get app install prompt
@@ -289,14 +293,13 @@ class PWAService {
   /// Share content using Web Share API
   Future<bool> shareContent(String title, String text, String url) async {
     try {
-      if (html.window.navigator.share != null) {
-        await html.window.navigator.share!({
-          'title': title,
-          'text': text,
-          'url': url,
-        });
-        return true;
-      }
+      // Try to use Web Share API - will throw if not supported
+      await html.window.navigator.share({
+        'title': title,
+        'text': text,
+        'url': url,
+      });
+      return true;
     } catch (e) {
       debugPrint('PWA: Share failed: $e');
     }

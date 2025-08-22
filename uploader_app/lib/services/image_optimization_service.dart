@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image/image.dart' as img;
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as web_html;
 
@@ -118,11 +116,14 @@ class ImageOptimizationService {
   /// Get image dimensions without loading full image
   Future<ImageDimensions> getImageDimensions(Uint8List imageBytes) async {
     try {
-      final size = ImageSizeGetter.getSize(MemoryInput(imageBytes));
+      final decodedImage = img.decodeImage(imageBytes);
+      if (decodedImage == null) {
+        throw ImageOptimizationException('Failed to decode image for dimensions');
+      }
       return ImageDimensions(
-        width: size.width,
-        height: size.height,
-        aspectRatio: size.width / size.height,
+        width: decodedImage.width,
+        height: decodedImage.height,
+        aspectRatio: decodedImage.width / decodedImage.height,
       );
     } catch (e) {
       throw ImageOptimizationException('Failed to get image dimensions: $e');
