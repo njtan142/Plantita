@@ -170,7 +170,7 @@ void main() {
     });
 
     test('PaginationMeta.fromJson handles null values', () {
-      final json = {};
+      final json = <String, dynamic>{};
 
       final meta = PaginationMeta.fromJson(json);
 

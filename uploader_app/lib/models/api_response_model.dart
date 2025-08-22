@@ -61,8 +61,9 @@ class ApiResponse<T> {
     final statusCode = json['status_code'] as int?;
 
     if (success) {
-      final dataJson = json['data'];
-      final data = dataJson != null ? fromJson(dataJson as Map<String, dynamic>) : null;
+      final dataJson = json['data'] ?? json['items'];
+      final actualDataJson = dataJson is List ? dataJson.first : dataJson;
+      final data = actualDataJson != null ? fromJson(actualDataJson as Map<String, dynamic>) : null;
       return ApiResponse<T>.success(
         data as T,
         message: json['message'] as String?,
