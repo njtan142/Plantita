@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../lib/services/services.dart';
+import 'package:uploader_app/services/services.dart';
 
 @GenerateMocks([
   HttpClientService,

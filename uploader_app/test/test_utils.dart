@@ -9,9 +9,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../lib/models/models.dart';
-import '../lib/services/services.dart';
-import '../lib/providers/providers.dart';
+import 'package:uploader_app/models/models.dart';
+import 'package:uploader_app/services/services.dart';
+import 'package:uploader_app/providers/providers.dart';
 
 // Generate mocks
 @GenerateMocks([

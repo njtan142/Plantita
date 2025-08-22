@@ -181,7 +181,7 @@ class FileSelectionService {
       return 'application/octet-stream';
     }
   }
-  List<SelectedFile> _selectedFiles = [];
+  final List<SelectedFile> _selectedFiles = [];
   FileSelectionConfig _config = const FileSelectionConfig();
 
   /// Stream of selected files

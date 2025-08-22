@@ -31,7 +31,7 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
   bool _isCapturing = false;
-  bool _isProcessing = false;
+  final bool _isProcessing = false;
   XFile? _capturedImage;
   Uint8List? _imageBytes;
 
@@ -309,7 +309,7 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
               margin: EdgeInsets.symmetric(horizontal: 16.w),
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withAlpha((255 * 0.7).round()),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Row(
@@ -350,7 +350,7 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
             margin: EdgeInsets.all(32.w),
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withAlpha((255 * 0.3).round()),
                 width: 2,
               ),
               borderRadius: BorderRadius.circular(16.r),
@@ -398,8 +398,8 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white,
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+                            border: Border.all( 
+                              color: Colors.white.withAlpha((255 * 0.3).round()),
                               width: 4,
                             ),
                           ),

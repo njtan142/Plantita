@@ -1,9 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../lib/models/models.dart';
-import '../../lib/services/services.dart';
+import 'package:uploader_app/models/models.dart';
+import 'package:uploader_app/services/services.dart';
 import '../mocks/mocks.mocks.dart';
 
 void main() {

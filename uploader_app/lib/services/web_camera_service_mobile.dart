@@ -220,9 +220,7 @@ class WebCameraService {
     // On mobile, permissions are handled by the camera plugin
     // We'll check by trying to get available cameras
     try {
-      if (_availableCameras == null) {
-        _availableCameras = await availableCameras();
-      }
+      _availableCameras ??= await availableCameras();
       return true;
     } catch (e) {
       return false;

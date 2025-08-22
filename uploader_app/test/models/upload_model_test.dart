@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/models/upload_model.dart';
+import 'package:uploader_app/models/upload_model.dart';
 
 void main() {
   group('Upload Model Tests', () {

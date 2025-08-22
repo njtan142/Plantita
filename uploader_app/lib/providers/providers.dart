@@ -1,4 +1,5 @@
 /// Export all provider classes for easy importing
+library;
 export 'base_provider.dart';
 export 'auth_provider.dart';
 export 'user_selection_provider.dart';

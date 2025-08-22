@@ -265,7 +265,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Ticker
             validator: MultiValidator([
               RequiredValidator(errorText: 'Email is required'),
               EmailValidator(errorText: 'Enter a valid email address'),
-            ]),
+            ]).call,
           ),
 
           SizedBox(height: 32.h),

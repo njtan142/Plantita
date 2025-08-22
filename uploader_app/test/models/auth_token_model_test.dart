@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import '../../lib/models/auth_token_model.dart';
+import 'package:uploader_app/models/auth_token_model.dart';
 
 void main() {
   group('AuthToken Model Tests', () {
@@ -346,7 +346,7 @@ void main() {
     test('AuthToken handles JWT decoding edge cases', () {
       // Test with malformed JWT payload
       final malformedToken = AuthToken(
-        accessToken: 'header.' + base64Encode('{"invalid": json}'.codeUnits) + '.signature',
+        accessToken: 'header.${base64Encode('{"invalid": json}'.codeUnits)}.signature',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
       );

@@ -337,7 +337,7 @@ class ObjectPool<T> {
 
 /// Resource wrapper with automatic cleanup
 class ResourceWrapper<T> {
-  T _resource;
+  final T _resource;
   final String _resourceType;
   final void Function(T)? _cleanup;
   final DateTime _createdAt;
@@ -382,7 +382,7 @@ class ResourceWrapper<T> {
 
       if (_cleanup != null) {
         try {
-          _cleanup!(_resource);
+          _cleanup(_resource);
         } catch (e) {
           debugPrint('Error cleaning up resource $_resourceType: $e');
         }

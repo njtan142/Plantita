@@ -11,11 +11,11 @@ class PWAInstallPrompt extends StatefulWidget {
   final bool showOnMobileOnly;
 
   const PWAInstallPrompt({
-    Key? key,
+    super.key,
     required this.child,
     this.promptDelay = const Duration(seconds: 3),
     this.showOnMobileOnly = true,
-  }) : super(key: key);
+  });
 
   @override
   State<PWAInstallPrompt> createState() => _PWAInstallPromptState();
@@ -247,7 +247,6 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _dismissPrompt,
-                    child: const Text('Later'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.white,
                       side: const BorderSide(color: Colors.white),
@@ -256,6 +255,7 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                    child: const Text('Later'),
                   ),
                 ),
               ],
@@ -272,9 +272,9 @@ class PWAStatusWidget extends StatelessWidget {
   final PWAService pwaService;
 
   const PWAStatusWidget({
-    Key? key,
+    super.key,
     required this.pwaService,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -332,9 +332,9 @@ class PWABackgroundSyncIndicator extends StatelessWidget {
   final PWAService pwaService;
 
   const PWABackgroundSyncIndicator({
-    Key? key,
+    super.key,
     required this.pwaService,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -384,10 +384,10 @@ class PWAInstallButton extends StatelessWidget {
   final VoidCallback? onInstallStarted;
 
   const PWAInstallButton({
-    Key? key,
+    super.key,
     required this.pwaService,
     this.onInstallStarted,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

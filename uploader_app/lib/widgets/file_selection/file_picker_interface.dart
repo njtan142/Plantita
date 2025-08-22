@@ -148,7 +148,7 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Only added ${remainingSlots} files. Maximum ${widget.maxFiles} files allowed.',
+            'Only added $remainingSlots files. Maximum ${widget.maxFiles} files allowed.',
           ),
           backgroundColor: Theme.of(context).colorScheme.secondary,
         ),
@@ -317,7 +317,7 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
                 margin: EdgeInsets.all(16.w),
                 decoration: BoxDecoration(
                   color: _isDragOver
-                      ? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3)
+                      ? Theme.of(context).colorScheme.primaryContainer.withAlpha(76)
                       : Theme.of(context).colorScheme.surface,
                   border: Border.all(
                     color: _isDragOver
@@ -446,7 +446,7 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withAlpha((255 * 0.7).round()),
                     Colors.transparent,
                   ],
                 ),
@@ -507,7 +507,7 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
 
   Widget _buildFileIcon(PlatformFile file, ResponsiveConfig responsive) {
     return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

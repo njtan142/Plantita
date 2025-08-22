@@ -327,7 +327,7 @@ class _UploadProgressInterfaceState extends State<UploadProgressInterface>
               Container(
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Column(
@@ -359,7 +359,7 @@ class _UploadProgressInterfaceState extends State<UploadProgressInterface>
           // Overall progress bar
           LinearProgressIndicator(
             value: overallProgress,
-            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             valueColor: AlwaysStoppedAnimation<Color>(
               _getProgressColor(overallProgress, failedFiles > 0),
             ),
@@ -499,7 +499,7 @@ class _UploadProgressInterfaceState extends State<UploadProgressInterface>
             // Progress bar
             LinearProgressIndicator(
               value: item.status == UploadStatus.uploading ? item.progress : null,
-              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(
                 _getStatusColor(item.status),
               ),

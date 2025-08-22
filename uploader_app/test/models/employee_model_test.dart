@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/models/employee_model.dart';
+import 'package:uploader_app/models/employee_model.dart';
 
 void main() {
   group('Employee Model Tests', () {

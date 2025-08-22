@@ -205,8 +205,8 @@ class WebCameraService {
       throw CameraException('Camera elements not initialized');
     }
 
-    final videoWidth = _videoElement!.videoWidth!;
-    final videoHeight = _videoElement!.videoHeight!;
+    final videoWidth = _videoElement!.videoWidth;
+    final videoHeight = _videoElement!.videoHeight;
 
     // Calculate dimensions
     int targetWidth = maxWidth ?? videoWidth;

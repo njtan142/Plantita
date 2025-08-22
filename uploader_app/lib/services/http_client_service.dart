@@ -323,9 +323,7 @@ class HttpClientService {
           message = responseBody.toString();
         }
 
-        if (message == null) {
-          message = _getDefaultErrorMessage(statusCode);
-        }
+        message ??= _getDefaultErrorMessage(statusCode);
 
         return ApiResponse.error(
           message: message,

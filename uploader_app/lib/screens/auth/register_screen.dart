@@ -261,7 +261,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                     prefixIcon: Icons.person,
                                     validator: RequiredValidator(
                                       errorText: 'First name is required',
-                                    ),
+                                    ).call,
                                   ),
                                 ),
                                 SizedBox(width: 16.w),
@@ -273,7 +273,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                     prefixIcon: Icons.person,
                                     validator: RequiredValidator(
                                       errorText: 'Last name is required',
-                                    ),
+                                    ).call,
                                   ),
                                 ),
                               ],
@@ -290,7 +290,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                               validator: MultiValidator([
                                 RequiredValidator(errorText: 'Username is required'),
                                 MinLengthValidator(3, errorText: 'Username must be at least 3 characters'),
-                              ]),
+                              ]).call,
                             ),
 
                             SizedBox(height: 24.h),
@@ -305,7 +305,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                               validator: MultiValidator([
                                 RequiredValidator(errorText: 'Email is required'),
                                 EmailValidator(errorText: 'Enter a valid email address'),
-                              ]),
+                              ]).call,
                             ),
 
                             SizedBox(height: 24.h),
@@ -337,7 +337,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   r'(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
                                   errorText: 'Password must contain uppercase, lowercase, and number',
                                 ),
-                              ]),
+                              ]).call,
                             ),
 
                             SizedBox(height: 24.h),

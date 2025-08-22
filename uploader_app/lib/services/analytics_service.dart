@@ -133,15 +133,13 @@ class AnalyticsService {
       debugPrint('Analytics: Parameters value: $parameters');
 
       // Filter out null values to match Firebase Analytics expectations
-      final Map<String, Object>? filteredParameters = parameters != null
-          ? parameters.entries
+      final Map<String, Object>? filteredParameters = parameters?.entries
               .where((entry) => entry.value != null)
               .cast<MapEntry<String, Object>>()
               .fold<Map<String, Object>>({}, (map, entry) {
                 map[entry.key] = entry.value;
                 return map;
-              })
-          : null;
+              });
 
       if (parameters != null && filteredParameters != null) {
         final nullValues = parameters.entries

@@ -41,7 +41,7 @@ class ImageOptimizationService {
     ImageFormat format = ImageFormat.auto,
     bool maintainAspectRatio = true,
     Function(double)? onProgress,
-  }) async {
+  }) {
     final startTime = DateTime.now();
 
     try {

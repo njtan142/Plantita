@@ -212,7 +212,7 @@ class TestRunner {
         print('Code Coverage: ${coverage.toStringAsFixed(2)}%');
       }
       if (kDebugMode) {
-        print('Minimum Required: ${minimumCoverage}%');
+        print('Minimum Required: $minimumCoverage%');
       }
       if (kDebugMode) {
         print('Coverage Status: ${results.coverageData['meetsMinimum'] ? '✅ MET' : '❌ NOT MET'}');
