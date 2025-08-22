@@ -1,12 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
-import 'dart:typed_data';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
-import 'package:universal_html/html.dart' as web_html;
 
 /// Image optimization service for processing and compressing images
 class ImageOptimizationService {
@@ -15,7 +10,6 @@ class ImageOptimizationService {
   final int _maxHeight;
   final int _quality;
   final int _maxFileSize;
-  
 
   // Memory management
   final Map<String, WeakReference<Uint8List>> _imageCache = {};
@@ -30,8 +24,7 @@ class ImageOptimizationService {
   })  : _maxWidth = maxWidth,
         _maxHeight = maxHeight,
         _quality = quality,
-        _maxFileSize = maxFileSize,
-        
+        _maxFileSize = maxFileSize;
 
   /// Optimize image from bytes with platform-specific processing
   Future<OptimizedImage> optimizeImage(
@@ -41,7 +34,7 @@ class ImageOptimizationService {
     ImageFormat format = ImageFormat.auto,
     bool maintainAspectRatio = true,
     Function(double)? onProgress,
-  }) {
+  }) async {
     final startTime = DateTime.now();
 
     try {
@@ -50,8 +43,7 @@ class ImageOptimizationService {
       if (_imageCache.containsKey(cacheKey)) {
         final cached = _imageCache[cacheKey]?.target;
         if (cached != null) {
-          return OptimizedImage(
-;
+          return Future.value(OptimizedImage(
             originalBytes: imageBytes,
             optimizedBytes: cached,
             originalSize: imageBytes.length,
@@ -60,7 +52,7 @@ class ImageOptimizationService {
             height: 0,
             format: format,
             processingTime: DateTime.now().difference(startTime),
-          );
+          ));
         }
       }
 
@@ -76,7 +68,7 @@ class ImageOptimizationService {
       // Cache result
       _imageCache[cacheKey] = WeakReference(result.optimizedBytes);
 
-      return result;
+      return Future.value(result);
     } catch (e) {
       throw ImageOptimizationException('Failed to optimize image: $e');
     }
