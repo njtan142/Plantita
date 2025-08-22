@@ -86,7 +86,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
             decoration: InputDecoration(
               hintText: widget.hintText ?? 'Search for a user...',
               hintStyle: TextStyle(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                color: theme.colorScheme.onSurfaceVariant.withAlpha((255 * 0.6).round()),
                 fontSize: responsive.bodyFontSize,
               ),
               prefixIcon: Icon(
@@ -107,7 +107,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
               filled: true,
               fillColor: widget.enabled
                   ? theme.colorScheme.surface
-                  : theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                  : theme.colorScheme.surfaceContainerHighest.withAlpha((255 * 0.5).round()),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
@@ -132,7 +132,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(
-                  color: theme.colorScheme.outline.withOpacity(0.5),
+                  color: theme.colorScheme.outline.withAlpha((255 * 0.5).round()),
                   width: 1,
                 ),
               ),
@@ -149,7 +149,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
             borderRadius: BorderRadius.circular(12.r),
             elevation: 4,
             color: theme.colorScheme.surface,
-            shadowColor: Colors.black.withOpacity(0.1),
+            shadowColor: Colors.black.withAlpha((255 * 0.1).round()),
             constraints: BoxConstraints(
               maxHeight: 300.h,
             ),
@@ -320,7 +320,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
       margin: EdgeInsets.only(top: 12.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        color: theme.colorScheme.primaryContainer.withAlpha((255 * 0.3).round()),
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
           color: theme.colorScheme.primaryContainer,

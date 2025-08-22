@@ -450,7 +450,7 @@ class _UploadProgressInterfaceState extends State<UploadProgressInterface>
                   width: 48.w,
                   height: 48.h,
                   decoration: BoxDecoration(
-                    color: _getStatusColor(item.status).withOpacity(0.1),
+                    color: _getStatusColor(item.status).withAlpha((255 * 0.1).round()),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Icon(

@@ -428,8 +428,8 @@ class MobilePerformanceService {
       'batteryLevel': _batteryLevel,
       'batteryState': _batteryState.name,
       'lowMemoryMode': _isLowMemoryMode,
-      'androidInfo': _androidInfo?.toMap(),
-      'iosInfo': _iosInfo?.toMap(),
+      'androidInfo': _androidInfo?.data,
+      'iosInfo': _iosInfo?.data,
     };
   }
 

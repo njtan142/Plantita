@@ -472,7 +472,7 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
                     _formatFileSize(file.size),
                     style: TextStyle(
                       fontSize: 8.sp,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withAlpha((255 * 0.8).round()),
                     ),
                   ),
                 ],
@@ -489,7 +489,7 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
               child: Container(
                 padding: EdgeInsets.all(4.w),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withAlpha((255 * 0.5).round()),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
