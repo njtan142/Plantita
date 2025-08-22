@@ -32,11 +32,17 @@ void main() {
 
     test('initialize loads stored auth data successfully', () async {
       // Arrange
-      final tokenJson = '{"access_token": "test_token", "refresh_token": "refresh_token", "expires_at": "${DateTime.now().add(const Duration(hours: 1)).toIso8601String()}", "token_type": "Bearer"}';
-      final userJson = '{"id": 1, "username": "testuser", "first_name": "Test", "last_name": "User", "role": "admin", "permissions": ["read", "write"], "is_active": true, "created_at": "${DateTime.now().toIso8601String()}"}';
+      final tokenJson =
+          '{"access_token": "test_token", "refresh_token": "refresh_token", "expires_at": "${DateTime.now().add(const Duration(hours: 1)).toIso8601String()}", "token_type": "Bearer"}';
+      final userJson =
+          '{"id": 1, "username": "testuser", "first_name": "Test", "last_name": "User", "role": "admin", "permissions": ["read", "write"], "is_active": true, "created_at": "${DateTime.now().toIso8601String()}"}';
 
-      when(mockSecureStorage.read(key: 'auth_token')).thenAnswer((_) async => tokenJson);
-      when(mockSecureStorage.read(key: 'auth_user')).thenAnswer((_) async => userJson);
+      when(
+        mockSecureStorage.read(key: 'auth_token'),
+      ).thenAnswer((_) async => tokenJson);
+      when(
+        mockSecureStorage.read(key: 'auth_user'),
+      ).thenAnswer((_) async => userJson);
 
       // Act
       await authService.initialize();
@@ -52,11 +58,18 @@ void main() {
 
     test('initialize handles expired token', () async {
       // Arrange
-      final expiredTokenJson = '{"access_token": "expired_token", "refresh_token": "refresh_token", "expires_at": "${DateTime.now().subtract(const Duration(hours: 1)).toIso8601String()}", "token_type": "Bearer"}';
+      final expiredTokenJson =
+          '{"access_token": "expired_token", "refresh_token": "refresh_token", "expires_at": "${DateTime.now().subtract(const Duration(hours: 1)).toIso8601String()}", "token_type": "Bearer"}';
 
-      when(mockSecureStorage.read(key: 'auth_token')).thenAnswer((_) async => expiredTokenJson);
-      when(mockSecureStorage.read(key: 'auth_user')).thenAnswer((_) async => null);
-      when(mockSecureStorage.delete(key: 'auth_token')).thenAnswer((_) async {});
+      when(
+        mockSecureStorage.read(key: 'auth_token'),
+      ).thenAnswer((_) async => expiredTokenJson);
+      when(
+        mockSecureStorage.read(key: 'auth_user'),
+      ).thenAnswer((_) async => null);
+      when(
+        mockSecureStorage.delete(key: 'auth_token'),
+      ).thenAnswer((_) async {});
       when(mockSecureStorage.delete(key: 'auth_user')).thenAnswer((_) async {});
 
       // Act
@@ -72,7 +85,7 @@ void main() {
 
     test('login success stores auth data', () async {
       // Arrange
-      final mockToken = AuthToken(
+      final mockToken = AuthTokenModel(
         accessToken: 'new_access_token',
         refreshToken: 'new_refresh_token',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -91,14 +104,22 @@ void main() {
       );
       final mockResponse = ApiResponse.success(mockToken);
 
-      when(mockHttpClient.post<AuthToken>(any, body: anyNamed('body'), fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => mockResponse);
-      when(mockHttpClient.get<Employee>(any, fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => ApiResponse.success(mockUser));
-      when(mockSecureStorage.write(key: 'auth_token', value: anyNamed('value')))
-          .thenAnswer((_) async {});
-      when(mockSecureStorage.write(key: 'auth_user', value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockHttpClient.post<AuthTokenModel>(
+          any,
+          body: anyNamed('body'),
+          fromJson: anyNamed('fromJson'),
+        ),
+      ).thenAnswer((_) async => mockResponse);
+      when(
+        mockHttpClient.get<Employee>(any, fromJson: anyNamed('fromJson')),
+      ).thenAnswer((_) async => ApiResponse.success(mockUser));
+      when(
+        mockSecureStorage.write(key: 'auth_token', value: anyNamed('value')),
+      ).thenAnswer((_) async {});
+      when(
+        mockSecureStorage.write(key: 'auth_user', value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       // Act
       final result = await authService.login('username', 'password');
@@ -115,8 +136,13 @@ void main() {
       // Arrange
       final mockResponse = ApiResponse.error(message: 'Invalid credentials');
 
-      when(mockHttpClient.post<AuthToken>(any, body: anyNamed('body'), fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => mockResponse);
+      when(
+        mockHttpClient.post<AuthTokenModel>(
+          any,
+          body: anyNamed('body'),
+          fromJson: anyNamed('fromJson'),
+        ),
+      ).thenAnswer((_) async => mockResponse);
 
       // Act
       final result = await authService.login('wrong', 'credentials');
@@ -129,7 +155,7 @@ void main() {
 
     test('logout clears all auth data', () async {
       // Arrange - set up authenticated state
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'test_token',
         refreshToken: 'refresh_token',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -152,8 +178,12 @@ void main() {
         secureStorage: mockSecureStorage,
       );
 
-      when(mockHttpClient.post(any)).thenAnswer((_) async => ApiResponse.success(null));
-      when(mockSecureStorage.delete(key: 'auth_token')).thenAnswer((_) async {});
+      when(
+        mockHttpClient.post(any),
+      ).thenAnswer((_) async => ApiResponse.success(null));
+      when(
+        mockSecureStorage.delete(key: 'auth_token'),
+      ).thenAnswer((_) async {});
       when(mockSecureStorage.delete(key: 'auth_user')).thenAnswer((_) async {});
 
       // Act
@@ -168,13 +198,13 @@ void main() {
 
     test('refreshToken success updates stored token', () async {
       // Arrange
-      final oldToken = AuthToken(
+      final oldToken = AuthTokenModel(
         accessToken: 'old_token',
         refreshToken: 'refresh_token',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
         tokenType: 'Bearer',
       );
-      final newToken = AuthToken(
+      final newToken = AuthTokenModel(
         accessToken: 'new_token',
         refreshToken: 'new_refresh_token',
         expiresAt: DateTime.now().add(const Duration(hours: 2)),
@@ -188,10 +218,16 @@ void main() {
 
       final mockResponse = ApiResponse.success(newToken);
 
-      when(mockHttpClient.post<AuthToken>(any, body: anyNamed('body'), fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => mockResponse);
-      when(mockSecureStorage.write(key: 'auth_token', value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockHttpClient.post<AuthTokenModel>(
+          any,
+          body: anyNamed('body'),
+          fromJson: anyNamed('fromJson'),
+        ),
+      ).thenAnswer((_) async => mockResponse);
+      when(
+        mockSecureStorage.write(key: 'auth_token', value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       // Act
       final result = await authService.refreshToken();
@@ -206,8 +242,13 @@ void main() {
       // Arrange
       final mockResponse = ApiResponse.error(message: 'Invalid refresh token');
 
-      when(mockHttpClient.post<AuthToken>(any, body: anyNamed('body'), fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => mockResponse);
+      when(
+        mockHttpClient.post<AuthTokenModel>(
+          any,
+          body: anyNamed('body'),
+          fromJson: anyNamed('fromJson'),
+        ),
+      ).thenAnswer((_) async => mockResponse);
 
       // Act
       final result = await authService.refreshToken();
@@ -219,13 +260,15 @@ void main() {
 
     test('ensureValidToken refreshes when token needs refresh', () async {
       // Arrange
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'old_token',
         refreshToken: 'refresh_token',
-        expiresAt: DateTime.now().add(const Duration(minutes: 3)), // Expires in 3 minutes
+        expiresAt: DateTime.now().add(
+          const Duration(minutes: 3),
+        ), // Expires in 3 minutes
         tokenType: 'Bearer',
       );
-      final newToken = AuthToken(
+      final newToken = AuthTokenModel(
         accessToken: 'new_token',
         refreshToken: 'new_refresh_token',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -237,10 +280,16 @@ void main() {
         secureStorage: mockSecureStorage,
       );
 
-      when(mockHttpClient.post<AuthToken>(any, body: anyNamed('body'), fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => ApiResponse.success(newToken));
-      when(mockSecureStorage.write(key: 'auth_token', value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockHttpClient.post<AuthTokenModel>(
+          any,
+          body: anyNamed('body'),
+          fromJson: anyNamed('fromJson'),
+        ),
+      ).thenAnswer((_) async => ApiResponse.success(newToken));
+      when(
+        mockSecureStorage.write(key: 'auth_token', value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       // Act
       final result = await authService.ensureValidToken();
@@ -254,8 +303,9 @@ void main() {
       // Arrange
       final mockResponse = ApiResponse.success(null);
 
-      when(mockHttpClient.post(any, body: anyNamed('body')))
-          .thenAnswer((_) async => mockResponse);
+      when(
+        mockHttpClient.post(any, body: anyNamed('body')),
+      ).thenAnswer((_) async => mockResponse);
 
       // Act
       final result = await authService.changePassword(
@@ -313,10 +363,16 @@ void main() {
 
       final mockResponse = ApiResponse.success(updatedUser);
 
-      when(mockHttpClient.put<Employee>(any, body: anyNamed('body'), fromJson: anyNamed('fromJson')))
-          .thenAnswer((_) async => mockResponse);
-      when(mockSecureStorage.write(key: 'auth_user', value: anyNamed('value')))
-          .thenAnswer((_) async {});
+      when(
+        mockHttpClient.put<Employee>(
+          any,
+          body: anyNamed('body'),
+          fromJson: anyNamed('fromJson'),
+        ),
+      ).thenAnswer((_) async => mockResponse);
+      when(
+        mockSecureStorage.write(key: 'auth_user', value: anyNamed('value')),
+      ).thenAnswer((_) async {});
 
       // Act
       final result = await authService.updateProfile(

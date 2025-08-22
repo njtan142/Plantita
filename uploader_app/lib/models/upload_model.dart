@@ -30,6 +30,74 @@ extension UploadStatusExtension on UploadStatus {
   }
 }
 
+/// Result model for upload operations
+class UploadResult {
+  final String fileName;
+  final bool success;
+  final String? message;
+  final String? fileUrl;
+  final String? fileId;
+  final DateTime timestamp;
+
+   UploadResult({
+    required this.fileName,
+    required this.success,
+    this.message,
+    this.fileUrl,
+    this.fileId,
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
+
+  /// Create a successful upload result
+  factory UploadResult.success({
+    required String fileName,
+    String? message,
+    String? fileUrl,
+    String? fileId,
+  }) {
+    return UploadResult(
+      fileName: fileName,
+      success: true,
+      message: message ?? 'Upload completed successfully',
+      fileUrl: fileUrl,
+      fileId: fileId,
+    );
+  }
+
+  /// Create a failed upload result
+  factory UploadResult.failure({
+    required String fileName,
+    required String message,
+  }) {
+    return UploadResult(
+      fileName: fileName,
+      success: false,
+      message: message,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UploadResult &&
+        other.fileName == fileName &&
+        other.success == success &&
+        other.message == message &&
+        other.fileUrl == fileUrl &&
+        other.fileId == fileId;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(fileName, success, message, fileUrl, fileId);
+  }
+
+  @override
+  String toString() {
+    return 'UploadResult(fileName: $fileName, success: $success, message: $message)';
+  }
+}
+
 /// Upload model representing a file upload with progress tracking
 class Upload {
   final String id;
@@ -179,7 +247,6 @@ class Upload {
       userId: userId ?? this.userId,
       uploadedBy: uploadedBy ?? this.uploadedBy,
       status: status ?? this.status,
-      progress: progress ?? this.progress,
       errorMessage: errorMessage ?? this.errorMessage,
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
@@ -196,7 +263,6 @@ class Upload {
 
   @override
   int get hashCode => id.hashCode;
-
 
   @override
   String toString() {

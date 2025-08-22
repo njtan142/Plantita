@@ -18,7 +18,7 @@ void main() {
     };
 
     test('User.fromJson creates User correctly', () {
-      final user = UserModel.fromJson(testUserJson);
+      final user = UserModel.fromJson(testUserJson as String);
 
       expect(user.id, 1);
       expect(user.username, 'testuser');
@@ -44,7 +44,7 @@ void main() {
         'created_at': '2024-01-01T10:00:00Z',
       };
 
-      final user = UserModel.fromJson(minimalUserJson);
+      final user = UserModel.fromJson(minimalUserJson as String);
 
       expect(user.id, 2);
       expect(user.username, 'minimaluser');

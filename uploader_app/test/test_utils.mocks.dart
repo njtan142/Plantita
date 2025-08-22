@@ -91,7 +91,7 @@ class MockHttpClientService extends _i1.Mock implements _i7.HttpClientService {
           as bool);
 
   @override
-  void setToken(_i2.AuthToken? token) => super.noSuchMethod(
+  void setToken(_i2.AuthTokenModel? token) => super.noSuchMethod(
     Invocation.method(#setToken, [token]),
     returnValueForMissingStub: null,
   );
@@ -345,33 +345,33 @@ class MockAuthService extends _i1.Mock implements _i10.AuthService {
           as _i9.Future<void>);
 
   @override
-  _i9.Future<_i2.ApiResponse<_i2.AuthToken>> login(
+  _i9.Future<_i2.ApiResponse<_i2.AuthTokenModel>> login(
     String? username,
     String? password,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#login, [username, password]),
-            returnValue: _i9.Future<_i2.ApiResponse<_i2.AuthToken>>.value(
-              _FakeApiResponse_0<_i2.AuthToken>(
+            returnValue: _i9.Future<_i2.ApiResponse<_i2.AuthTokenModel>>.value(
+              _FakeApiResponse_0<_i2.AuthTokenModel>(
                 this,
                 Invocation.method(#login, [username, password]),
               ),
             ),
           )
-          as _i9.Future<_i2.ApiResponse<_i2.AuthToken>>);
+          as _i9.Future<_i2.ApiResponse<_i2.AuthTokenModel>>);
 
   @override
-  _i9.Future<_i2.ApiResponse<_i2.AuthToken>> refreshToken() =>
+  _i9.Future<_i2.ApiResponse<_i2.AuthTokenModel>> refreshToken() =>
       (super.noSuchMethod(
             Invocation.method(#refreshToken, []),
-            returnValue: _i9.Future<_i2.ApiResponse<_i2.AuthToken>>.value(
-              _FakeApiResponse_0<_i2.AuthToken>(
+            returnValue: _i9.Future<_i2.ApiResponse<_i2.AuthTokenModel>>.value(
+              _FakeApiResponse_0<_i2.AuthTokenModel>(
                 this,
                 Invocation.method(#refreshToken, []),
               ),
             ),
           )
-          as _i9.Future<_i2.ApiResponse<_i2.AuthToken>>);
+          as _i9.Future<_i2.ApiResponse<_i2.AuthTokenModel>>);
 
   @override
   _i9.Future<void> logout() =>

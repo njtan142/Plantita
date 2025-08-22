@@ -125,7 +125,7 @@ class MockHttpClientService extends _i1.Mock implements _i8.HttpClientService {
           as bool);
 
   @override
-  void setToken(_i2.AuthToken? token) => super.noSuchMethod(
+  void setToken(_i2.AuthTokenModel? token) => super.noSuchMethod(
     Invocation.method(#setToken, [token]),
     returnValueForMissingStub: null,
   );
@@ -379,33 +379,33 @@ class MockAuthService extends _i1.Mock implements _i11.AuthService {
           as _i10.Future<void>);
 
   @override
-  _i10.Future<_i2.ApiResponse<_i2.AuthToken>> login(
+  _i10.Future<_i2.ApiResponse<_i2.AuthTokenModel>> login(
     String? username,
     String? password,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#login, [username, password]),
-            returnValue: _i10.Future<_i2.ApiResponse<_i2.AuthToken>>.value(
-              _FakeApiResponse_0<_i2.AuthToken>(
+            returnValue: _i10.Future<_i2.ApiResponse<_i2.AuthTokenModel>>.value(
+              _FakeApiResponse_0<_i2.AuthTokenModel>(
                 this,
                 Invocation.method(#login, [username, password]),
               ),
             ),
           )
-          as _i10.Future<_i2.ApiResponse<_i2.AuthToken>>);
+          as _i10.Future<_i2.ApiResponse<_i2.AuthTokenModel>>);
 
   @override
-  _i10.Future<_i2.ApiResponse<_i2.AuthToken>> refreshToken() =>
+  _i10.Future<_i2.ApiResponse<_i2.AuthTokenModel>> refreshToken() =>
       (super.noSuchMethod(
             Invocation.method(#refreshToken, []),
-            returnValue: _i10.Future<_i2.ApiResponse<_i2.AuthToken>>.value(
-              _FakeApiResponse_0<_i2.AuthToken>(
+            returnValue: _i10.Future<_i2.ApiResponse<_i2.AuthTokenModel>>.value(
+              _FakeApiResponse_0<_i2.AuthTokenModel>(
                 this,
                 Invocation.method(#refreshToken, []),
               ),
             ),
           )
-          as _i10.Future<_i2.ApiResponse<_i2.AuthToken>>);
+          as _i10.Future<_i2.ApiResponse<_i2.AuthTokenModel>>);
 
   @override
   _i10.Future<void> logout() =>

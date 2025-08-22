@@ -78,8 +78,8 @@ class TestUtils {
     );
   }
 
-  static AuthToken createMockAuthToken() {
-    return AuthToken(
+  static AuthTokenModel createMockAuthToken() {
+    return AuthTokenModel(
       accessToken: faker.jwt.secret,
       refreshToken: faker.jwt.secret,
       tokenType: 'Bearer',

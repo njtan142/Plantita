@@ -4,7 +4,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:uploader_app/models/auth_token_model.dart';
 
 void main() {
-  group('AuthToken Model Tests', () {
+  group('AuthTokenModel Model Tests', () {
     const testTokenJson = {
       'access_token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwicm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6WyJ1cGxvYWQiXSwiZXhwIjoxNzM1Njg5NjAwfQ.test_signature',
       'refresh_token': 'refresh_token_123',
@@ -20,31 +20,29 @@ void main() {
       'expires_in': 3600,
     };
 
-    test('AuthToken.fromJson creates AuthToken correctly', () {
-      final token = AuthToken.fromJson(testTokenJson);
+    test('AuthTokenModel.fromJson creates AuthTokenModel correctly', () {
+      final token = AuthTokenModel.fromMap(testTokenJson);
 
       expect(token.accessToken, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6InRlc3R1c2VyIiwicm9sZSI6InVzZXIiLCJwZXJtaXNzaW9ucyI6WyJ1cGxvYWQiXSwiZXhwIjoxNzM1Njg5NjAwfQ.test_signature');
       expect(token.refreshToken, 'refresh_token_123');
       expect(token.tokenType, 'Bearer');
-      expect(token.scope, 'read write');
       expect(token.isExpired, false);
     });
 
-    test('AuthToken.fromJson handles minimal JSON', () {
+    test('AuthTokenModel.fromJson handles minimal JSON', () {
       final minimalJson = {
         'access_token': 'access_token_123',
         'refresh_token': 'refresh_token_456',
       };
 
-      final token = AuthToken.fromJson(minimalJson);
+      final token = AuthTokenModel.fromMap(minimalJson);
 
       expect(token.accessToken, 'access_token_123');
       expect(token.refreshToken, 'refresh_token_456');
       expect(token.tokenType, 'Bearer'); // default value
-      expect(token.scope, null);
     });
 
-    test('AuthToken.fromJson with expires_at field', () {
+    test('AuthTokenModel.fromJson with expires_at field', () {
       final futureDate = DateTime.now().add(const Duration(hours: 2));
       final jsonWithExpiresAt = {
         'access_token': 'access_token_123',
@@ -53,7 +51,7 @@ void main() {
         'token_type': 'Bearer',
       };
 
-      final token = AuthToken.fromJson(jsonWithExpiresAt);
+      final token = AuthTokenModel.fromMap(jsonWithExpiresAt);
 
       expect(token.accessToken, 'access_token_123');
       expect(token.refreshToken, 'refresh_token_456');
@@ -61,14 +59,13 @@ void main() {
       expect(token.expiresAt, futureDate);
     });
 
-    test('AuthToken.toJson converts AuthToken to JSON correctly', () {
+    test('AuthTokenModel.toJson converts AuthTokenModel to JSON correctly', () {
       final expiresAt = DateTime.now().add(const Duration(hours: 1));
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: expiresAt,
         tokenType: 'Bearer',
-        scope: 'read write',
       );
 
       final json = token.toJson();
@@ -80,9 +77,9 @@ void main() {
       expect(json['expires_at'], expiresAt.toIso8601String());
     });
 
-    test('AuthToken.isExpired returns false for future expiration', () {
+    test('AuthTokenModel.isExpired returns false for future expiration', () {
       final futureDate = DateTime.now().add(const Duration(hours: 1));
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: futureDate,
@@ -91,9 +88,9 @@ void main() {
       expect(token.isExpired, false);
     });
 
-    test('AuthToken.isExpired returns true for past expiration', () {
+    test('AuthTokenModel.isExpired returns true for past expiration', () {
       final pastDate = DateTime.now().subtract(const Duration(hours: 1));
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: pastDate,
@@ -102,8 +99,8 @@ void main() {
       expect(token.isExpired, true);
     });
 
-    test('AuthToken.willExpireIn returns correct values', () {
-      final token = AuthToken(
+    test('AuthTokenModel.willExpireIn returns correct values', () {
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(minutes: 30)),
@@ -113,8 +110,8 @@ void main() {
       expect(token.willExpireIn(const Duration(minutes: 45)), true);
     });
 
-    test('AuthToken.needsRefresh returns true when expires within 5 minutes', () {
-      final token = AuthToken(
+    test('AuthTokenModel.needsRefresh returns true when expires within 5 minutes', () {
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(minutes: 3)),
@@ -123,8 +120,8 @@ void main() {
       expect(token.needsRefresh, true);
     });
 
-    test('AuthToken.needsRefresh returns false when expires after 5 minutes', () {
-      final token = AuthToken(
+    test('AuthTokenModel.needsRefresh returns false when expires after 5 minutes', () {
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(minutes: 10)),
@@ -133,9 +130,9 @@ void main() {
       expect(token.needsRefresh, false);
     });
 
-    test('AuthToken.timeUntilExpiration returns correct duration', () {
+    test('AuthTokenModel.timeUntilExpiration returns correct duration', () {
       final expiresAt = DateTime.now().add(const Duration(minutes: 30));
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: expiresAt,
@@ -145,9 +142,9 @@ void main() {
       expect(timeUntilExpiration.inMinutes, closeTo(30, 1));
     });
 
-    test('AuthToken.timeUntilExpiration returns zero for expired token', () {
+    test('AuthTokenModel.timeUntilExpiration returns zero for expired token', () {
       final pastDate = DateTime.now().subtract(const Duration(hours: 1));
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: pastDate,
@@ -156,22 +153,22 @@ void main() {
       expect(token.timeUntilExpiration, Duration.zero);
     });
 
-    test('AuthToken.jwtPayload returns payload for valid JWT', () {
+    test('AuthTokenModel.jwtPayload returns payload for valid JWT', () {
       // Skip this test since we can't create valid signed JWT tokens in tests
       // The JWT decoding functionality would be tested in integration tests
       expect(true, true); // Placeholder test
     });
 
-    test('AuthToken.jwtPayload returns null for expired JWT', () {
-      final token = AuthToken.fromJson(expiredTokenJson);
+    test('AuthTokenModel.jwtPayload returns null for expired JWT', () {
+      final token = AuthTokenModel.fromMap(expiredTokenJson);
 
       final payload = token.jwtPayload;
 
       expect(payload, isNull);
     });
 
-    test('AuthToken.jwtPayload returns null for invalid JWT', () {
-      final token = AuthToken(
+    test('AuthTokenModel.jwtPayload returns null for invalid JWT', () {
+      final token = AuthTokenModel(
         accessToken: 'invalid_jwt_token',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -182,13 +179,13 @@ void main() {
       expect(payload, isNull);
     });
 
-    test('AuthToken.userId returns correct user ID from JWT', () {
+    test('AuthTokenModel.userId returns correct user ID from JWT', () {
       // Skip JWT-specific tests since we can't create valid signed JWT tokens in unit tests
       expect(true, true); // Placeholder test
     });
 
-    test('AuthToken.userId returns null for invalid JWT', () {
-      final token = AuthToken(
+    test('AuthTokenModel.userId returns null for invalid JWT', () {
+      final token = AuthTokenModel(
         accessToken: 'invalid_jwt_token',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -197,13 +194,13 @@ void main() {
       expect(token.userId, isNull);
     });
 
-    test('AuthToken.username returns correct username from JWT', () {
+    test('AuthTokenModel.username returns correct username from JWT', () {
       // Skip JWT-specific tests since we can't create valid signed JWT tokens in unit tests
       expect(true, true); // Placeholder test
     });
 
-    test('AuthToken.username returns null for invalid JWT', () {
-      final token = AuthToken(
+    test('AuthTokenModel.username returns null for invalid JWT', () {
+      final token = AuthTokenModel(
         accessToken: 'invalid_jwt_token',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -212,13 +209,13 @@ void main() {
       expect(token.username, isNull);
     });
 
-    test('AuthToken.role returns correct role from JWT', () {
+    test('AuthTokenModel.role returns correct role from JWT', () {
       // Skip JWT-specific tests since we can't create valid signed JWT tokens in unit tests
       expect(true, true); // Placeholder test
     });
 
-    test('AuthToken.role returns null for invalid JWT', () {
-      final token = AuthToken(
+    test('AuthTokenModel.role returns null for invalid JWT', () {
+      final token = AuthTokenModel(
         accessToken: 'invalid_jwt_token',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -227,13 +224,13 @@ void main() {
       expect(token.role, isNull);
     });
 
-    test('AuthToken.permissions returns correct permissions from JWT', () {
+    test('AuthTokenModel.permissions returns correct permissions from JWT', () {
       // Skip JWT-specific tests since we can't create valid signed JWT tokens in unit tests
       expect(true, true); // Placeholder test
     });
 
-    test('AuthToken.permissions returns null for invalid JWT', () {
-      final token = AuthToken(
+    test('AuthTokenModel.permissions returns null for invalid JWT', () {
+      final token = AuthTokenModel(
         accessToken: 'invalid_jwt_token',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -242,13 +239,12 @@ void main() {
       expect(token.permissions, isNull);
     });
 
-    test('AuthToken.copyWith creates new AuthToken with updated fields', () {
-      final originalToken = AuthToken(
+    test('AuthTokenModel.copyWith creates new AuthTokenModel with updated fields', () {
+      final originalToken = AuthTokenModel(
         accessToken: 'original_access',
         refreshToken: 'original_refresh',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
         tokenType: 'Bearer',
-        scope: 'read',
       );
 
       final newExpiresAt = DateTime.now().add(const Duration(hours: 2));
@@ -257,7 +253,6 @@ void main() {
         refreshToken: 'new_refresh',
         expiresAt: newExpiresAt,
         tokenType: 'JWT',
-        scope: 'read write',
       );
 
       expect(updatedToken.accessToken, 'new_access');
@@ -267,8 +262,8 @@ void main() {
       expect(updatedToken.scope, 'read write');
     });
 
-    test('AuthToken.copyWith returns same object when no changes', () {
-      final token = AuthToken(
+    test('AuthTokenModel.copyWith returns same object when no changes', () {
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -283,20 +278,20 @@ void main() {
       expect(sameToken.scope, token.scope);
     });
 
-    test('AuthToken equality and hashCode work correctly', () {
-      final token1 = AuthToken(
+    test('AuthTokenModel equality and hashCode work correctly', () {
+      final token1 = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
       );
 
-      final token2 = AuthToken(
+      final token2 = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
       );
 
-      final token3 = AuthToken(
+      final token3 = AuthTokenModel(
         accessToken: 'different_token',
         refreshToken: 'different_refresh',
         expiresAt: DateTime.now().add(const Duration(hours: 2)),
@@ -308,9 +303,9 @@ void main() {
       expect(token1.hashCode == token3.hashCode, false);
     });
 
-    test('AuthToken.toString returns correct string representation', () {
+    test('AuthTokenModel.toString returns correct string representation', () {
       final expiresAt = DateTime.now().add(const Duration(hours: 1));
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: expiresAt,
@@ -319,22 +314,21 @@ void main() {
 
       final toString = token.toString();
 
-      expect(toString, contains('AuthToken'));
+      expect(toString, contains('AuthTokenModel'));
       expect(toString, contains('Bearer'));
       expect(toString, contains('false')); // isExpired should be false
     });
 
-    test('AuthToken serialization is reversible', () {
-      final originalToken = AuthToken(
+    test('AuthTokenModel serialization is reversible', () {
+      final originalToken = AuthTokenModel(
         accessToken: 'access_token_123',
         refreshToken: 'refresh_token_456',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
         tokenType: 'Bearer',
-        scope: 'read write',
       );
 
       final json = originalToken.toJson();
-      final deserializedToken = AuthToken.fromJson(json);
+      final deserializedToken = AuthTokenModel.fromJson(json);
 
       expect(deserializedToken.accessToken, originalToken.accessToken);
       expect(deserializedToken.refreshToken, originalToken.refreshToken);
@@ -343,9 +337,9 @@ void main() {
       expect(deserializedToken.expiresAt, originalToken.expiresAt);
     });
 
-    test('AuthToken handles JWT decoding edge cases', () {
+    test('AuthTokenModel handles JWT decoding edge cases', () {
       // Test with malformed JWT payload
-      final malformedToken = AuthToken(
+      final malformedToken = AuthTokenModel(
         accessToken: 'header.${base64Encode('{"invalid": json}'.codeUnits)}.signature',
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),
@@ -358,13 +352,13 @@ void main() {
       expect(malformedToken.permissions, isNull);
     });
 
-    test('AuthToken handles JWT without standard claims', () {
+    test('AuthTokenModel handles JWT without standard claims', () {
       // Create a simple JWT without standard claims
       final header = base64Encode('{"alg":"HS256","typ":"JWT"}'.codeUnits);
       final payload = base64Encode('{"custom_claim":"value"}'.codeUnits);
       final simpleJwt = '$header.$payload.signature';
 
-      final token = AuthToken(
+      final token = AuthTokenModel(
         accessToken: simpleJwt,
         refreshToken: 'refresh_token_123',
         expiresAt: DateTime.now().add(const Duration(hours: 1)),

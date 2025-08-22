@@ -90,7 +90,7 @@ void main() {
         'status_code': 200,
       };
 
-      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data));
+      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data as String));
 
       expect(response.success, true);
       expect(response.data, isA<UserModel>());
@@ -108,7 +108,7 @@ void main() {
         },
       };
 
-      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data));
+      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data as String));
 
       expect(response.success, false);
       expect(response.data, null);
@@ -123,7 +123,7 @@ void main() {
         'data': {'id': 1, 'name': 'Test'},
       };
 
-      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data));
+      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data as String));
 
       expect(response.success, true);
     });
@@ -134,7 +134,7 @@ void main() {
         'items': [{'id': 1, 'name': 'Test'}],
       };
 
-      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data));
+      final response = ApiResponse.fromJson(json, (data) => UserModel.fromJson(data as String));
 
       expect(response.success, true);
     });
@@ -223,7 +223,7 @@ void main() {
         'status_code': 200,
       };
 
-      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson));
+      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson as String));
 
       expect(response.success, true);
       expect(response.items, hasLength(2));
@@ -247,7 +247,7 @@ void main() {
         ],
       };
 
-      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson));
+      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson as String));
 
       expect(response.success, true);
       expect(response.items, hasLength(1));
@@ -269,7 +269,7 @@ void main() {
         },
       };
 
-      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson));
+      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson as String));
 
       expect(response.success, true);
       expect(response.meta.currentPage, 1);
@@ -281,7 +281,7 @@ void main() {
         'data': null,
       };
 
-      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson));
+      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson as String));
 
       expect(response.success, true);
       expect(response.items, hasLength(0));
@@ -292,7 +292,7 @@ void main() {
         'success': true,
       };
 
-      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson));
+      final response = PaginatedResponse.fromJson(json, (userJson) => UserModel.fromJson(userJson as String));
 
       expect(response.success, true);
       expect(response.items, hasLength(0));

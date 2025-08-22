@@ -1,13 +1,11 @@
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:uploader_app/lib/services/performance_monitor_service.dart';
-import 'package:uploader_app/lib/services/network_optimization_service.dart';
-import 'package:uploader_app/lib/services/memory_management_service.dart';
-import 'package:uploader_app/lib/services/enhanced_upload_service.dart';
-import 'package:uploader_app/lib/utils/performance_utils.dart';
-import 'package:uploader_app/lib/utils/bundle_optimization_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:uploader_app/services/memory_management_service.dart';
+import 'package:uploader_app/services/performance_monitor_service.dart';
+import 'package:uploader_app/utils/bundle_optimization_utils.dart';
+import 'package:uploader_app/utils/performance_utils.dart';
 
 void main() {
   group('Performance Validation Tests', () {
