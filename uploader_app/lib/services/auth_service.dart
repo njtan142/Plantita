@@ -12,7 +12,7 @@ class AuthService {
   final FlutterSecureStorage _secureStorage;
 
   // Authentication state
-  AuthToken? _currentToken;
+  AuthTokenModel? _currentToken;
   Employee? _currentUser;
   bool _isInitialized = false;
 
@@ -23,7 +23,7 @@ class AuthService {
         _secureStorage = secureStorage ?? const FlutterSecureStorage();
 
   /// Current authentication token
-  AuthToken? get currentToken => _currentToken;
+  AuthTokenModel? get currentToken => _currentToken;
 
   /// Current authenticated user
   Employee? get currentUser => _currentUser;
@@ -49,7 +49,7 @@ class AuthService {
       final tokenJson = await _secureStorage.read(key: _tokenKey);
       if (tokenJson != null) {
         final tokenData = jsonDecode(tokenJson);
-        _currentToken = AuthToken.fromJson(tokenData);
+        _currentToken = AuthTokenModel.fromJson(tokenData);
 
         // Check if token is still valid
         if (_currentToken!.isExpired) {
@@ -76,15 +76,15 @@ class AuthService {
   }
 
   /// Login with username and password
-  Future<ApiResponse<AuthToken>> login(String username, String password) async {
+  Future<ApiResponse<AuthTokenModel>> login(String username, String password) async {
     try {
-      final response = await _httpClient.post<AuthToken>(
+      final response = await _httpClient.post<AuthTokenModel>(
         '/auth/login',
         body: {
           'username': username,
           'password': password,
         },
-        fromJson: (json) => AuthToken.fromJson(json),
+        fromJson: (json) => AuthTokenModel.fromMap(json),
         retryOnFailure: false, // Don't retry auth requests
       );
 
@@ -111,18 +111,18 @@ class AuthService {
   }
 
   /// Refresh authentication token
-  Future<ApiResponse<AuthToken>> refreshToken() async {
+  Future<ApiResponse<AuthTokenModel>> refreshToken() async {
     if (_currentToken?.refreshToken == null) {
       return ApiResponse.error(message: 'No refresh token available');
     }
 
     try {
-      final response = await _httpClient.post<AuthToken>(
+      final response = await _httpClient.post<AuthTokenModel>(
         '/auth/refresh',
         body: {
           'refresh_token': _currentToken!.refreshToken,
         },
-        fromJson: (json) => AuthToken.fromJson(json),
+        fromJson: (json) => AuthTokenModel.fromMap(json),
         retryOnFailure: false,
       );
 

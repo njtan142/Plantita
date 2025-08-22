@@ -5,36 +5,36 @@ import '../services/file_selection_service.dart';
 import 'base_provider.dart';
 import 'user_selection_provider.dart';
 
-class UploadProvider extends BaseProvider {
+class UploadModelProvider extends BaseProvider {
   final UploadService _uploadService;
   final FileSelectionService _fileSelectionService;
   final UserSelectionProvider _userSelectionProvider;
 
   List<UploadModel> _uploadQueue = [];
-  List<UploadModel> _completedUploads = [];
-  List<UploadModel> _failedUploads = [];
-  bool _isUploading = false;
+  List<UploadModel> _completedUploadModels = [];
+  List<UploadModel> _failedUploadModels = [];
+  bool _isUploadModeling = false;
 
-  UploadProvider(
+  UploadModelProvider(
     this._uploadService,
     this._fileSelectionService,
     this._userSelectionProvider,
   );
 
   List<UploadModel> get uploadQueue => _uploadQueue;
-  List<UploadModel> get completedUploads => _completedUploads;
-  List<UploadModel> get failedUploads => _failedUploads;
-  bool get isUploading => _isUploading;
+  List<UploadModel> get completedUploadModels => _completedUploadModels;
+  List<UploadModel> get failedUploadModels => _failedUploadModels;
+  bool get isUploadModeling => _isUploadModeling;
   int get totalProgress => _uploadQueue.isEmpty ? 0 :
-    (_completedUploads.length + _failedUploads.length) * 100 ~/ _uploadQueue.length;
+    (_completedUploadModels.length + _failedUploadModels.length) * 100 ~/ _uploadQueue.length;
 
-  void addFilesToUpload(List<PlatformFile> files) {
+  void addFilesToUploadModel(List<PlatformFile> files) {
     if (_userSelectionProvider.selectedUser == null) {
       setError('Please select a user before uploading files');
       return;
     }
 
-    final newUploads = files.map((file) => UploadModel(
+    final newUploadModels = files.map((file) => UploadModel(
       id: DateTime.now().millisecondsSinceEpoch.toString() + '_' + file.name,
       file: file,
       user: _userSelectionProvider.selectedUser!,
@@ -43,7 +43,7 @@ class UploadProvider extends BaseProvider {
       createdAt: DateTime.now(),
     )).toList();
 
-    _uploadQueue.addAll(newUploads);
+    _uploadQueue.addAll(newUploadModels);
     notifyListeners();
   }
 
@@ -58,16 +58,16 @@ class UploadProvider extends BaseProvider {
   }
 
   void clearCompleted() {
-    _completedUploads.clear();
+    _completedUploadModels.clear();
     notifyListeners();
   }
 
   void clearFailed() {
-    _failedUploads.clear();
+    _failedUploadModels.clear();
     notifyListeners();
   }
 
-  Future<void> startUpload() async {
+  Future<void> startUploadModel() async {
     if (_uploadQueue.isEmpty) {
       setError('No files to upload');
       return;
@@ -81,7 +81,7 @@ class UploadProvider extends BaseProvider {
     try {
       setLoading(true);
       clearError();
-      _isUploading = true;
+      _isUploadModeling = true;
 
       // Process uploads sequentially to avoid overwhelming the server
       for (final upload in _uploadQueue) {
@@ -96,7 +96,7 @@ class UploadProvider extends BaseProvider {
       setError(e.toString());
     } finally {
       setLoading(false);
-      _isUploading = false;
+      _isUploadModeling = false;
     }
   }
 
@@ -121,26 +121,26 @@ class UploadProvider extends BaseProvider {
       if (response.success && response.data != null) {
         upload.status = UploadStatus.completed;
         upload.result = response.data;
-        _completedUploads.add(upload);
+        _completedUploadModels.add(upload);
       } else {
         upload.status = UploadStatus.failed;
-        upload.error = response.message ?? 'Upload failed';
-        _failedUploads.add(upload);
+        upload.error = response.message ?? 'UploadModel failed';
+        _failedUploadModels.add(upload);
       }
     } catch (e) {
       upload.status = UploadStatus.failed;
       upload.error = e.toString();
-      _failedUploads.add(upload);
+      _failedUploadModels.add(upload);
     } finally {
       notifyListeners();
     }
   }
 
-  Future<void> retryFailedUploads() async {
-    if (_failedUploads.isEmpty) return;
+  Future<void> retryFailedUploadModels() async {
+    if (_failedUploadModels.isEmpty) return;
 
-    final failedCopy = List<UploadModel>.from(_failedUploads);
-    _failedUploads.clear();
+    final failedCopy = List<UploadModel>.from(_failedUploadModels);
+    _failedUploadModels.clear();
     _uploadQueue.addAll(failedCopy);
 
     for (final upload in failedCopy) {
@@ -150,29 +150,29 @@ class UploadProvider extends BaseProvider {
     }
 
     notifyListeners();
-    await startUpload();
+    await startUploadModel();
   }
 
-  Future<void> retryUpload(String uploadId) async {
-    final upload = _failedUploads.firstWhere(
+  Future<void> retryUploadModel(String uploadId) async {
+    final upload = _failedUploadModels.firstWhere(
       (upload) => upload.id == uploadId,
-      orElse: () => throw Exception('Upload not found'),
+      orElse: () => throw Exception('UploadModel not found'),
     );
 
-    _failedUploads.remove(upload);
+    _failedUploadModels.remove(upload);
     upload.status = UploadStatus.pending;
     upload.progress = 0;
     upload.error = null;
     _uploadQueue.add(upload);
 
     notifyListeners();
-    await startUpload();
+    await startUploadModel();
   }
 
   int get pendingCount => _uploadQueue.where((u) => u.status == UploadStatus.pending).length;
   int get uploadingCount => _uploadQueue.where((u) => u.status == UploadStatus.uploading).length;
-  int get completedCount => _completedUploads.length;
-  int get failedCount => _failedUploads.length;
+  int get completedCount => _completedUploadModels.length;
+  int get failedCount => _failedUploadModels.length;
 
   @override
   void onDispose() {

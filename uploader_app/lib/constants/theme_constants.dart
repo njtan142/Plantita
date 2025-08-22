@@ -54,7 +54,7 @@ class ThemeConstants {
     ),
 
     // Card Theme
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: surfaceLight,
       shadowColor: Colors.black.withOpacity(0.1),
       elevation: 4,
@@ -179,7 +179,7 @@ class ThemeConstants {
     ),
 
     // Card Theme
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: surfaceDark,
       shadowColor: Colors.black.withOpacity(0.3),
       elevation: 4,

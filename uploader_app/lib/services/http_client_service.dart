@@ -16,7 +16,7 @@ class HttpClientService {
   final Map<String, String> _defaultHeaders;
 
   // Authentication token storage
-  AuthToken? _currentToken;
+  AuthTokenModel? _currentToken;
   Employee? _currentUser;
 
   HttpClientService({
@@ -31,7 +31,7 @@ class HttpClientService {
         _defaultHeaders = defaultHeaders ?? {};
 
   /// Current authentication token
-  AuthToken? get currentToken => _currentToken;
+  AuthTokenModel? get currentToken => _currentToken;
 
   /// Current authenticated user
   Employee? get currentUser => _currentUser;
@@ -40,7 +40,7 @@ class HttpClientService {
   bool get isAuthenticated => _currentToken != null && !_currentToken!.isExpired;
 
   /// Set authentication token
-  void setToken(AuthToken token) {
+  void setToken(AuthTokenModel token) {
     _currentToken = token;
   }
 

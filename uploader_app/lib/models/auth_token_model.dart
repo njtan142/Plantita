@@ -19,6 +19,12 @@ class AuthTokenModel {
   // Get time until expiration
   Duration get timeUntilExpiration => expiresAt.difference(DateTime.now());
 
+  // Check if token needs refresh (within 5 minutes of expiration)
+  bool get needsRefresh {
+    final fiveMinutesFromNow = DateTime.now().add(const Duration(minutes: 5));
+    return fiveMinutesFromNow.isAfter(expiresAt);
+  }
+
   // Create from JSON
   factory AuthTokenModel.fromJson(String jsonString) {
     final Map<String, dynamic> json = jsonDecode(jsonString);

@@ -1,5 +1,10 @@
 import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
+import 'user_model.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io' if (dart.library.html) 'dart:html' as html;
+import 'package:http/http.dart' as http;
 
 /// Upload status enumeration
 enum UploadStatus {
@@ -199,6 +204,65 @@ class Upload {
   String toString() {
     return 'Upload(id: $id, fileName: $fileName, status: ${status.name}, progress: $progressPercentage%)';
   }
+/// UploadModel for use with UploadProvider - matches the expected interface
+class UploadModel {
+  final String id;
+  final PlatformFile file;
+  final UserModel user;
+  UploadStatus status;
+  int progress; // 0-100
+  final DateTime createdAt;
+  String? error;
+  dynamic result;
+
+  UploadModel({
+    required this.id,
+    required this.file,
+    required this.user,
+    this.status = UploadStatus.pending,
+    this.progress = 0,
+    required this.createdAt,
+    this.error,
+    this.result,
+  });
+
+  /// Create a copy with updated fields
+  UploadModel copyWith({
+    String? id,
+    PlatformFile? file,
+    UserModel? user,
+    UploadStatus? status,
+    int? progress,
+    DateTime? createdAt,
+    String? error,
+    dynamic result,
+  }) {
+    return UploadModel(
+      id: id ?? this.id,
+      file: file ?? this.file,
+      user: user ?? this.user,
+      status: status ?? this.status,
+      progress: progress ?? this.progress,
+      createdAt: createdAt ?? this.createdAt,
+      error: error ?? this.error,
+      result: result ?? this.result,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UploadModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'UploadModel(id: $id, fileName: ${file.name}, status: ${status.name}, progress: $progress%)';
+  }
+}
 }
 
 /// Upload queue item for managing concurrent uploads

@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 
-import '../models/user_model.dart';
-import '../models/auth_token_model.dart';
+import '../models/models.dart';
 import '../services/auth_service.dart';
+import '../services/http_client_service.dart';
 import '../constants/app_constants.dart';
+import '../config/environment_config.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+   late final HttpClientService _httpClient;
+   late final AuthService _authService;
+   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
-  UserModel? _currentUser;
+   AuthProvider() {
+     _httpClient = HttpClientService(baseUrl: EnvironmentConfig.apiBaseUrl);
+     _authService = AuthService(httpClient: _httpClient);
+   }
+
+  Employee? _currentUser;
   AuthTokenModel? _authToken;
   bool _isLoading = false;
   String? _errorMessage;
   bool _isInitialized = false;
 
   // Getters
-  UserModel? get currentUser => _currentUser;
+  Employee? get currentUser => _currentUser;
   AuthTokenModel? get authToken => _authToken;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -26,7 +33,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   bool get _isTokenExpired {
     if (_authToken == null) return true;
-    return JwtDecoder.isExpired(_authToken!.accessToken);
+    return _authToken!.isExpired;
   }
 
   // Initialize auth state
@@ -54,7 +61,8 @@ class AuthProvider extends ChangeNotifier {
 
       if (tokenString != null && userString != null) {
         final token = AuthTokenModel.fromJson(tokenString);
-        final user = UserModel.fromJson(userString);
+        final userData = jsonDecode(userString);
+        final user = Employee.fromJson(userData);
 
         if (!_isTokenExpired) {
           _authToken = token;
@@ -76,17 +84,24 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final authData = await _authService.login(username, password);
+      final response = await _authService.login(username, password);
 
-      _authToken = authData['token'];
-      _currentUser = authData['user'];
+      if (response.success && response.data != null) {
+        _authToken = response.data;
+        // User will be fetched by the AuthService internally
+        _currentUser = _authService.currentUser;
 
-      // Store auth data securely
-      await _storeAuthData();
+        // Store auth data securely
+        await _storeAuthData();
 
-      _setLoading(false);
-      notifyListeners();
-      return true;
+        _setLoading(false);
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Login failed');
+        _setLoading(false);
+        return false;
+      }
     } catch (e) {
       _setError(e.toString());
       _setLoading(false);
@@ -94,23 +109,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Register
+  // Register - Note: AuthService doesn't have register method, would need separate service
   Future<bool> register(String username, String email, String password, String firstName, String lastName) async {
     _setLoading(true);
     _clearError();
 
     try {
-      final authData = await _authService.register(username, email, password, firstName, lastName);
-
-      _authToken = authData['token'];
-      _currentUser = authData['user'];
-
-      // Store auth data securely
-      await _storeAuthData();
-
+      // TODO: Implement registration via a separate service or extend AuthService
+      _setError('Registration not implemented yet');
       _setLoading(false);
-      notifyListeners();
-      return true;
+      return false;
     } catch (e) {
       _setError(e.toString());
       _setLoading(false);
@@ -124,9 +132,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      if (_authToken != null) {
-        await _authService.logout(_authToken!.accessToken);
-      }
+      await _authService.logout();
     } catch (e) {
       // Ignore logout errors
     }
@@ -142,11 +148,16 @@ class AuthProvider extends ChangeNotifier {
     if (_authToken == null) return false;
 
     try {
-      final newToken = await _authService.refreshToken(_authToken!.refreshToken);
-      _authToken = newToken;
-      await _storeAuthData();
-      notifyListeners();
-      return true;
+      final response = await _authService.refreshToken();
+      if (response.success && response.data != null) {
+        _authToken = response.data;
+        await _storeAuthData();
+        notifyListeners();
+        return true;
+      } else {
+        await logout();
+        return false;
+      }
     } catch (e) {
       await logout();
       return false;
@@ -163,7 +174,7 @@ class AuthProvider extends ChangeNotifier {
         );
         await _secureStorage.write(
           key: AppConstants.userKey,
-          value: _currentUser!.toJson(),
+          value: jsonEncode(_currentUser!.toJson()),
         );
       }
     } catch (e) {
@@ -195,13 +206,28 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final updatedUser = await _authService.updateProfile(_authToken!.accessToken, updates);
-      _currentUser = updatedUser;
-      await _storeAuthData();
+      final firstName = updates['firstName'] as String?;
+      final lastName = updates['lastName'] as String?;
+      final email = updates['email'] as String?;
 
-      _setLoading(false);
-      notifyListeners();
-      return true;
+      final response = await _authService.updateProfile(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+      );
+
+      if (response.success && response.data != null) {
+        _currentUser = response.data;
+        await _storeAuthData();
+
+        _setLoading(false);
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Profile update failed');
+        _setLoading(false);
+        return false;
+      }
     } catch (e) {
       _setError(e.toString());
       _setLoading(false);
