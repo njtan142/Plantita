@@ -138,6 +138,7 @@ export enum MediaStatus {
   PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',
+  FLAGGED = 'flagged',
   DELETED = 'deleted'
 }
 
@@ -267,6 +268,54 @@ export interface AnalyticsQueryParams {
   startDate?: string;
   endDate?: string;
   interval?: 'day' | 'week' | 'month';
+}
+
+// User Growth Report
+export interface UserGrowthReport {
+  dailyRegistrations: Array<{
+    date: string;
+    count: number;
+  }>;
+  retentionRate: {
+    day1: number;
+    day7: number;
+    day30: number;
+  };
+  activeUsers: {
+    daily: number;
+    weekly: number;
+    monthly: number;
+  };
+}
+
+// Media Trends Report
+export interface MediaTrendsReport {
+  uploadsByCategory: Record<string, number>;
+  uploadsByType: Record<string, number>;
+  popularTags: Array<{
+    tag: string;
+    count: number;
+  }>;
+  peakUploadTimes: Array<{
+    hour: number;
+    count: number;
+  }>;
+}
+
+// Moderation Statistics
+export interface ModerationStats {
+  totalFlagged: number;
+  resolved: number;
+  pending: number;
+  actions: {
+    approved: number;
+    rejected: number;
+    warned: number;
+  };
+  moderatorActivity: Array<{
+    moderatorId: string;
+    actions: number;
+  }>;
 }
 
 // Error types
@@ -432,7 +481,21 @@ export const MOCK_MEDIAS: Media[] = [
     url: 'https://example.com/media/photo1.jpg',
     thumbnailUrl: 'https://example.com/media/thumb/photo1.jpg',
     uploadedBy: '1',
-    uploadedByUser: MOCK_USERS[0],
+    uploadedByUser: {
+      id: '1',
+      email: 'john.doe@example.com',
+      username: 'johndoe',
+      firstName: 'John',
+      lastName: 'Doe',
+      avatar: 'https://example.com/avatar1.jpg',
+      role: UserRole.USER,
+      status: UserStatus.ACTIVE,
+      emailVerified: true,
+      createdAt: '2024-01-15T08:30:00Z',
+      updatedAt: '2024-01-20T10:15:00Z',
+      lastLoginAt: '2024-01-22T14:20:00Z',
+      reportedContentCount: 2
+    },
     tags: ['vacation', 'beach'],
     description: 'Beautiful beach view from our vacation',
     status: MediaStatus.APPROVED,
@@ -471,7 +534,21 @@ export const MOCK_MEDIAS: Media[] = [
     url: 'https://example.com/media/video1.mp4',
     thumbnailUrl: 'https://example.com/media/thumb/video1.jpg',
     uploadedBy: '2',
-    uploadedByUser: MOCK_USERS[1],
+    uploadedByUser: {
+      id: '2',
+      email: 'jane.smith@example.com',
+      username: 'janesmith',
+      firstName: 'Jane',
+      lastName: 'Smith',
+      avatar: 'https://example.com/avatar2.jpg',
+      role: UserRole.MODERATOR,
+      status: UserStatus.ACTIVE,
+      emailVerified: true,
+      createdAt: '2024-01-10T12:45:00Z',
+      updatedAt: '2024-01-18T09:30:00Z',
+      lastLoginAt: '2024-01-22T16:45:00Z',
+      reportedContentCount: 0
+    },
     tags: ['family', 'event'],
     description: 'Our family gathering last weekend',
     status: MediaStatus.APPROVED,
@@ -506,7 +583,21 @@ export const MOCK_MEDIAS: Media[] = [
     url: 'https://example.com/media/photo2.jpg',
     thumbnailUrl: 'https://example.com/media/thumb/photo2.jpg',
     uploadedBy: '1',
-    uploadedByUser: MOCK_USERS[0],
+    uploadedByUser: {
+      id: '1',
+      email: 'john.doe@example.com',
+      username: 'johndoe',
+      firstName: 'John',
+      lastName: 'Doe',
+      avatar: 'https://example.com/avatar1.jpg',
+      role: UserRole.USER,
+      status: UserStatus.ACTIVE,
+      emailVerified: true,
+      createdAt: '2024-01-15T08:30:00Z',
+      updatedAt: '2024-01-20T10:15:00Z',
+      lastLoginAt: '2024-01-22T14:20:00Z',
+      reportedContentCount: 2
+    },
     tags: ['plants', 'garden', 'flowers'],
     description: 'My beautiful garden with blooming flowers',
     status: MediaStatus.PENDING,
@@ -545,7 +636,21 @@ export const MOCK_MEDIAS: Media[] = [
     url: 'https://example.com/media/video2.mp4',
     thumbnailUrl: 'https://example.com/media/thumb/video2.jpg',
     uploadedBy: '2',
-    uploadedByUser: MOCK_USERS[1],
+    uploadedByUser: {
+      id: '2',
+      email: 'jane.smith@example.com',
+      username: 'janesmith',
+      firstName: 'Jane',
+      lastName: 'Smith',
+      avatar: 'https://example.com/avatar2.jpg',
+      role: UserRole.MODERATOR,
+      status: UserStatus.ACTIVE,
+      emailVerified: true,
+      createdAt: '2024-01-10T12:45:00Z',
+      updatedAt: '2024-01-18T09:30:00Z',
+      lastLoginAt: '2024-01-22T16:45:00Z',
+      reportedContentCount: 0
+    },
     tags: ['tutorial', 'plant care', 'tips'],
     description: 'Step-by-step guide to caring for your indoor plants',
     status: MediaStatus.FLAGGED,
@@ -579,3 +684,71 @@ export const MOCK_MEDIAS: Media[] = [
     }
   }
 ];
+
+// Mock data for reporting models
+export const MOCK_USER_GROWTH_REPORT: UserGrowthReport = {
+  dailyRegistrations: [
+    { date: '2024-01-01', count: 15 },
+    { date: '2024-01-02', count: 12 },
+    { date: '2024-01-03', count: 18 },
+    { date: '2024-01-04', count: 9 },
+    { date: '2024-01-05', count: 22 },
+    { date: '2024-01-06', count: 31 },
+    { date: '2024-01-07', count: 14 }
+  ],
+  retentionRate: {
+    day1: 0.78,
+    day7: 0.62,
+    day30: 0.45
+  },
+  activeUsers: {
+    daily: 1247,
+    weekly: 3421,
+    monthly: 8765
+  }
+};
+
+export const MOCK_MEDIA_TRENDS_REPORT: MediaTrendsReport = {
+  uploadsByCategory: {
+    nature: 124,
+    family: 87,
+    plants: 203,
+    tutorial: 45,
+    event: 67
+  },
+  uploadsByType: {
+    image: 342,
+    video: 78,
+    audio: 12,
+    document: 5
+  },
+  popularTags: [
+    { tag: 'plants', count: 203 },
+    { tag: 'garden', count: 156 },
+    { tag: 'vacation', count: 87 },
+    { tag: 'family', count: 134 },
+    { tag: 'tutorial', count: 45 }
+  ],
+  peakUploadTimes: [
+    { hour: 9, count: 45 },
+    { hour: 12, count: 67 },
+    { hour: 15, count: 89 },
+    { hour: 18, count: 123 },
+    { hour: 21, count: 98 }
+  ]
+};
+
+export const MOCK_MODERATION_STATS: ModerationStats = {
+  totalFlagged: 24,
+  resolved: 18,
+  pending: 6,
+  actions: {
+    approved: 7,
+    rejected: 11,
+    warned: 4
+  },
+  moderatorActivity: [
+    { moderatorId: '2', actions: 15 },
+    { moderatorId: '3', actions: 9 }
+  ]
+};

@@ -121,115 +121,117 @@ class _ReelsViewState extends State<ReelsView> {
           } else {
             return RefreshIndicator(
               onRefresh: () => reelProvider.fetchReels(),
-              child: PageView.builder(
-                controller: _pageController,
-                scrollDirection: Axis.vertical,
-                itemCount: reelProvider.reels.length,
-                itemBuilder: (context, index) {
-                final reel = reelProvider.reels[index];
-                final videoController = _videoControllers[reel.id];
+              child: FocusTraversalGroup(
+                child: PageView.builder(
+                  controller: _pageController,
+                  scrollDirection: Axis.vertical,
+                  itemCount: reelProvider.reels.length,
+                  itemBuilder: (context, index) {
+                  final reel = reelProvider.reels[index];
+                  final videoController = _videoControllers[reel.id];
 
-                if (videoController == null || !videoController.value.isInitialized) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                  if (videoController == null || !videoController.value.isInitialized) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                final Map<String, String> videoQualities = {
-                  'Auto': reel.videoUrl,
-                  '720p': reel.videoUrl.replaceFirst('.mp4', '_720p.mp4'), // Dummy URL
-                  '480p': reel.videoUrl.replaceFirst('.mp4', '_480p.mp4'), // Dummy URL
-                };
-                return Stack(
-                  children: [
-                    Semantics(
-                      label: 'Video player for reel titled ${reel.title}',
-                      child: CustomVideoPlayer(
-                        videoPlayerController: videoController,
-                        videoQualities: videoQualities,
-                        autoplay: true,
-                        looping: true,
+                  final Map<String, String> videoQualities = {
+                    'Auto': reel.videoUrl,
+                    '720p': reel.videoUrl.replaceFirst('.mp4', '_720p.mp4'), // Dummy URL
+                    '480p': reel.videoUrl.replaceFirst('.mp4', '_480p.mp4'), // Dummy URL
+                  };
+                  return Stack(
+                    children: [
+                      Semantics(
+                        label: 'Video player for reel titled ${reel.title}',
+                        child: CustomVideoPlayer(
+                          videoPlayerController: videoController,
+                          videoQualities: videoQualities,
+                          autoplay: true,
+                          looping: true,
+                        ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: 20,
-                      left: 20,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Semantics(
-                            label: 'Reel title: ${reel.title}',
-                            child: Text(
-                              reel.title,
-                              style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                      Positioned(
+                        bottom: 20,
+                        left: 20,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Semantics(
+                              label: 'Reel title: ${reel.title}',
+                              child: Text(
+                                reel.title,
+                                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
                             ),
-                          ),
-                          Semantics(
-                            label: 'Reel description: ${reel.description}',
-                            child: Text(
-                              reel.description,
-                              style: const TextStyle(color: Colors.white, fontSize: 16),
+                            Semantics(
+                              label: 'Reel description: ${reel.description}',
+                              child: Text(
+                                reel.description,
+                                style: const TextStyle(color: Colors.white, fontSize: 16),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Semantics(
-                                button: true,
-                                label: 'Like button. Currently ${reel.likesCount} likes.',
-                                child: IconButton(
-                                  icon: const Icon(Icons.favorite, color: Colors.white),
-                                  onPressed: () => reelProvider.likeReel(reel.id),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Semantics(
+                                  button: true,
+                                  label: 'Like button. Currently ${reel.likesCount} likes.',
+                                  child: IconButton(
+                                    icon: const Icon(Icons.favorite, color: Colors.white),
+                                    onPressed: () => reelProvider.likeReel(reel.id),
+                                  ),
                                 ),
-                              ),
-                              Semantics(
-                                label: '${reel.likesCount} likes',
-                                child: Text(
-                                  '${reel.likesCount}',
-                                  style: const TextStyle(color: Colors.white),
+                                Semantics(
+                                  label: '${reel.likesCount} likes',
+                                  child: Text(
+                                    '${reel.likesCount}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 20),
-                              Semantics(
-                                button: true,
-                                label: 'Comment button. Currently ${reel.commentsCount} comments.',
-                                child: IconButton(
-                                  icon: const Icon(Icons.comment, color: Colors.white),
-                                  onPressed: () {
-                                    // TODO: Implement comment dialog
-                                    print('Comment on ${reel.id}');
-                                  },
+                                const SizedBox(width: 20),
+                                Semantics(
+                                  button: true,
+                                  label: 'Comment button. Currently ${reel.commentsCount} comments.',
+                                  child: IconButton(
+                                    icon: const Icon(Icons.comment, color: Colors.white),
+                                    onPressed: () {
+                                      // TODO: Implement comment dialog
+                                      print('Comment on ${reel.id}');
+                                    },
+                                  ),
                                 ),
-                              ),
-                              Semantics(
-                                label: '${reel.commentsCount} comments',
-                                child: Text(
-                                  '${reel.commentsCount}',
-                                  style: const TextStyle(color: Colors.white),
+                                Semantics(
+                                  label: '${reel.commentsCount} comments',
+                                  child: Text(
+                                    '${reel.commentsCount}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 20),
-                              Semantics(
-                                button: true,
-                                label: 'Share button. Currently ${reel.sharesCount} shares.',
-                                child: IconButton(
-                                  icon: const Icon(Icons.share, color: Colors.white),
-                                  onPressed: () => reelProvider.shareReel(reel.id),
+                                const SizedBox(width: 20),
+                                Semantics(
+                                  button: true,
+                                  label: 'Share button. Currently ${reel.sharesCount} shares.',
+                                  child: IconButton(
+                                    icon: const Icon(Icons.share, color: Colors.white),
+                                    onPressed: () => reelProvider.shareReel(reel.id),
+                                  ),
                                 ),
-                              ),
-                              Semantics(
-                                label: '${reel.sharesCount} shares',
-                                child: Text(
-                                  '${reel.sharesCount}',
-                                  style: const TextStyle(color: Colors.white),
+                                Semantics(
+                                  label: '${reel.sharesCount} shares',
+                                  child: Text(
+                                    '${reel.sharesCount}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             );
           }
         },

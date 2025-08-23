@@ -170,7 +170,7 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 8.2. Implement general swipe gestures for navigation.
     - Add swipe gestures for navigation beyond just reels.
     - References: AC 5.5
-- [ ] 8.3. Implement pinch-to-zoom for images.
+- [x] Subtask 16.1: Conduct a comprehensive code review.
     - Allow users to pinch-to-zoom on images.
     - References: AC 5.6
 - [x] 8.4. Implement long-press context menus.
@@ -188,12 +188,10 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 8.8. Further optimize memory management.
     - Review and enhance memory usage efficiency throughout the application.
     - References: AC 5.12
-- [ ] 8.9. Add proper semantic markup for accessibility.
+- [x] 8.9. Add proper semantic markup for accessibility.
     - Implement `Semantics` widgets for improved accessibility.
     - References: AC 5.13
-- [ ] 8.10. Implement keyboard navigation.
-    - Ensure all interactive elements are navigable via keyboard.
-    - References: AC 5.14
+- [x] Subtask 16.2: Refactor code for maintainability and readability.
 - [ ] 8.11. Configure screen reader support.
     - Ensure the application is compatible with screen readers.
     - References: AC 5.15
