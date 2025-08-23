@@ -309,7 +309,11 @@ class NetworkOptimizationService {
   Future<OptimizedResponse> _waitForPendingRequest(String cacheKey) {
     final completer = _pendingRequests[cacheKey];
     if (completer != null) {
-      return completer.future;
+      return completer.future.then((response) => OptimizedResponse.fromApiResponse(
+        ApiResponse.success(response, message: 'Request completed'),
+        false,
+        Duration.zero,
+      ));
     }
     throw NetworkOptimizationException('No pending request found');
   }
@@ -381,7 +385,7 @@ class NetworkOptimizationService {
 
   /// Invalidate cache for URL
   Future<void> _invalidateCacheForUrl(String url) async {
-    final pattern = url.replaceAll(RegExp(r'[.*+?^${}()|[\]\\]'), '\\$&');
+    final pattern = url.replaceAll(RegExp(r'[.*+?^${}()|[\]\\]'), r'\$&');
 
     // Remove from memory cache
     _memoryCache.removeWhere((key, _) => key.contains(pattern));

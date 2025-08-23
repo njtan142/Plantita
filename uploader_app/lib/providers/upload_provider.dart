@@ -111,9 +111,9 @@ class UploadModelProvider extends BaseProvider {
         mimeType: upload.file.extension != null
           ? 'application/${upload.file.extension}'
           : 'application/octet-stream',
-        userId: int.tryParse(upload.user.id) ?? 0,
+        userId: upload.user.id,
         onProgress: (progress) {
-          upload.progress = progress as int;
+          upload.progress = progress.toInt();
           notifyListeners();
         },
       );

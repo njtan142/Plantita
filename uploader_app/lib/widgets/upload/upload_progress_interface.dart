@@ -109,7 +109,11 @@ class _UploadProgressInterfaceState extends State<UploadProgressInterface>
 
       try {
         final result = await uploadService.uploadFile(
-          file: uploadItem.file,
+          fileName: uploadItem.file.name,
+          fileBytes: uploadItem.file.bytes!,
+          mimeType: uploadItem.file.extension != null
+            ? 'application/${uploadItem.file.extension}'
+            : 'application/octet-stream',
           userId: uploadItem.user?.id,
           onProgress: (progress) {
             if (mounted && !_isCancelled) {
@@ -122,8 +126,14 @@ class _UploadProgressInterfaceState extends State<UploadProgressInterface>
 
         setState(() {
           uploadItem.status = UploadStatus.completed;
-          uploadItem.result = result;
-          _completedUploads.add(result);
+          final uploadResult = UploadResult.success(
+            fileName: uploadItem.file.name,
+            message: result.message ?? 'Upload completed successfully',
+            fileUrl: result.data?.serverUrl,
+            fileId: result.data?.id,
+          );
+          uploadItem.result = uploadResult;
+          _completedUploads.add(uploadResult);
         });
 
         // Small delay between uploads for better UX

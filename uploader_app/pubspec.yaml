@@ -42,7 +42,7 @@ dependencies:
   battery_plus: any
   device_info_plus: any
   camera: any
-  flutter_typeahead: any
+  flutter_typeahead: ^4.8.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

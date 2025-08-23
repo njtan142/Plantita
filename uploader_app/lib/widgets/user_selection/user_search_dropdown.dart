@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
@@ -78,7 +79,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
             ),
           ),
 
-        TypeAheadFormField<User>(
+        TypeAheadFormField<UserModel>(
           textFieldConfiguration: TextFieldConfiguration(
             controller: _controller,
             enabled: widget.enabled,
@@ -213,7 +214,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
     );
   }
 
-  Future<List<User>> _getUserSuggestions(String pattern) async {
+  Future<List<UserModel>> _getUserSuggestions(String pattern) async {
     if (pattern.isEmpty) return [];
 
     try {
@@ -429,7 +430,7 @@ class _UserSearchDropdownState extends State<UserSearchDropdown> {
     });
 
     if (widget.onUserSelected != null) {
-      widget.onUserSelected!(null as User);
+      widget.onUserSelected!(null as UserModel);
     }
   }
 }

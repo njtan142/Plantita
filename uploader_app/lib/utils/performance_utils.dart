@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uploader_app/services/http_client_service.dart';
 import '../models/models.dart';
-import '../services/performance_monitor_service.dart';
+import '../services/performance_monitor_service.dart' as performance_monitor_service;
+import '../services/performance_monitor_service.dart' show PerformanceEventType;
 import '../services/network_optimization_service.dart';
 import '../services/memory_management_service.dart';
 import '../services/enhanced_upload_service.dart';
@@ -18,7 +19,7 @@ class PerformanceUtils {
   static PerformanceUtils? _instance;
 
   // Core services
-  late final PerformanceMonitorService _performanceMonitor;
+  late final performance_monitor_service.PerformanceMonitorService _performanceMonitor;
   late final NetworkOptimizationService _networkOptimizer;
   late final MemoryManagementService _memoryManager;
   late final EnhancedUploadService _enhancedUpload;
@@ -76,7 +77,7 @@ class PerformanceUtils {
   Future<void> get initialization => _initCompleter.future;
 
   /// Performance monitor service
-  PerformanceMonitorService get performanceMonitor => _performanceMonitor;
+  performance_monitor_service.PerformanceMonitorService get performanceMonitor => _performanceMonitor;
 
   /// Network optimization service
   NetworkOptimizationService get networkOptimizer => _networkOptimizer;
@@ -96,7 +97,7 @@ class PerformanceUtils {
   /// Initialize all performance services
   void _initializeServices(SharedPreferences prefs, HttpClientService httpClient) {
     // Initialize core services
-    _performanceMonitor = PerformanceMonitorService();
+    _performanceMonitor = performance_monitor_service.PerformanceMonitorService();
     _networkOptimizer = NetworkOptimizationService(
       httpClient: httpClient,
       prefs: prefs,
@@ -365,7 +366,7 @@ class PerformanceUtils {
   /// Get comprehensive performance stats
   PerformanceStats getPerformanceStats() {
     return PerformanceStats(
-      performanceMetrics: _performanceMonitor.getStats(),
+      performanceMetrics: _convertPerformanceStats(_performanceMonitor.getStats()),
       networkStats: _networkOptimizer.getNetworkStats(),
       memoryStats: _memoryManager.getMemoryStats(),
       uploadStats: _enhancedUpload.queueStats,
@@ -420,6 +421,23 @@ class PerformanceUtils {
   Future<void> updateConfig(PerformanceConfig newConfig) async {
     // This would update the configuration and reinitialize services if needed
     debugPrint('Performance configuration updated');
+  }
+/// Convert PerformanceStats to Map for compatibility
+  Map<String, dynamic> _convertPerformanceStats(performance_monitor_service.PerformanceStats stats) {
+    return {
+      'totalEvents': stats.totalEvents,
+      'networkRequests': stats.networkRequests,
+      'imageOperations': stats.imageOperations,
+      'averageNetworkTimeMs': stats.averageNetworkTime.inMilliseconds,
+      'averageImageProcessingTimeMs': stats.averageImageProcessingTime.inMilliseconds,
+      'averageMemoryUsage': stats.averageMemoryUsage,
+      'errorCount': stats.errorCount,
+      'slowNetworkRequests': stats.slowNetworkRequests,
+      'slowImageOperations': stats.slowImageOperations,
+      'errorRate': stats.errorRate,
+      'slowNetworkRate': stats.slowNetworkRate,
+      'slowImageRate': stats.slowImageRate,
+    };
   }
 
   /// Dispose all resources
@@ -526,7 +544,7 @@ class OptimizedImageResult {
   });
 
   double get compressionRatio => originalSize > 0 ? optimizedSize / originalSize : 0;
-  double get sizeReduction => originalSize - optimizedSize;
+  double get sizeReduction => (originalSize - optimizedSize).toDouble();
   double get processingSpeed => originalSize / processingTime.inMilliseconds; // bytes per ms
 
   @override
@@ -537,7 +555,7 @@ class OptimizedImageResult {
 
 /// Comprehensive performance statistics
 class PerformanceStats {
-  final PerformanceStats performanceMetrics;
+  final Map<String, dynamic> performanceMetrics;
   final NetworkStats networkStats;
   final MemoryStats memoryStats;
   final UploadQueueStats uploadStats;
@@ -568,6 +586,7 @@ class PerformanceStats {
     };
   }
 }
+
 
 /// Upload priority levels
 enum UploadPriority {

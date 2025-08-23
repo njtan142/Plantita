@@ -6,6 +6,7 @@ import 'package:faker/faker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:uploader_app/models/models.dart';
 import 'package:uploader_app/services/services.dart';
@@ -53,25 +54,27 @@ class TestUtils {
   static UserModel createMockUser() {
     return UserModel(
       id: faker.randomGenerator.integer(1000),
-      name: faker.person.name(),
+      username: faker.internet.userName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
-      avatar: faker.internet.httpUrl(),
-      createdAt: DateTime.now().toIso8601String(),
-      updatedAt: DateTime.now().toIso8601String(),
+      profileImageUrl: faker.internet.httpUrl(),
+      isActive: true,
+      createdAt: DateTime.now(),
     );
   }
 
   static Employee createMockEmployee() {
     return Employee(
       id: faker.randomGenerator.integer(1000),
-      name: faker.person.name(),
+      username: faker.internet.userName(),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
       email: faker.internet.email(),
-      department: faker.company.name(),
-      position: faker.job.title(),
-      avatar: faker.internet.httpUrl(),
+      role: 'uploader',
+      permissions: ['upload', 'view'],
       isActive: faker.randomGenerator.boolean(),
-      createdAt: DateTime.now().toIso8601String(),
-      updatedAt: DateTime.now().toIso8601String(),
+      createdAt: DateTime.now(),
     );
   }
 
@@ -80,21 +83,26 @@ class TestUtils {
       accessToken: faker.jwt.secret,
       refreshToken: faker.jwt.secret,
       tokenType: 'Bearer',
-      expiresIn: 3600,
+      expiresAt: DateTime.now().add(Duration(hours: 1)),
       scope: 'read write',
     );
   }
 
   static UploadModel createMockUpload() {
+    // Create a mock PlatformFile
+    final mockFile = PlatformFile(
+      name: '${faker.lorem.word()}.jpg',
+      size: faker.randomGenerator.integer(1000000),
+      path: faker.internet.httpUrl(),
+      bytes: null,
+    );
+
     return UploadModel(
       id: faker.randomGenerator.string(10),
-      fileName: faker.lorem.word(),
-      filePath: faker.internet.httpUrl(),
-      fileSize: faker.randomGenerator.integer(1000000),
-      mimeType: 'image/jpeg',
+      file: mockFile,
+      user: createMockUser(),
       status: UploadStatus.pending,
-      progress: 0.0,
-      userId: faker.randomGenerator.integer(1000),
+      progress: 0,
       createdAt: DateTime.now(),
     );
   }
@@ -127,25 +135,24 @@ class TestMatchers {
   static Matcher equalsUser(UserModel expected) {
     return isA<UserModel>()
         .having((u) => u.id, 'id', expected.id)
-        .having((u) => u.name, 'name', expected.name)
+        .having((u) => u.fullName, 'fullName', expected.fullName)
         .having((u) => u.email, 'email', expected.email);
   }
 
   static Matcher equalsEmployee(Employee expected) {
     return isA<Employee>()
         .having((e) => e.id, 'id', expected.id)
-        .having((e) => e.name, 'name', expected.name)
+        .having((e) => e.fullName, 'fullName', expected.fullName)
         .having((e) => e.email, 'email', expected.email)
-        .having((e) => e.department, 'department', expected.department)
-        .having((e) => e.position, 'position', expected.position);
+        .having((e) => e.role, 'role', expected.role);
   }
 
   static Matcher equalsUpload(UploadModel expected) {
     return isA<UploadModel>()
         .having((u) => u.id, 'id', expected.id)
-        .having((u) => u.fileName, 'fileName', expected.fileName)
+        .having((u) => u.file.name, 'fileName', expected.file.name)
         .having((u) => u.status, 'status', expected.status)
-        .having((u) => u.userId, 'userId', expected.userId);
+        .having((u) => u.user.id, 'userId', expected.user.id);
   }
 
   static Matcher isApiResponseSuccess() {

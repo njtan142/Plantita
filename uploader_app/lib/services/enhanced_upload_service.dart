@@ -666,6 +666,48 @@ class UploadEvent {
     this.error,
     this.connectivity,
   });
+
+  /// Get metadata associated with this upload event
+  Map<String, dynamic>? get metadata {
+    final Map<String, dynamic> meta = {};
+
+    if (upload != null) {
+      meta.addAll({
+        'uploadId': upload!.id,
+        'fileName': upload!.fileName,
+        'fileSize': upload!.fileSize,
+        'mimeType': upload!.mimeType,
+        'userId': upload!.userId,
+        'status': upload!.status.name,
+        'progress': upload!.progress,
+      });
+
+      if (upload!.serverUrl != null) {
+        meta['serverUrl'] = upload!.serverUrl;
+      }
+
+      if (upload!.errorMessage != null) {
+        meta['errorMessage'] = upload!.errorMessage;
+      }
+
+      if (upload!.metadata != null) {
+        meta.addAll(upload!.metadata!);
+      }
+    }
+
+    if (error != null) {
+      meta['error'] = error;
+    }
+
+    if (connectivity != null) {
+      meta['connectivity'] = connectivity!.name;
+    }
+
+    meta['eventType'] = type.name;
+    meta['timestamp'] = DateTime.now().toIso8601String();
+
+    return meta.isNotEmpty ? meta : null;
+  }
 }
 
 /// Upload progress data
