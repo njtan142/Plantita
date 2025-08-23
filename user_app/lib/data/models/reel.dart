@@ -27,6 +27,18 @@ class Reel {
   });
 
   factory Reel.fromJson(Map<String, dynamic> json) {
+    if (json['id'] == null ||
+        json['videoUrl'] == null ||
+        json['thumbnailUrl'] == null ||
+        json['title'] == null ||
+        json['description'] == null ||
+        json['uploadDate'] == null ||
+        json['likesCount'] == null ||
+        json['commentsCount'] == null ||
+        json['sharesCount'] == null ||
+        json['userId'] == null) {
+      throw FormatException('Missing required fields in Reel JSON');
+    }
     return Reel(
       id: json['id'],
       videoUrl: json['videoUrl'],

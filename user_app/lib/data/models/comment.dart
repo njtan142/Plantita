@@ -17,6 +17,13 @@ class Comment {
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
+    if (json['id'] == null ||
+        json['text'] == null ||
+        json['userId'] == null ||
+        json['reelId'] == null ||
+        json['timestamp'] == null) {
+      throw FormatException('Missing required fields in Comment JSON');
+    }
     return Comment(
       id: json['id'],
       text: json['text'],

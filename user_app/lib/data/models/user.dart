@@ -23,6 +23,16 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    if (json['id'] == null ||
+        json['username'] == null ||
+        json['email'] == null ||
+        json['bio'] == null ||
+        json['avatarUrl'] == null ||
+        json['followersCount'] == null ||
+        json['followingCount'] == null ||
+        json['uploadedContent'] == null) {
+      throw FormatException('Missing required fields in User JSON');
+    }
     return User(
       id: json['id'],
       username: json['username'],
@@ -30,7 +40,7 @@ class User {
       bio: json['bio'],
       avatarUrl: json['avatarUrl'],
       followersCount: json['followersCount'],
-            followingCount: json['followingCount'],
+      followingCount: json['followingCount'],
       uploadedContent: List<String>.from(json['uploadedContent']),
     );
   }

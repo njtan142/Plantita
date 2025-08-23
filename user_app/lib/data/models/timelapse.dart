@@ -25,6 +25,17 @@ class Timelapse {
   });
 
   factory Timelapse.fromJson(Map<String, dynamic> json) {
+    if (json['id'] == null ||
+        json['videoUrl'] == null ||
+        json['thumbnailUrl'] == null ||
+        json['title'] == null ||
+        json['description'] == null ||
+        json['plantType'] == null ||
+        json['durationSeconds'] == null ||
+        json['uploadDate'] == null ||
+        json['userId'] == null) {
+      throw FormatException('Missing required fields in Timelapse JSON');
+    }
     return Timelapse(
       id: json['id'],
       videoUrl: json['videoUrl'],

@@ -58,7 +58,7 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 5.3. Develop content display components.
     - Implement custom video player using `chewie` in `lib/ui/widgets/custom_video_player.dart`.
     - Create `lib/ui/widgets/responsive_grid_layout.dart` and `lib/ui/widgets/responsive_list_layout.dart`.
-- [ ] 5.4. Develop feature-specific components.
+- [x] 5.4. Develop feature-specific components.
     - Create authentication screens (`lib/ui/screens/login_screen.dart`, `lib/ui/screens/register_screen.dart`).
     - Create Reels View (`lib/ui/screens/reels_view.dart`).
     - Create Timelapse Gallery (`lib/ui/screens/timelapse_gallery.dart`).
@@ -66,7 +66,7 @@ This document outlines the coding tasks for implementing the Flutter User App, b
     - Create Content Discovery/Search components (`lib/ui/screens/content_discovery_screen.dart`).
 
 ## 6. Error Handling Implementation
-- [ ] 6.1. Implement centralized API error handling.
+- [x] 6.1. Implement centralized API error handling.
     - Enhance `api_service.dart` to map HTTP status codes to specific error types.
     - Implement retry logic and timeouts.
 - [ ] 6.2. Implement data validation errors.

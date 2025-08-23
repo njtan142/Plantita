@@ -31,16 +31,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
 
   console.log('Rendering dashboard layout');
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar - fixed on mobile, static on desktop */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:inset-0 lg:z-auto lg:flex lg:flex-col
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <Sidebar onClose={() => setSidebarOpen(false)} />
-      </div>
-
+    <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -51,20 +42,31 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         </div>
       )}
 
-      {/* Main content wrapper */}
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-64">
-        {/* Header */}
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+      {/* Sidebar - fixed on all screens */}
+      <div className={`
+        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0
+      `}>
+        <Sidebar onClose={() => setSidebarOpen(false)} />
+      </div>
 
-        {/* Breadcrumb */}
-        <div className="px-4 sm:px-6 lg:px-8 py-4 bg-white border-b">
-          <Breadcrumb />
+      {/* Main content wrapper - scrolls independently */}
+      <div className="lg:pl-64">
+        <div className="flex flex-col min-h-screen">
+          {/* Header */}
+          <Header onMenuClick={() => setSidebarOpen(true)} />
+
+          {/* Breadcrumb */}
+          <div className="px-4 sm:px-6 lg:px-8 py-4 bg-white border-b">
+            <Breadcrumb />
+          </div>
+
+          {/* Page content - this is the scrollable area */}
+          <main className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-8">
+            {children}
+          </main>
         </div>
-
-        {/* Page content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8">
-          {children}
-        </main>
       </div>
       <Toaster />
     </div>
