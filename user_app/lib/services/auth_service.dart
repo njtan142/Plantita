@@ -1,5 +1,6 @@
 
 import 'package:user_app/services/api_service.dart';
+import 'package:user_app/utils/logger.dart'; // Import the logger
 
 class AuthService {
   final ApiService _apiService;
@@ -14,22 +15,21 @@ class AuthService {
       });
       // Assuming the API returns a token or success status
       if (response['token'] != null) {
-        // Store token securely (e.g., using shared_preferences)
-        print('Login successful: ${response['token']}');
+        logger.i('Login successful: ${response['token']}');
         return true;
       } else {
-        print('Login failed: ${response['message']}');
+        logger.w('Login failed: ${response['message']}');
         return false;
       }
     } catch (e) {
-      print('Login error: $e');
+      logger.e('Login error: $e');
       return false;
     }
   }
 
   Future<void> logout() async {
     // Clear stored token and perform any necessary cleanup
-    print('User logged out.');
+    logger.i('User logged out.');
   }
 
   // Future<bool> register(String username, String email, String password) async {
@@ -40,14 +40,14 @@ class AuthService {
   //       'password': password,
   //     });
   //     if (response['success'] == true) {
-  //       print('Registration successful.');
+  //       logger.i('Registration successful.');
   //       return true;
   //     } else {
-  //       print('Registration failed: ${response['message']}');
+  //       logger.w('Registration failed: ${response['message']}');
   //       return false;
   //     }
   //   } catch (e) {
-  //     print('Registration error: $e');
+  //     logger.e('Registration error: $e');
   //     return false;
   //   }
   // }

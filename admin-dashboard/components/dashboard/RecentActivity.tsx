@@ -60,7 +60,7 @@ const getActivityColor = (type: Activity['type']) => {
 export function RecentActivity({ activities, loading = false }: RecentActivityProps) {
   if (loading) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader>
           <CardTitle>
             <Skeleton className="h-6 w-32" />
@@ -84,34 +84,34 @@ export function RecentActivity({ activities, loading = false }: RecentActivityPr
   }
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Recent Activity</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-80">
-          <div className="space-y-4">
+        <ScrollArea className="h-80 w-full">
+          <div className="space-y-4 pr-4">
             {activities.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">
                 No recent activity
               </p>
             ) : (
               activities.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-4">
-                  <Avatar className="h-10 w-10">
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarImage src={activity.user?.avatar} alt={activity.user?.name} />
                     <AvatarFallback>
                       {activity.user?.name?.charAt(0) || getActivityIcon(activity.type)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">{activity.title}</p>
-                      <Badge className={`text-xs ${getActivityColor(activity.type)}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium truncate">{activity.title}</p>
+                      <Badge className={`text-xs flex-shrink-0 ${getActivityColor(activity.type)}`}>
                         {activity.type.replace('_', ' ')}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
                     </p>

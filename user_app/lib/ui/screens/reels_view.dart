@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:user_app/state_management/reel_provider.dart';
 import 'package:user_app/ui/widgets/custom_video_player.dart';
 import 'package:video_player/video_player.dart';
+import 'package:user_app/ui/widgets/error_state_widget.dart'; // Import ErrorStateWidget
 
 class ReelsView extends StatefulWidget {
   const ReelsView({Key? key}) : super(key: key);
@@ -30,6 +31,11 @@ class _ReelsViewState extends State<ReelsView> {
         builder: (context, reelProvider, child) {
           if (reelProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
+          } else if (reelProvider.errorMessage != null) {
+            return ErrorStateWidget(
+              message: reelProvider.errorMessage!,
+              onRetry: () => reelProvider.fetchReels(),
+            );
           } else if (reelProvider.reels.isEmpty) {
             return const Center(child: Text('No reels available.'));
           } else {
@@ -71,4 +77,5 @@ class _ReelsViewState extends State<ReelsView> {
       ),
     );
   }
+}
 }
