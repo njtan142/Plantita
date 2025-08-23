@@ -12,12 +12,16 @@ import 'package:user_app/state_management/auth_provider.dart';
 import 'package:user_app/state_management/reel_provider.dart';
 import 'package:user_app/ui/theme.dart'; // Import the theme
 import 'package:user_app/config/environment_config.dart';
+import 'package:user_app/router/app_router.dart'; // Import appRouter
+
+import 'package:user_app/services/cache_service.dart'; // Import CacheService
 
 final GetIt getIt = GetIt.instance;
 
-void startApp(EnvironmentConfig config) {
-  
+Future<void> startApp(EnvironmentConfig config) async {
+  getIt.registerSingleton<EnvironmentConfig>(config);
   setupLocator();
+  await getIt<CacheService>().init();
   runApp(
     MultiProvider(
       providers: [
@@ -40,10 +44,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: appTheme, // Use the defined theme
-      home: const HomeScreen(),
+      routerConfig: appRouter,
     );
   }
 }
@@ -57,10 +61,12 @@ void setupLocator() {
   getIt.registerLazySingleton<ReelRepository>(() => ReelRepository());
   getIt.registerLazySingleton<TimelapseRepository>(() => TimelapseRepository());
   getIt.registerLazySingleton<CommentRepository>(() => CommentRepository());
+  getIt.registerLazySingleton<CacheService>(() => CacheService());
 
   // Register providers
   getIt.registerLazySingleton<AuthProvider>(() => AuthProvider(getIt<AuthService>()));
   getIt.registerLazySingleton<ReelProvider>(() => ReelProvider(getIt<ReelRepository>()));
 }
+
 
 

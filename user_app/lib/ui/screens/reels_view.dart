@@ -39,15 +39,23 @@ class _ReelsViewState extends State<ReelsView> {
           } else if (reelProvider.reels.isEmpty) {
             return const Center(child: Text('No reels available.'));
           } else {
-            return PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: reelProvider.reels.length,
-              itemBuilder: (context, index) {
+            return RefreshIndicator(
+              onRefresh: () => reelProvider.fetchReels(),
+              child: PageView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: reelProvider.reels.length,
+                itemBuilder: (context, index) {
                 final reel = reelProvider.reels[index];
+                // For demonstration, create dummy video qualities
+                final Map<String, String> videoQualities = {
+                  'Auto': reel.videoUrl,
+                  '720p': reel.videoUrl.replaceFirst('.mp4', '_720p.mp4'), // Dummy URL
+                  '480p': reel.videoUrl.replaceFirst('.mp4', '_480p.mp4'), // Dummy URL
+                };
                 return Stack(
                   children: [
                     CustomVideoPlayer(
-                      videoPlayerController: VideoPlayerController.networkUrl(Uri.parse(reel.videoUrl)),
+                      videoQualities: videoQualities,
                       autoplay: true,
                       looping: true,
                     ),

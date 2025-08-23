@@ -14,7 +14,7 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 1.4. Implement and configure service worker for offline capabilities.
     - Ensure `flutter_service_worker.js` is properly generated and configured for offline access.
     - References: AC 1.6
-- [ ] 1.5. Configure build flavors for different environments.
+- [x] 1.5. Configure build flavors for different environments.
     - Implement distinct build configurations for development, staging, and production.
     - References: AC 1.9
 
@@ -45,14 +45,14 @@ This document outlines the coding tasks for implementing the Flutter User App, b
     - Create `lib/services/auth_service.dart` for user authentication.
 - [x] 3.3. Implement Video Player Service.
     - Create `lib/services/video_player_service.dart` for video playback control.
-- [ ] 3.4. Integrate `go_router` for web-friendly URLs.
+- [x] 3.4. Integrate `go_router` for web-friendly URLs.
     - Configure `go_router` for navigation, including nested routes and deep linking.
     - Ensure browser back/forward button functionality is supported.
     - References: AC 2.3, 2.13, 2.14
-- [ ] 3.5. Implement request and response interceptors in `ApiService`.
+- [x] 3.5. Implement request and response interceptors in `ApiService`.
     - Add logic to intercept and modify HTTP requests (e.g., adding auth tokens) and responses.
     - References: AC 2.8
-- [ ] 3.6. Implement offline data caching strategy using `shared_preferences`.
+- [x] 3.6. Implement offline data caching strategy using `shared_preferences`.
     - Utilize `shared_preferences` to cache data for offline access.
     - References: AC 2.12
 
@@ -80,16 +80,16 @@ This document outlines the coding tasks for implementing the Flutter User App, b
     - Create Timelapse Gallery (`lib/ui/screens/timelapse_gallery.dart`).
     - Create User Profile Pages (`lib/ui/screens/user_profile_screen.dart`).
     - Create Content Discovery/Search components (`lib/ui/screens/content_discovery_screen.dart`).
-- [ ] 5.5. Implement video quality selection in `CustomVideoPlayer`.
+- [x] 5.5. Implement video quality selection in `CustomVideoPlayer`.
     - Allow users to select different video qualities if available.
     - References: AC 3.12
-- [ ] 5.6. Implement infinite scroll for Timelapse Gallery and Content Discovery.
+- [x] 5.6. Implement infinite scroll for Timelapse Gallery and Content Discovery.
     - Add infinite scroll functionality to `timelapse_gallery.dart` and `content_discovery_screen.dart`.
     - References: AC 3.14
-- [ ] 5.7. Implement pull-to-refresh functionality.
+- [x] 5.7. Implement pull-to-refresh functionality.
     - Add pull-to-refresh to `reels_view.dart`, `timelapse_gallery.dart`, and `content_discovery_screen.dart`.
     - References: AC 3.15
-- [ ] 5.8. Implement content filtering and sorting options.
+- [x] 5.8. Implement content filtering and sorting options.
     - Add UI and logic for filtering and sorting content in `timelapse_gallery.dart` and `content_discovery_screen.dart`.
     - References: AC 3.16
 

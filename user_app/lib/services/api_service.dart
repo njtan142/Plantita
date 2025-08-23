@@ -13,12 +13,41 @@ class ApiService {
   final int _maxRetries = 3;
   final Duration _timeout = const Duration(seconds: 10);
 
-  Future<Map<String, dynamic>> _sendRequest(Future<http.Response> Function() request) async {
+  // Request Interceptor
+  Future<http.BaseRequest> _requestInterceptor(http.BaseRequest request) async {
+    logger.d('Intercepting Request: ${request.method} ${request.url}');
+    // Example: Add Authorization header
+    // String? token = await _authService.getToken();
+    // if (token != null) {
+    //   request.headers['Authorization'] = 'Bearer $token';
+    // }
+    return request;
+  }
+
+  // Response Interceptor
+  Future<http.Response> _responseInterceptor(http.Response response) async {
+    logger.d('Intercepting Response: ${response.statusCode} ${response.request?.url}');
+    // Example: Handle token refresh or global error codes
+    // if (response.statusCode == 401 && _authService.canRefreshToken()) {
+    //   await _authService.refreshToken();
+    //   // Re-send the original request with new token
+    // }
+    return response;
+  }
+
+  Future<Map<String, dynamic>> _sendRequestWithInterceptor(http.Request originalRequest) async {
     for (int i = 0; i < _maxRetries; i++) {
       try {
-        final response = await request().timeout(_timeout);
-        logger.d('API Response: ${response.statusCode} - ${response.body}');
-        return _handleResponse(response);
+        final client = http.Client();
+        final interceptedRequest = await _requestInterceptor(originalRequest);
+        logger.d('Sending Request: ${interceptedRequest.method} ${interceptedRequest.url}');
+
+        final streamedResponse = await client.send(interceptedRequest).timeout(_timeout);
+        final response = await http.Response.fromStream(streamedResponse);
+
+        final interceptedResponse = await _responseInterceptor(response);
+        logger.d('API Response: ${interceptedResponse.statusCode} - ${interceptedResponse.body}');
+        return _handleResponse(interceptedResponse);
       } on TimeoutException {
         logger.w('Request timed out. Retrying...');
         if (i == _maxRetries - 1) {
@@ -34,35 +63,31 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> get(String endpoint) async {
-    logger.d('GET: $_baseUrl/$endpoint');
-    return _sendRequest(() => http.get(Uri.parse('$_baseUrl/$endpoint')));
+    final uri = Uri.parse('$_baseUrl/$endpoint');
+    final request = http.Request('GET', uri);
+    return _sendRequestWithInterceptor(request);
   }
 
   Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
-    logger.d('POST: $_baseUrl/$endpoint - Body: $data');
-    return _sendRequest(
-      () => http.post(
-        Uri.parse('$_baseUrl/$endpoint'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
-      ),
-    );
+    final uri = Uri.parse('$_baseUrl/$endpoint');
+    final request = http.Request('POST', uri)
+      ..headers['Content-Type'] = 'application/json'
+      ..body = json.encode(data);
+    return _sendRequestWithInterceptor(request);
   }
 
   Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
-    logger.d('PUT: $_baseUrl/$endpoint - Body: $data');
-    return _sendRequest(
-      () => http.put(
-        Uri.parse('$_baseUrl/$endpoint'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
-      ),
-    );
+    final uri = Uri.parse('$_baseUrl/$endpoint');
+    final request = http.Request('PUT', uri)
+      ..headers['Content-Type'] = 'application/json'
+      ..body = json.encode(data);
+    return _sendRequestWithInterceptor(request);
   }
 
   Future<Map<String, dynamic>> delete(String endpoint) async {
-    logger.d('DELETE: $_baseUrl/$endpoint');
-    return _sendRequest(() => http.delete(Uri.parse('$_baseUrl/$endpoint')));
+    final uri = Uri.parse('$_baseUrl/$endpoint');
+    final request = http.Request('DELETE', uri);
+    return _sendRequestWithInterceptor(request);
   }
 
   Map<String, dynamic> _handleResponse(http.Response response) {
