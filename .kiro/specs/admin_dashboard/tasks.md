@@ -41,8 +41,8 @@
 
 ## 4. Media Management
 
-- [ ] 4.1. Create the media management page with a data table or grid.
-- [ ] 4.2. Implement the media list/grid with sorting, filtering, and pagination.
+- [x] 4.1. Create the media management page with a data table or grid.
+- [x] 4.2. Implement the media list/grid with sorting, filtering, and pagination.
   - *Requirements: 2.3.1, 2.3.2, 2.3.3*
 - [ ] 4.3. Implement a media previewer in a modal.
   - *Requirements: 2.3.4*
