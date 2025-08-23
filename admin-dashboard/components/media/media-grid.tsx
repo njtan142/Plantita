@@ -1,17 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mediaService } from '@/services/mediaService';
 import { Media, MediaStatus } from '@/types/api';
@@ -19,14 +8,6 @@ import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
@@ -37,15 +18,32 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Eye, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const MediaGrid = () => {
   const queryClient = useQueryClient();
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [previewMedia, setPreviewMedia] = useState<Media | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [mediaToDelete, setMediaToDelete] = useState<Media | null>(null);
+  const itemsPerPage = 12;
 
   const { data: mediaData, isLoading, isError, error } = useQuery({
     queryKey: ['media'],
@@ -53,6 +51,20 @@ const MediaGrid = () => {
   });
 
   const media = mediaData?.data || [];
+
+  // Filter media based on search term and status
+  const filteredMedia = media.filter((item) => {
+    const matchesSearch = item.filename.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredMedia.length / itemsPerPage);
+  const paginatedMedia = filteredMedia.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => mediaService.deleteMedia(id),
@@ -108,134 +120,24 @@ const MediaGrid = () => {
     rejectMutation.mutate(id);
   };
 
-  const columns: ColumnDef<Media>[] = [
-    {
-      accessorKey: 'filename',
-      header: 'Filename',
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue('filename')}</div>
-      ),
-    },
-    {
-      accessorKey: 'mimeType',
-      header: 'Type',
-      cell: ({ row }) => {
-        const mimeType = row.getValue('mimeType') as string;
-        const type = mimeType.split('/')[0];
-        return <Badge variant="outline">{type}</Badge>;
-      },
-    },
-    {
-      accessorKey: 'size',
-      header: 'Size',
-      cell: ({ row }) => {
-        const size = row.getValue('size') as number;
-        const formattedSize = size > 1024 * 1024 
-          ? `${(size / (1024 * 1024)).toFixed(2)} MB`
-          : size > 1024 
-          ? `${(size / 1024).toFixed(2)} KB`
-          : `${size} B`;
-        return <div>{formattedSize}</div>;
-      },
-    },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ row }) => {
-        const status = row.getValue('status') as MediaStatus;
-        const statusColors = {
-          [MediaStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
-          [MediaStatus.APPROVED]: 'bg-green-100 text-green-800',
-          [MediaStatus.REJECTED]: 'bg-red-100 text-red-800',
-          [MediaStatus.DELETED]: 'bg-gray-100 text-gray-800',
-        };
-        return (
-          <Badge className={statusColors[status]}>
-            {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: 'uploadedByUser',
-      header: 'Uploaded By',
-      cell: ({ row }) => {
-        const user = row.original.uploadedByUser;
-        return user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username : 'Unknown';
-      },
-    },
-    {
-      accessorKey: 'createdAt',
-      header: 'Upload Date',
-      cell: ({ row }) => {
-        const date = new Date(row.getValue('createdAt'));
-        return date.toLocaleDateString();
-      },
-    },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => {
-        const mediaItem = row.original;
-        return (
-          <div className="flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => console.log('Preview', mediaItem.id)}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-            {mediaItem.status === MediaStatus.PENDING && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleApprove(mediaItem.id)}
-                  disabled={approveMutation.isPending}
-                >
-                  <Check className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleReject(mediaItem.id)}
-                  disabled={rejectMutation.isPending}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDelete(mediaItem)}
-              disabled={deleteMutation.isPending}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
+  const handlePreview = (mediaItem: Media) => {
+    setPreviewMedia(mediaItem);
+  };
 
-  const table = useReactTable({
-    data: media,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-    },
-  });
+  const getStatusBadge = (status: MediaStatus) => {
+    switch (status) {
+      case MediaStatus.PENDING:
+        return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">Pending</Badge>;
+      case MediaStatus.APPROVED:
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Approved</Badge>;
+      case MediaStatus.REJECTED:
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Rejected</Badge>;
+      case MediaStatus.DELETED:
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">Deleted</Badge>;
+      default:
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-100">{status}</Badge>;
+    }
+  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -246,31 +148,22 @@ const MediaGrid = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Media Management</h2>
       </div>
       
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <Input
-          placeholder="Filter by filename..."
-          value={(table.getColumn('filename')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('filename')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <Select
-          value={(table.getColumn('status')?.getFilterValue() as string) ?? 'all'}
-          onValueChange={(value) => {
-            if (value === 'all') {
-              table.getColumn('status')?.setFilterValue(undefined);
-            } else {
-              table.getColumn('status')?.setFilterValue(value);
-            }
-          }}
-        >
+        <div className="flex-1">
+          <Input
+            placeholder="Search by filename..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
@@ -283,81 +176,153 @@ const MediaGrid = () => {
         </Select>
       </div>
 
-      {/* Table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
+      {/* Media Grid */}
+      {paginatedMedia.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {paginatedMedia.map((item) => (
+              <Card key={item.id} className="overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="relative">
+                    <img 
+                      src={item.thumbnailUrl || item.url} 
+                      alt={item.filename} 
+                      className="w-full h-48 object-cover cursor-pointer"
+                      onClick={() => handlePreview(item)}
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => handlePreview(item)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm font-medium truncate">{item.filename}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      {getStatusBadge(item.status)}
+                      <span className="text-xs text-gray-500">
+                        {(item.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex space-x-1">
+                        {item.status === MediaStatus.PENDING && (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleApprove(item.id)}
+                              disabled={approveMutation.isPending}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleReject(item.id)}
+                              disabled={rejectMutation.isPending}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </>
                         )}
-                  </TableHead>
-                ))}
-              </TableRow>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(item)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+          </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredMedia.length)} to{' '}
+                {Math.min(currentPage * itemsPerPage, filteredMedia.length)} of {filteredMedia.length} results
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-muted-foreground">No media files found.</p>
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      )}
+
+      {/* Media Preview Dialog */}
+      <Dialog open={!!previewMedia} onOpenChange={() => setPreviewMedia(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>{previewMedia?.filename}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center">
+            {previewMedia && (
+              <>
+                {previewMedia.mimeType.startsWith('image/') ? (
+                  <img 
+                    src={previewMedia.url} 
+                    alt={previewMedia.filename} 
+                    className="max-w-full max-h-[70vh] object-contain"
+                  />
+                ) : previewMedia.mimeType.startsWith('video/') ? (
+                  <video 
+                    src={previewMedia.url} 
+                    controls 
+                    className="max-w-full max-h-[70vh]"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-10">
+                    <p className="text-muted-foreground">Preview not available for this file type.</p>
+                    <a 
+                      href={previewMedia.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="mt-4 text-primary hover:underline"
+                    >
+                      Download file
+                    </a>
+                  </div>
+                )}
+                <div className="mt-4 text-sm text-muted-foreground">
+                  <p>Uploaded: {new Date(previewMedia.createdAt).toLocaleDateString()}</p>
+                  <p>Size: {(previewMedia.size / 1024 / 1024).toFixed(2)} MB</p>
+                  <p>Type: {previewMedia.mimeType}</p>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

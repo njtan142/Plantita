@@ -44,11 +44,11 @@
 - [x] 4.1. Create the media management page with a data table or grid.
 - [x] 4.2. Implement the media list/grid with sorting, filtering, and pagination.
   - *Requirements: 2.3.1, 2.3.2, 2.3.3*
-- [ ] 4.3. Implement a media previewer in a modal.
+- [x] 4.3. Implement a media previewer in a modal.
   - *Requirements: 2.3.4*
-- [ ] 4.4. Implement the functionality to approve or reject pending media files.
+- [x] 4.4. Implement the functionality to approve or reject pending media files.
   - *Requirements: 2.3.5*
-- [ ] 4.5. Implement the delete media functionality with a confirmation dialog.
+- [x] 4.5. Implement the delete media functionality with a confirmation dialog.
   - *Requirements: 2.3.6, 2.3.7*
 
 ## 5. Error Handling and UI Polish
