@@ -163,9 +163,17 @@ export interface DashboardStats {
   totalUsers: number;
   activeUsers: number;
   totalMedia: number;
-  recentUploads: number;
   storageUsed: number;
-  systemHealth: 'healthy' | 'warning' | 'error';
+  userGrowth: { date: string; count: number }[];
+  mediaUploads: { date: string; count: number }[];
+  recentActivities: Activity[];
+}
+
+export interface Activity {
+  id: string;
+  type: string;
+  description: string;
+  timestamp: string;
 }
 
 // Error types
