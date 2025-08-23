@@ -89,17 +89,21 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
               Positioned(
                 top: 0,
                 right: 0,
-                child: PopupMenuButton<int>(
-                  onSelected: _changeVideoQuality,
-                  itemBuilder: (BuildContext context) {
-                    return List.generate(widget.videoQualities.length, (index) {
-                      return PopupMenuItem<int>(
-                        value: index,
-                        child: Text(widget.videoQualities.keys.elementAt(index)),
-                      );
-                    });
-                  },
-                  icon: const Icon(Icons.settings, color: Colors.white),
+                child: Semantics(
+                  label: 'Video quality settings',
+                  button: true,
+                  child: PopupMenuButton<int>(
+                    onSelected: _changeVideoQuality,
+                    itemBuilder: (BuildContext context) {
+                      return List.generate(widget.videoQualities.length, (index) {
+                        return PopupMenuItem<int>(
+                          value: index,
+                          child: Text(widget.videoQualities.keys.elementAt(index)),
+                        );
+                      });
+                    },
+                    icon: const Icon(Icons.settings, color: Colors.white),
+                  ),
                 ),
               ),
             ],

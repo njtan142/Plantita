@@ -1,0 +1,719 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { 
+  Badge 
+} from '@/components/ui/badge';
+import { 
+  Skeleton 
+} from '@/components/ui/skeleton';
+import { 
+  Alert, 
+  AlertTitle, 
+  AlertDescription 
+} from '@/components/ui/alert';
+import { 
+  FileText, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Eye,
+  RotateCcw,
+  Tag
+} from 'lucide-react';
+import { communicationService } from '@/services/communicationService';
+import { 
+  CommunicationTemplate 
+} from '@/types/api';
+import { toast } from 'sonner';
+
+interface CommunicationTemplatesProps {
+  className?: string;
+  onTemplateCreated?: () => void;
+  onTemplateUpdated?: () => void;
+  onTemplateDeleted?: () => void;
+}
+
+export function CommunicationTemplates({ 
+  className, 
+  onTemplateCreated,
+  onTemplateUpdated,
+  onTemplateDeleted
+}: CommunicationTemplatesProps) {
+  const [templates, setTemplates] = useState<CommunicationTemplate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<CommunicationTemplate | null>(null);
+  const [deletingTemplate, setDeletingTemplate] = useState<CommunicationTemplate | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<CommunicationTemplate | null>(null);
+  
+  // Form state
+  const [name, setName] = useState('');
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [type, setType] = useState<'email' | 'notification'>('email');
+  const [variables, setVariables] = useState<string[]>(['']);
+  
+  // Filter state
+  const [typeFilter, setTypeFilter] = useState<'all' | 'email' | 'notification'>('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await communicationService.getAllTemplates();
+      
+      if (response.success && response.data) {
+        setTemplates(response.data);
+      } else {
+        setError(response.message || 'Failed to fetch communication templates');
+      }
+    } catch (err) {
+      console.error('Error fetching templates:', err);
+      setError('An unexpected error occurred while fetching templates');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCreateTemplate = async () => {
+    if (!name.trim() || !subject.trim() || !body.trim()) {
+      toast.error('Validation Error', {
+        description: 'Please enter name, subject, and body for the template',
+      });
+      return;
+    }
+    
+    // Filter out empty variables
+    const validVariables = variables.filter(v => v.trim() !== '');
+    
+    try {
+      setIsCreating(true);
+      
+      const newTemplate = {
+        name,
+        subject,
+        body,
+        type,
+        variables: validVariables
+      };
+      
+      const response = await communicationService.createTemplate(newTemplate);
+      
+      if (response.success && response.data) {
+        toast.success('Template Created', {
+          description: 'Communication template has been created successfully',
+        });
+        
+        // Reset form
+        setName('');
+        setSubject('');
+        setBody('');
+        setType('email');
+        setVariables(['']);
+        
+        // Refresh templates
+        fetchTemplates();
+        onTemplateCreated?.();
+      } else {
+        throw new Error(response.message || 'Failed to create template');
+      }
+    } catch (err) {
+      console.error('Error creating template:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      toast.error('Creation Failed', {
+        description: errorMessage,
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleUpdateTemplate = async () => {
+    if (!editingTemplate) return;
+    
+    if (!editingTemplate.name.trim() || !editingTemplate.subject.trim() || !editingTemplate.body.trim()) {
+      toast.error('Validation Error', {
+        description: 'Please enter name, subject, and body for the template',
+      });
+      return;
+    }
+    
+    // Filter out empty variables
+    const validVariables = editingTemplate.variables.filter(v => v.trim() !== '');
+    
+    try {
+      const response = await communicationService.updateTemplate(
+        editingTemplate.id,
+        {
+          name: editingTemplate.name,
+          subject: editingTemplate.subject,
+          body: editingTemplate.body,
+          type: editingTemplate.type,
+          variables: validVariables
+        }
+      );
+      
+      if (response.success && response.data) {
+        toast.success('Template Updated', {
+          description: 'Communication template has been updated successfully',
+        });
+        
+        // Close edit dialog and refresh templates
+        setEditingTemplate(null);
+        fetchTemplates();
+        onTemplateUpdated?.();
+      } else {
+        throw new Error(response.message || 'Failed to update template');
+      }
+    } catch (err) {
+      console.error('Error updating template:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      toast.error('Update Failed', {
+        description: errorMessage,
+      });
+    }
+  };
+
+  const handleDeleteTemplate = async () => {
+    if (!deletingTemplate) return;
+    
+    try {
+      const response = await communicationService.deleteTemplate(deletingTemplate.id);
+      
+      if (response.success) {
+        toast.success('Template Deleted', {
+          description: 'Communication template has been deleted successfully',
+        });
+        
+        // Close delete dialog and refresh templates
+        setDeletingTemplate(null);
+        fetchTemplates();
+        onTemplateDeleted?.();
+      } else {
+        throw new Error(response.message || 'Failed to delete template');
+      }
+    } catch (err) {
+      console.error('Error deleting template:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      toast.error('Deletion Failed', {
+        description: errorMessage,
+      });
+    }
+  };
+
+  const handleRetry = () => {
+    fetchTemplates();
+  };
+
+  const handleAddVariable = () => {
+    setVariables([...variables, '']);
+  };
+
+  const handleRemoveVariable = (index: number) => {
+    const newVariables = [...variables];
+    newVariables.splice(index, 1);
+    setVariables(newVariables);
+  };
+
+  const handleVariableChange = (index: number, value: string) => {
+    const newVariables = [...variables];
+    newVariables[index] = value;
+    setVariables(newVariables);
+  };
+
+  const handleAddVariableToEditing = () => {
+    if (editingTemplate) {
+      setEditingTemplate({
+        ...editingTemplate,
+        variables: [...editingTemplate.variables, '']
+      });
+    }
+  };
+
+  const handleRemoveVariableFromEditing = (index: number) => {
+    if (editingTemplate) {
+      const newVariables = [...editingTemplate.variables];
+      newVariables.splice(index, 1);
+      setEditingTemplate({
+        ...editingTemplate,
+        variables: newVariables
+      });
+    }
+  };
+
+  const handleVariableChangeInEditing = (index: number, value: string) => {
+    if (editingTemplate) {
+      const newVariables = [...editingTemplate.variables];
+      newVariables[index] = value;
+      setEditingTemplate({
+        ...editingTemplate,
+        variables: newVariables
+      });
+    }
+  };
+
+  const filteredTemplates = templates.filter(template => {
+    const matchesType = typeFilter === 'all' || template.type === typeFilter;
+    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         template.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         template.body.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesType && matchesSearch;
+  });
+
+  const renderTemplatePreview = (template: CommunicationTemplate) => {
+    return (
+      <div className="space-y-4">
+        <div>
+          <h4 className="font-semibold">Subject</h4>
+          <p className="text-sm">{template.subject}</p>
+        </div>
+        <div>
+          <h4 className="font-semibold">Body</h4>
+          <div className="text-sm whitespace-pre-wrap border rounded p-3 bg-muted">
+            {template.body}
+          </div>
+        </div>
+        {template.variables.length > 0 && (
+          <div>
+            <h4 className="font-semibold">Variables</h4>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {template.variables.map((variable, index) => (
+                <Badge key={index} variant="secondary" className="flex items-center gap-1">
+                  <Tag className="h-3 w-3" />
+                  {variable}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (error) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Communication Templates
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>{error}</span>
+              <Button variant="outline" size="sm" onClick={handleRetry}>
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className={className}>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Communication Templates
+          </span>
+          <Button onClick={() => setIsCreating(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            New Template
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Filter Section */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <Input
+              placeholder="Search templates..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as any)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="notification">Notification</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        
+        {/* Create Template Dialog */}
+        <AlertDialog open={isCreating} onOpenChange={setIsCreating}>
+          <AlertDialogContent className="max-w-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Create New Template</AlertDialogTitle>
+              <AlertDialogDescription>
+                Create a new communication template for messages and notifications.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+              <div className="space-y-2">
+                <Label htmlFor="template-name">Template Name</Label>
+                <Input
+                  id="template-name"
+                  placeholder="Enter template name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="template-subject">Subject</Label>
+                <Input
+                  id="template-subject"
+                  placeholder="Enter subject line"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="template-type">Template Type</Label>
+                <Select value={type} onValueChange={(value) => setType(value as any)}>
+                  <SelectTrigger id="template-type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="notification">In-App Notification</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="template-body">Body</Label>
+                <Textarea
+                  id="template-body"
+                  placeholder="Enter template body. Use {{variable}} to insert variables."
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  rows={6}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <Label>Variables</Label>
+                  <Button variant="outline" size="sm" onClick={handleAddVariable}>
+                    Add Variable
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {variables.map((variable, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        placeholder="Variable name (e.g., username)"
+                        value={variable}
+                        onChange={(e) => handleVariableChange(index, e.target.value)}
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="icon"
+                        onClick={() => handleRemoveVariable(index)}
+                        disabled={variables.length === 1}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {variables.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No variables added</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleCreateTemplate}
+                className="flex items-center gap-2"
+              >
+                Create Template
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
+        {/* Edit Template Dialog */}
+        <AlertDialog open={!!editingTemplate} onOpenChange={(open) => !open && setEditingTemplate(null)}>
+          <AlertDialogContent className="max-w-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Edit Template</AlertDialogTitle>
+              <AlertDialogDescription>
+                Edit the communication template details.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            {editingTemplate && (
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-template-name">Template Name</Label>
+                  <Input
+                    id="edit-template-name"
+                    placeholder="Enter template name"
+                    value={editingTemplate.name}
+                    onChange={(e) => setEditingTemplate({...editingTemplate, name: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-template-subject">Subject</Label>
+                  <Input
+                    id="edit-template-subject"
+                    placeholder="Enter subject line"
+                    value={editingTemplate.subject}
+                    onChange={(e) => setEditingTemplate({...editingTemplate, subject: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-template-type">Template Type</Label>
+                  <Select 
+                    value={editingTemplate.type} 
+                    onValueChange={(value) => setEditingTemplate({...editingTemplate, type: value as any})}
+                  >
+                    <SelectTrigger id="edit-template-type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="notification">In-App Notification</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-template-body">Body</Label>
+                  <Textarea
+                    id="edit-template-body"
+                    placeholder="Enter template body. Use {{variable}} to insert variables."
+                    value={editingTemplate.body}
+                    onChange={(e) => setEditingTemplate({...editingTemplate, body: e.target.value})}
+                    rows={6}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label>Variables</Label>
+                    <Button variant="outline" size="sm" onClick={handleAddVariableToEditing}>
+                      Add Variable
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    {editingTemplate.variables.map((variable, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          placeholder="Variable name (e.g., username)"
+                          value={variable}
+                          onChange={(e) => handleVariableChangeInEditing(index, e.target.value)}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          onClick={() => handleRemoveVariableFromEditing(index)}
+                          disabled={editingTemplate.variables.length === 1}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    {editingTemplate.variables.length === 0 && (
+                      <p className="text-sm text-muted-foreground">No variables added</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleUpdateTemplate}
+                className="flex items-center gap-2"
+              >
+                Update Template
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!deletingTemplate} onOpenChange={(open) => !open && setDeletingTemplate(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Template</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this template? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteTemplate}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
+        {/* Preview Dialog */}
+        <AlertDialog open={!!previewTemplate} onOpenChange={(open) => !open && setPreviewTemplate(null)}>
+          <AlertDialogContent className="max-w-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                {previewTemplate?.name}
+              </AlertDialogTitle>
+              {previewTemplate && (
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant={previewTemplate.type === 'email' ? 'default' : 'secondary'}>
+                    {previewTemplate.type}
+                  </Badge>
+                </div>
+              )}
+            </AlertDialogHeader>
+            {previewTemplate && (
+              <div className="max-h-[60vh] overflow-y-auto pr-2">
+                {renderTemplatePreview(previewTemplate)}
+              </div>
+            )}
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setPreviewTemplate(null)}>
+                Close
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        
+        {/* Templates List */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Templates</h3>
+          
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ) : filteredTemplates.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4" />
+              <p>No templates found</p>
+              <p className="text-sm mt-2">
+                {searchTerm || typeFilter !== 'all' 
+                  ? 'No templates match your search criteria.' 
+                  : 'Create your first template to get started.'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredTemplates.map((template) => (
+                <Card key={template.id} className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between">
+                        <h4 className="font-semibold">{template.name}</h4>
+                        <Badge variant={template.type === 'email' ? 'default' : 'secondary'}>
+                          {template.type}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {template.subject}
+                      </p>
+                      {template.variables.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {template.variables.slice(0, 3).map((variable, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {variable}
+                            </Badge>
+                          ))}
+                          {template.variables.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{template.variables.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-1 ml-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setPreviewTemplate(template)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingTemplate(template)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeletingTemplate(template)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

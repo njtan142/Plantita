@@ -44,23 +44,23 @@ class AuthService {
     return _cacheService.getData(_authTokenKey);
   }
 
-  // Future<bool> register(String username, String email, String password) async {
-  //   try {
-  //     final response = await _apiService.post('auth/register', {
-  //       'username': username,
-  //       'email': email,
-  //       'password': password,
-  //     });
-  //     if (response['success'] == true) {
-  //       logger.i('Registration successful.');
-  //       return true;
-  //     } else {
-  //       logger.w('Registration failed: ${response['message']}');
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     logger.e('Registration error: $e');
-  //     return false;
-  //   }
-  // }
+  Future<bool> register(String username, String email, String password) async {
+    try {
+      final response = await _apiService.post('auth/register', {
+        'username': username,
+        'email': email,
+        'password': password,
+      });
+      if (response['success'] == true) {
+        logger.i('Registration successful.');
+        return true;
+      } else {
+        logger.w('Registration failed: ${response['message']}');
+        return false;
+      }
+    } catch (e) {
+      logger.e('Registration error: $e');
+      return false;
+    }
+  }
 }

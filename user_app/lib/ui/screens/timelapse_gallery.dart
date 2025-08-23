@@ -32,7 +32,6 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
   @override
   void initState() {
     super.initState();
-    // Fetch timelapses when the view is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<TimelapseProvider>(context, listen: false).fetchTimelapses(
         plantType: _selectedPlantType,
@@ -40,15 +39,20 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
       );
     });
 
-    // TODO: Implement infinite scroll with actual data fetching
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<TimelapseProvider>(context, listen: false).isLoading) {
-        // _loadMoreItems(); // This will be replaced with actual pagination logic
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<TimelapseProvider>(context, listen: false).isLoading && Provider.of<TimelapseProvider>(context, listen: false).hasMore) {
+        Provider.of<TimelapseProvider>(context, listen: false).fetchTimelapses(
+          plantType: _selectedPlantType,
+          duration: _selectedDuration,
+          isLoadMore: true,
+        );
       }
     });
   }
 
   Future<void> _handleRefresh() async {
+    Provider.of<TimelapseProvider>(context, listen: false)._currentPage = 0;
+    Provider.of<TimelapseProvider>(context, listen: false)._hasMore = true;
     await Provider.of<TimelapseProvider>(context, listen: false).fetchTimelapses(
       plantType: _selectedPlantType,
       duration: _selectedDuration,
@@ -167,12 +171,14 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
               child: Center(child: Text('No timelapses available.')),
             );
           } else {
-            return RefreshIndicator(
-              onRefresh: _handleRefresh,
-              child: ResponsiveGridLayout(
-                controller: _scrollController,
-                children: [
-                  ...timelapseProvider.timelapses.map((timelapse) => Semantics(
+            return Semantics(
+              label: 'Pull down to refresh timelapses',
+              child: RefreshIndicator(
+                onRefresh: _handleRefresh,
+                child: ResponsiveGridLayout(
+                  controller: _scrollController,
+                  children: [
+                    ...timelapseProvider.timelapses.map((timelapse) => Semantics(
                     label: 'Timelapse titled ${timelapse.title}',
                     child: GestureDetector(
                       onLongPress: () {
@@ -390,34 +396,37 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
       context: context,
       builder: (BuildContext bc) {
         return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.info),
-                title: const Text('View Details'),
-                onTap: () {
-                  Navigator.pop(bc);
-                  // TODO: Navigate to Timelapse Detail Screen
-                  print('View details for ${timelapse.title}');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.playlist_add),
-                title: const Text('Add to Playlist'),
-                onTap: () {
-                  Navigator.pop(bc);
-                  _showAddToPlaylistDialog(timelapse);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.download),
-                title: const Text('Download'),
-                onTap: () {
-                  Navigator.pop(bc);
-                  Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
-                },
-              ),
-            ],
+          child: Semantics(
+            label: 'Timelapse context menu for ${timelapse.title}',
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.info),
+                  title: const Text('View Details'),
+                  onTap: () {
+                    Navigator.pop(bc);
+                    // TODO: Navigate to Timelapse Detail Screen
+                    print('View details for ${timelapse.title}');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.playlist_add),
+                  title: const Text('Add to Playlist'),
+                  onTap: () {
+                    Navigator.pop(bc);
+                    _showAddToPlaylistDialog(timelapse);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.download),
+                  title: const Text('Download'),
+                  onTap: () {
+                    Navigator.pop(bc);
+                    Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -490,43 +499,62 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Create New Playlist'),
+          title: const Semantics(
+            label: 'Create New Playlist dialog',
+            child: Text('Create New Playlist'),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                onChanged: (value) {
-                  playlistName = value;
-                },
-                decoration: const InputDecoration(hintText: 'Playlist Name'),
+              Semantics(
+                label: 'Playlist Name text field',
+                textField: true,
+                child: TextField(
+                  onChanged: (value) {
+                    playlistName = value;
+                  },
+                  decoration: const InputDecoration(hintText: 'Playlist Name'),
+                ),
               ),
-              TextField(
-                onChanged: (value) {
-                  playlistDescription = value;
-                },
-                decoration: const InputDecoration(hintText: 'Description (Optional)'),
+              Semantics(
+                label: 'Playlist Description text field',
+                textField: true,
+                child: TextField(
+                  onChanged: (value) {
+                    playlistDescription = value;
+                  },
+                  decoration: const InputDecoration(hintText: 'Description (Optional)'),
+                ),
               ),
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (playlistName.isNotEmpty) {
-                  await Provider.of<TimelapseProvider>(context, listen: false).createPlaylist(playlistName, playlistDescription);
+            Semantics(
+              button: true,
+              label: 'Cancel button',
+              child: TextButton(
+                onPressed: () {
                   Navigator.pop(context);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Playlist name cannot be empty.')),
-                  );
-                }
-              },
-              child: const Text('Create'),
+                },
+                child: const Text('Cancel'),
+              ),
+            ),
+            Semantics(
+              button: true,
+              label: 'Create Playlist button',
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (playlistName.isNotEmpty) {
+                    await Provider.of<TimelapseProvider>(context, listen: false).createPlaylist(playlistName, playlistDescription);
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Playlist name cannot be empty.')),
+                    );
+                  }
+                },
+                child: const Text('Create'),
+              ),
             ),
           ],
         );

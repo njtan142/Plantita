@@ -752,3 +752,283 @@ export const MOCK_MODERATION_STATS: ModerationStats = {
     { moderatorId: '3', actions: 9 }
   ]
 };
+
+// Communication Models
+export interface CommunicationTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  body: string;
+  type: 'email' | 'notification';
+  variables: string[];
+}
+
+export interface PlatformAnnouncement {
+  id: string;
+  title: string;
+  content: string;
+  startDate: string;
+  endDate: string;
+  priority: 'low' | 'medium' | 'high';
+  targetUsers: 'all' | 'active' | 'specific';
+}
+
+export interface MessageTracking {
+  messageId: string;
+  sentAt: string;
+  delivered: number;
+  opened: number;
+  clicked: number;
+}
+
+// Mock data for communication models
+export const MOCK_COMMUNICATION_TEMPLATES: CommunicationTemplate[] = [
+  {
+    id: 'template-1',
+    name: 'Content Violation Notice',
+    subject: 'Notice: Content Violation on Your Post',
+    body: 'Dear {{username}},\n\nWe noticed that your recent post "{{postTitle}}" violates our community guidelines. Specifically, it contains {{violationType}}.\n\nPlease review our guidelines and consider editing or removing the content.\n\nThank you for your understanding.\n\nBest regards,\nThe {{platformName}} Team',
+    type: 'email',
+    variables: ['username', 'postTitle', 'violationType', 'platformName']
+  },
+  {
+    id: 'template-2',
+    name: 'Account Suspension Notice',
+    subject: 'Important: Account Suspension',
+    body: 'Dear {{username}},\n\nYour account has been suspended due to repeated violations of our community guidelines.\n\nSuspension details:\n- Reason: {{reason}}\n- Start Date: {{startDate}}\n- End Date: {{endDate}}\n\nDuring this period, you will not be able to access your account or post new content.\n\nIf you believe this suspension was made in error, please contact our support team.\n\nBest regards,\nThe {{platformName}} Team',
+    type: 'email',
+    variables: ['username', 'reason', 'startDate', 'endDate', 'platformName']
+  },
+  {
+    id: 'template-3',
+    name: 'Welcome Message',
+    subject: 'Welcome to {{platformName}}!',
+    body: 'Welcome {{username}}!\n\nThank you for joining {{platformName}}. We\'re excited to have you as part of our community.\n\nHere are some tips to get started:\n1. Complete your profile\n2. Explore content\n3. Connect with other users\n\nIf you have any questions, feel free to reach out to our support team.\n\nHappy sharing!\n\nThe {{platformName}} Team',
+    type: 'email',
+    variables: ['username', 'platformName']
+  },
+  {
+    id: 'template-4',
+    name: 'New Feature Announcement',
+    subject: 'Exciting New Features Available!',
+    body: 'Hi {{username}},\n\nWe\'ve just launched some exciting new features on {{platformName}} that we think you\'ll love!\n\nWhat\'s new:\n- {{feature1}}\n- {{feature2}}\n- {{feature3}}\n\nCheck them out and let us know what you think!\n\nThe {{platformName}} Team',
+    type: 'notification',
+    variables: ['username', 'platformName', 'feature1', 'feature2', 'feature3']
+  }
+];
+
+export const MOCK_PLATFORM_ANNOUNCEMENTS: PlatformAnnouncement[] = [
+  {
+    id: 'announcement-1',
+    title: 'Scheduled Maintenance',
+    content: 'We will be performing scheduled maintenance on our platform this Sunday from 2:00 AM to 6:00 AM EST. During this time, the service may be temporarily unavailable. We apologize for any inconvenience this may cause.',
+    startDate: '2024-02-04T02:00:00Z',
+    endDate: '2024-02-04T06:00:00Z',
+    priority: 'medium',
+    targetUsers: 'all'
+  },
+  {
+    id: 'announcement-2',
+    title: 'New Features Launched',
+    content: 'We\'re excited to announce the launch of our new photo editing tools! Now you can enhance your photos directly on our platform with our easy-to-use editing suite. Try it out and let us know what you think!',
+    startDate: '2024-01-15T00:00:00Z',
+    endDate: '2024-03-15T00:00:00Z',
+    priority: 'high',
+    targetUsers: 'all'
+  },
+  {
+    id: 'announcement-3',
+    title: 'Community Guidelines Update',
+    content: 'We\'ve updated our community guidelines to better reflect our commitment to creating a safe and welcoming environment for all users. Please take a moment to review the updated guidelines, which include new sections on respectful communication and content sharing best practices.',
+    startDate: '2024-01-20T00:00:00Z',
+    endDate: '2024-04-20T00:00:00Z',
+    priority: 'medium',
+    targetUsers: 'all'
+  }
+];
+
+export const MOCK_MESSAGE_TRACKING: MessageTracking[] = [
+  {
+    messageId: 'msg-1',
+    sentAt: '2024-01-15T10:30:00Z',
+    delivered: 1247,
+    opened: 876,
+    clicked: 245
+  },
+  {
+    messageId: 'msg-2',
+    sentAt: '2024-01-16T14:15:00Z',
+    delivered: 987,
+    opened: 723,
+    clicked: 189
+  },
+  {
+    messageId: 'msg-3',
+    sentAt: '2024-01-17T09:45:00Z',
+    delivered: 1542,
+    opened: 1123,
+    clicked: 356
+  },
+  {
+    messageId: 'msg-4',
+    sentAt: '2024-01-18T16:20:00Z',
+    delivered: 876,
+    opened: 642,
+    clicked: 156
+  }
+];
+
+// Content Moderation Models
+export interface ModerationAction {
+  id: string;
+  mediaId: string;
+  moderatorId: string;
+  action: 'approve' | 'reject' | 'flag' | 'warn' | 'delete';
+  reason?: string;
+  note?: string;
+  timestamp: string;
+}
+
+export interface ModerationNote {
+  id: string;
+  mediaId: string;
+  moderatorId: string;
+  content: string;
+  timestamp: string;
+}
+
+export interface RepeatOffender {
+  userId: string;
+  flagCount: number;
+  warningCount: number;
+  rejectionCount: number;
+  lastOffenseDate: string;
+}
+
+export interface CollaborativeModeration {
+  mediaId: string;
+  notes: ModerationNote[];
+  actions: ModerationAction[];
+}
+
+// Mock data for moderation models
+export const MOCK_MODERATION_ACTIONS: ModerationAction[] = [
+  {
+    id: 'action-1',
+    mediaId: 'media-1',
+    moderatorId: '2',
+    action: 'approve',
+    note: 'Appropriate content, good quality photo',
+    timestamp: '2024-01-22T16:00:00Z'
+  },
+  {
+    id: 'action-2',
+    mediaId: 'media-2',
+    moderatorId: '3',
+    action: 'flag',
+    reason: 'Inappropriate content',
+    note: 'Contains misleading information',
+    timestamp: '2024-01-23T16:30:00Z'
+  },
+  {
+    id: 'action-3',
+    mediaId: 'media-3',
+    moderatorId: '2',
+    action: 'warn',
+    reason: 'Poor quality',
+    note: 'Low resolution image, consider reuploading',
+    timestamp: '2024-01-23T11:00:00Z'
+  },
+  {
+    id: 'action-4',
+    mediaId: 'media-4',
+    moderatorId: '3',
+    action: 'reject',
+    reason: 'Copyright violation',
+    note: 'Image appears to be copyrighted material',
+    timestamp: '2024-01-24T09:15:00Z'
+  }
+];
+
+export const MOCK_MODERATION_NOTES: ModerationNote[] = [
+  {
+    id: 'note-1',
+    mediaId: 'media-2',
+    moderatorId: '2',
+    content: 'This content needs additional review for accuracy',
+    timestamp: '2024-01-23T16:25:00Z'
+  },
+  {
+    id: 'note-2',
+    mediaId: 'media-4',
+    moderatorId: '3',
+    content: 'User has been warned about copyright violations before',
+    timestamp: '2024-01-24T09:10:00Z'
+  }
+];
+
+export const MOCK_REPEAT_OFFENDERS: RepeatOffender[] = [
+  {
+    userId: '1',
+    flagCount: 3,
+    warningCount: 2,
+    rejectionCount: 1,
+    lastOffenseDate: '2024-01-23T16:30:00Z'
+  },
+  {
+    userId: '2',
+    flagCount: 5,
+    warningCount: 3,
+    rejectionCount: 2,
+    lastOffenseDate: '2024-01-24T09:15:00Z'
+  }
+];
+
+export const MOCK_COLLABORATIVE_MODERATION: CollaborativeModeration[] = [
+  {
+    mediaId: 'media-2',
+    notes: [
+      {
+        id: 'note-1',
+        mediaId: 'media-2',
+        moderatorId: '2',
+        content: 'This content needs additional review for accuracy',
+        timestamp: '2024-01-23T16:25:00Z'
+      }
+    ],
+    actions: [
+      {
+        id: 'action-2',
+        mediaId: 'media-2',
+        moderatorId: '3',
+        action: 'flag',
+        reason: 'Inappropriate content',
+        note: 'Contains misleading information',
+        timestamp: '2024-01-23T16:30:00Z'
+      }
+    ]
+  },
+  {
+    mediaId: 'media-4',
+    notes: [
+      {
+        id: 'note-2',
+        mediaId: 'media-4',
+        moderatorId: '3',
+        content: 'User has been warned about copyright violations before',
+        timestamp: '2024-01-24T09:10:00Z'
+      }
+    ],
+    actions: [
+      {
+        id: 'action-4',
+        mediaId: 'media-4',
+        moderatorId: '3',
+        action: 'reject',
+        reason: 'Copyright violation',
+        note: 'Image appears to be copyrighted material',
+        timestamp: '2024-01-24T09:15:00Z'
+      }
+    ]
+  }
+];

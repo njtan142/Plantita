@@ -10,6 +10,8 @@ class TimelapseProvider with ChangeNotifier {
   List<Playlist> _playlists = [];
   bool _isLoading = false;
   String? _errorMessage;
+  int _currentPage = 0;
+  bool _hasMore = true;
 
   TimelapseProvider(this._timelapseRepository);
 
@@ -17,13 +19,32 @@ class TimelapseProvider with ChangeNotifier {
   List<Playlist> get playlists => _playlists;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get hasMore => _hasMore;
 
-  Future<void> fetchTimelapses({String? plantType, String? duration}) async {
+  Future<void> fetchTimelapses({String? plantType, String? duration, bool isLoadMore = false}) async {
+    if (_isLoading || (!_hasMore && isLoadMore)) return; // Prevent multiple loads or loading if no more data
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
-      _timelapses = await _timelapseRepository.fetchTimelapses(plantType: plantType, duration: duration);
+      final newTimelapses = await _timelapseRepository.fetchTimelapses(
+        plantType: plantType,
+        duration: duration,
+        page: _currentPage + 1,
+        limit: 10, // Define a limit for pagination
+      );
+
+      if (isLoadMore) {
+        _timelapses.addAll(newTimelapses);
+      } else {
+        _timelapses = newTimelapses;
+      }
+
+      _currentPage++;
+      _hasMore = newTimelapses.length == 10; // Assuming limit is 10
+
     } catch (e) {
       _errorMessage = e.toString();
       logger.e('Error in TimelapseProvider.fetchTimelapses: $_errorMessage');

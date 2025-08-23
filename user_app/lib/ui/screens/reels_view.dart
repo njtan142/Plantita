@@ -119,16 +119,20 @@ class _ReelsViewState extends State<ReelsView> {
               child: Center(child: Text('No reels available.')),
             );
           } else {
-            return RefreshIndicator(
-              onRefresh: () => reelProvider.fetchReels(),
-              child: FocusTraversalGroup(
-                child: PageView.builder(
-                  controller: _pageController,
-                  scrollDirection: Axis.vertical,
-                  itemCount: reelProvider.reels.length,
-                  itemBuilder: (context, index) {
-                  final reel = reelProvider.reels[index];
-                  final videoController = _videoControllers[reel.id];
+            return Semantics(
+              label: 'Pull down to refresh reels',
+              child: RefreshIndicator(
+                onRefresh: () => reelProvider.fetchReels(),
+                child: FocusTraversalGroup(
+                  child: Semantics(
+                    label: 'Swipe up or down to view next or previous reel',
+                    child: PageView.builder(
+                      controller: _pageController,
+                      scrollDirection: Axis.vertical,
+                      itemCount: reelProvider.reels.length,
+                      itemBuilder: (context, index) {
+                    final reel = reelProvider.reels[index];
+                    final videoController = _videoControllers[reel.id];
 
                   if (videoController == null || !videoController.value.isInitialized) {
                     return const Center(child: CircularProgressIndicator());

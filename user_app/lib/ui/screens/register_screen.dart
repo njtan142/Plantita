@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:user_app/ui/widgets/touch_friendly_button.dart';
+import 'package:user_app/main.dart'; // Import getIt
+import 'package:user_app/services/auth_service.dart'; // Import AuthService
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -79,9 +81,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TouchFriendlyButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // TODO: Implement registration logic
-                    print('Registering with: ' + _usernameController.text + ', ' + _emailController.text + ', ' + _passwordController.text);
-                    Navigator.of(context).pop(); // Go back to login screen after registration attempt
+                    final authService = getIt<AuthService>();
+                    final success = await authService.register(
+                      _usernameController.text,
+                      _emailController.text,
+                      _passwordController.text,
+                    );
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Registration successful!')),
+                      );
+                      Navigator.of(context).pop(); // Go back to login screen on success
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Registration failed. Please try again.')),
+                      );
+                    }
                   }
                 },
                 child: const Text('Register'),

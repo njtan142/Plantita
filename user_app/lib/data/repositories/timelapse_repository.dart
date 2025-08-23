@@ -10,7 +10,7 @@ class TimelapseRepository {
 
   TimelapseRepository(this._apiService);
 
-  Future<List<Timelapse>> fetchTimelapses({String? plantType, String? duration}) async {
+  Future<List<Timelapse>> fetchTimelapses({String? plantType, String? duration, int? page, int? limit}) async {
     try {
       final Map<String, dynamic> queryParams = {};
       if (plantType != null && plantType != 'All') {
@@ -18,6 +18,13 @@ class TimelapseRepository {
       }
       if (duration != null && duration != 'All') {
         queryParams['duration'] = duration;
+      }
+
+      if (page != null) {
+        queryParams['page'] = page.toString();
+      }
+      if (limit != null) {
+        queryParams['limit'] = limit.toString();
       }
 
       final response = await _apiService.get('timelapses', queryParams: queryParams);
