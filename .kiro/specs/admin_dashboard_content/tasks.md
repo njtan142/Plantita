@@ -32,14 +32,14 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Support different activity types (login, upload, comment, etc.)
   - Add filtering capabilities by activity type
 
-- [ ] 1.5. Create UserMediaGallery component
+- [x] 1.5. Create UserMediaGallery component
   - *Requirements: 2.1.1*
   - Create `src/components/content/UserMediaGallery.tsx`
   - Display grid of user's media uploads
   - Implement pagination for large media collections
   - Add sorting and filtering options
 
-- [ ] 1.6. Create user content management page
+- [x] 1.6. Create user content management page
   - *Requirements: 2.1.1, 2.1.2, 2.1.3, 2.1.4, 2.1.5, 2.1.6*
   - Create `/app/dashboard/content/users/[userId]/page.tsx`
   - Integrate UserContentProfile, UserActivityTimeline, and UserMediaGallery

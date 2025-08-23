@@ -76,6 +76,16 @@ class TimelapseRepository {
     }
   }
 
+  Future<Timelapse> fetchTimelapseDetails(String timelapseId) async {
+    try {
+      final response = await _apiService.get('timelapses/$timelapseId');
+      return Timelapse.fromJson(response);
+    } catch (e) {
+      logger.e('Error fetching timelapse details for $timelapseId: $e');
+      rethrow;
+    }
+  }
+
   Future<bool> downloadTimelapse(String videoUrl) async {
     try {
       final uri = Uri.parse(videoUrl);

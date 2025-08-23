@@ -48,6 +48,19 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/profile/:userId',
+      builder: (BuildContext context, GoRouterState state) {
+        final userId = state.pathParameters['userId']!;
+        return UserProfileScreen(userId: userId);
+      },
+    ),
+    GoRoute(
+      path: '/edit-profile',
+      builder: (BuildContext context, GoRouterState state) {
+        return const EditProfileScreen();
+      },
+    ),
+    GoRoute(
       path: '/playlists',
       builder: (BuildContext context, GoRouterState state) {
         return const PlaylistScreen();

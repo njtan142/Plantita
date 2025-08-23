@@ -52,4 +52,14 @@ class ReelRepository {
       return false;
     }
   }
+
+  Future<Reel> fetchReelDetails(String reelId) async {
+    try {
+      final response = await _apiService.get('reels/$reelId');
+      return Reel.fromJson(response);
+    } catch (e) {
+      logger.e('Error fetching reel details for $reelId: $e');
+      rethrow;
+    }
+  }
 }

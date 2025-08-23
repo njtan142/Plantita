@@ -10,6 +10,7 @@ class User {
   final int followersCount;
   final int followingCount;
   final List<String> uploadedContent;
+  final bool isFollowing; // Added field
 
   User({
     required this.id,
@@ -20,6 +21,7 @@ class User {
     required this.followersCount,
     required this.followingCount,
     required this.uploadedContent,
+    this.isFollowing = false, // Default to false
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class User {
       followersCount: json['followersCount'],
       followingCount: json['followingCount'],
       uploadedContent: List<String>.from(json['uploadedContent']),
+      isFollowing: json['isFollowing'] ?? false, // Read from JSON or default
     );
   }
 
@@ -55,6 +58,31 @@ class User {
       'followersCount': followersCount,
       'followingCount': followingCount,
       'uploadedContent': uploadedContent,
+      // isFollowing is not sent to backend
     };
+  }
+
+  User copyWith({
+    String? id,
+    String? username,
+    String? email,
+    String? bio,
+    String? avatarUrl,
+    int? followersCount,
+    int? followingCount,
+    List<String>? uploadedContent,
+    bool? isFollowing,
+  }) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      bio: bio ?? this.bio,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      followersCount: followersCount ?? this.followersCount,
+      followingCount: followingCount ?? this.followingCount,
+      uploadedContent: uploadedContent ?? this.uploadedContent,
+      isFollowing: isFollowing ?? this.isFollowing,
+    );
   }
 }

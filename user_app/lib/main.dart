@@ -28,6 +28,7 @@ Future<void> startApp(EnvironmentConfig config) async {
         ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<ReelProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<TimelapseProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<UserProvider>()),
         // Add other providers here
       ],
       child: const MyApp(),
@@ -58,9 +59,9 @@ void setupLocator() {
   // Register services here
   getIt.registerLazySingleton<ApiService>(() => ApiService());
   getIt.registerLazySingleton<AuthService>(() => AuthService(getIt<ApiService>()));
-  getIt.registerLazySingleton<UserRepository>(() => UserRepository());
-  getIt.registerLazySingleton<ReelRepository>(() => ReelRepository());
-  getIt.registerLazySingleton<TimelapseRepository>(() => TimelapseRepository());
+  getIt.registerLazySingleton<UserRepository>(() => UserRepository(getIt<ApiService>(), getIt<ReelRepository>(), getIt<TimelapseRepository>()));
+  getIt.registerLazySingleton<ReelRepository>(() => ReelRepository(getIt<ApiService>()));
+  getIt.registerLazySingleton<TimelapseRepository>(() => TimelapseRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<CommentRepository>(() => CommentRepository());
   getIt.registerLazySingleton<CacheService>(() => CacheService());
 
@@ -68,6 +69,7 @@ void setupLocator() {
   getIt.registerLazySingleton<AuthProvider>(() => AuthProvider(getIt<AuthService>()));
   getIt.registerLazySingleton<ReelProvider>(() => ReelProvider(getIt<ReelRepository>()));
   getIt.registerLazySingleton<TimelapseProvider>(() => TimelapseProvider(getIt<TimelapseRepository>()));
+  getIt.registerLazySingleton<UserProvider>(() => UserProvider(getIt<UserRepository>()));
 }
 
 

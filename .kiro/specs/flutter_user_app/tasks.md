@@ -138,13 +138,13 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 7.11. Implement download functionality for timelapses.
     - Provide an option to download timelapse videos.
     - References: AC 4.13
-- [ ] 7.12. Implement uploaded content grid on user profile.
+- [x] 7.12. Implement uploaded content grid on user profile.
     - Display a grid of user's uploaded content on `user_profile_screen.dart`.
     - References: AC 4.14
-- [ ] 7.13. Implement profile editing functionality.
+- [x] 7.13. Implement profile editing functionality.
     - Allow users to edit their profile information.
     - References: AC 4.15
-- [ ] 7.14. Implement follower/following system.
+- [x] 7.14. Implement follower/following system.
     - Develop the logic and UI for users to follow/unfollow others.
     - References: AC 4.16
 - [ ] 7.15. Display comprehensive user statistics.
