@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { ApiResponse, ApiError } from '@/types/api';
+import { toast } from 'sonner';
 
 // API base configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
@@ -73,6 +74,11 @@ axiosInstance.interceptors.response.use(
         details: getErrorDetails(data),
       };
 
+      // Show toast notification for errors (except 401 which is handled separately)
+      if (status !== 401) {
+        toast.error(apiError.message);
+      }
+
       // Handle specific status codes
       switch (status) {
         case 401:
@@ -93,12 +99,17 @@ axiosInstance.interceptors.response.use(
         message: 'Network error - please check your connection',
         statusCode: 0,
       };
+      toast.error(apiError.message);
     } else if (error.code === 'ECONNABORTED') {
       // Request timeout
       apiError = {
         message: 'Request timeout - please try again',
         statusCode: 408,
       };
+      toast.error(apiError.message);
+    } else {
+      // Other errors
+      toast.error(apiError.message);
     }
 
     // Log error in development
@@ -192,6 +203,7 @@ function handleUnauthorizedError(): void {
 
   // Redirect to login page if not already there
   if (!window.location.pathname.includes('/login')) {
+    toast.error('Your session has expired. Please log in again.');
     window.location.href = '/login';
   }
 }
@@ -199,7 +211,8 @@ function handleUnauthorizedError(): void {
 function handleForbiddenError(): void {
   if (typeof window === 'undefined') return;
 
-  // Show permission error or redirect to dashboard
+  // Show permission error
+  toast.error('Access denied - insufficient permissions');
   console.warn('Access forbidden - insufficient permissions');
 }
 
@@ -207,6 +220,7 @@ function handleRateLimitError(): void {
   if (typeof window === 'undefined') return;
 
   // Show rate limit message
+  toast.error('Too many requests - please wait before making more requests');
   console.warn('Rate limit exceeded - please wait before making more requests');
 }
 

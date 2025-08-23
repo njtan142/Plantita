@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
@@ -26,12 +27,14 @@ export function StatsCard({
     return (
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium animate-pulse bg-gray-200 h-4 w-20 rounded"></CardTitle>
-          <div className="animate-pulse bg-gray-200 h-4 w-4 rounded"></div>
+          <CardTitle className="text-sm font-medium">
+            <Skeleton className="h-4 w-20" />
+          </CardTitle>
+          <Skeleton className="h-4 w-4 rounded-full" />
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse bg-gray-200 h-8 w-16 rounded mb-1"></div>
-          <div className="animate-pulse bg-gray-200 h-3 w-24 rounded"></div>
+          <Skeleton className="h-8 w-16 mb-1" />
+          <Skeleton className="h-3 w-24" />
         </CardContent>
       </Card>
     );

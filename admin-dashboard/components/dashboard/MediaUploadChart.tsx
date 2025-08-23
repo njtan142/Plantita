@@ -1,6 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface MediaUploadChartProps {
@@ -16,10 +17,12 @@ export function MediaUploadChart({ data, loading = false }: MediaUploadChartProp
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="animate-pulse bg-gray-200 h-6 w-40 rounded"></CardTitle>
+          <CardTitle>
+            <Skeleton className="h-6 w-40" />
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse bg-gray-200 h-64 w-full rounded"></div>
+          <Skeleton className="h-64 w-full" />
         </CardContent>
       </Card>
     );

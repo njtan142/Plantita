@@ -38,6 +38,8 @@ dependencies:
   intl: ^0.19.0 # Added for internationalization and localization
   url_launcher: ^6.2.5 # Added for launching URLs
   cached_network_image: ^3.3.1 # Added for caching network images
+  flutter_staggered_grid_view: ^0.7.0 # Added for responsive grid layouts
+  get_it: ^7.6.0 # Added for dependency injection
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

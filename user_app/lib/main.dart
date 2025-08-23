@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/features/home/home_screen.dart';
+import 'package:get_it/get_it.dart';
+
+final GetIt getIt = GetIt.instance;
 
 void main() {
+  setupLocator();
   runApp(const MyApp());
 }
 
@@ -34,6 +38,11 @@ class MyApp extends StatelessWidget {
       home: const HomeScreen(),
     );
   }
+}
+
+
+void setupLocator() {
+  // Register services here
 }
 
 

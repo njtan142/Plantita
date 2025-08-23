@@ -53,10 +53,10 @@
 
 ## 5. Error Handling and UI Polish
 
-- [ ] 5.1. Implement global API error handling.
+- [x] 5.1. Implement global API error handling.
   - *Requirements: 2.5.4*
-- [ ] 5.2. Add React Error Boundaries to critical components.
-- [ ] 5.3. Implement toast notifications for user feedback.
+- [x] 5.2. Add React Error Boundaries to critical components.
+- [x] 5.3. Implement toast notifications for user feedback.
   - *Requirements: 2.5.5*
 - [ ] 5.4. Add loading indicators (skeletons/spinners) to all data-fetching components.
   - *Requirements: 2.5.3*

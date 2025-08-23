@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Breadcrumb } from './Breadcrumb';
+import { Toaster } from './Toaster';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -20,7 +21,12 @@ export function ClientLayout({ children }: ClientLayoutProps) {
   // If on login page, render only the children without sidebar, header, and breadcrumb
   if (isLoginPage) {
     console.log('Rendering login page layout');
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {children}
+        <Toaster />
+      </div>
+    );
   }
 
   console.log('Rendering dashboard layout');
@@ -59,6 +65,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
           {children}
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }
