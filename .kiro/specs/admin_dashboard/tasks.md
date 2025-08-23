@@ -34,9 +34,9 @@
   - *Requirements: 2.2.1, 2.2.2, 2.2.3*
 - [x] 3.3. Create a form for creating a new user with `React Hook Form` and `Zod` for validation.
   - *Requirements: 2.2.4*
-- [ ] 3.4. Create a form for editing an existing user's details.
+- [x] 3.4. Create a form for editing an existing user's details.
   - *Requirements: 2.2.5*
-- [ ] 3.5. Implement the delete user functionality with a confirmation dialog.
+- [x] 3.5. Implement the delete user functionality with a confirmation dialog.
   - *Requirements: 2.2.6, 2.2.7*
 
 ## 4. Media Management

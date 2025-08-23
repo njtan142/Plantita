@@ -24,11 +24,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { userService } from '@/services/userService';
 import { User, UserRole, UserStatus, UserQueryParams } from '@/types/api';
 import { toast } from 'sonner';
 import { CreateUserForm } from '@/components/users/CreateUserForm';
+import { UserForm } from '@/components/users/UserForm';
 
 interface UserFilters {
   search: string;
@@ -53,6 +64,9 @@ export default function UsersPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showCreateUserForm, setShowCreateUserForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const queryParams: UserQueryParams = {
     page: pagination.page,
@@ -97,6 +111,21 @@ export default function UsersPage() {
     },
   });
 
+  const deleteUserMutation = useMutation({
+    mutationFn: (userId: string) => userService.deleteUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User deleted successfully');
+      setDeleteUserDialogOpen(false);
+      setUserToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to delete user');
+      setDeleteUserDialogOpen(false);
+      setUserToDelete(null);
+    },
+  });
+
   const handleFilterChange = (key: keyof UserFilters, value: string | boolean) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setPagination(prev => ({ ...prev, page: 1 }));
@@ -135,6 +164,17 @@ export default function UsersPage() {
     mutation.mutate(action);
   };
 
+  const handleDeleteUser = (user: User) => {
+    setUserToDelete(user);
+    setDeleteUserDialogOpen(true);
+  };
+
+  const confirmDeleteUser = () => {
+    if (userToDelete) {
+      deleteUserMutation.mutate(userToDelete.id);
+    }
+  };
+
   const handleExport = async () => {
     try {
       const blob = await userService.exportUsers({
@@ -157,6 +197,10 @@ export default function UsersPage() {
       console.error('Error exporting users:', err);
       toast.error('Failed to export users');
     }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
   };
 
   const getStatusBadgeVariant = (status: UserStatus) => {
@@ -253,6 +297,17 @@ export default function UsersPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit User Form */}
+      <UserForm
+        user={editingUser}
+        open={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+          setEditingUser(null);
+        }}
+      />
 
       {/* Filters */}
       <Card>
@@ -469,14 +524,14 @@ export default function UsersPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Edit User</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditUser(user)}>Edit User</DropdownMenuItem>
                             <DropdownMenuItem>Reset Password</DropdownMenuItem>
                             {user.status === UserStatus.ACTIVE ? (
                               <DropdownMenuItem>Suspend User</DropdownMenuItem>
                             ) : (
                               <DropdownMenuItem>Activate User</DropdownMenuItem>
                             )}
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteUser(user)}>
                               Delete User
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -534,6 +589,34 @@ export default function UsersPage() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Delete User Confirmation Dialog */}
+      <AlertDialog open={deleteUserDialogOpen} onOpenChange={setDeleteUserDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user account and all associated data.
+              {userToDelete && (
+                <div className="mt-2 p-2 bg-gray-100 rounded">
+                  <p className="font-medium">{getUserDisplayName(userToDelete)}</p>
+                  <p className="text-sm text-gray-600">{userToDelete.email}</p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteUser}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteUserMutation.isPending}
+            >
+              {deleteUserMutation.isPending ? 'Deleting...' : 'Delete User'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
