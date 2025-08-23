@@ -180,6 +180,36 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                     const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text(
+                        'Recommended Content',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 200, // Adjust height as needed
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: contentProvider.recommendedContent.length,
+                        itemBuilder: (context, index) {
+                          final item = contentProvider.recommendedContent[index];
+                          String title = '';
+                          if (item is Reel) {
+                            title = item.title;
+                          } else if (item is Timelapse) {
+                            title = item.title;
+                          }
+                          return Card(
+                            margin: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              width: 150, // Adjust width as needed
+                              child: Center(child: Text(title)),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
                         'All Content',
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
@@ -187,24 +217,24 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                     if (contentProvider.content.isEmpty)
                       const Center(child: Text('No content found.'))
                     else
-                      ResponsiveGridLayout(
-                        controller: _scrollController,
-                        children: [
-                          ...contentProvider.content.map((item) {
-                            String title = '';
-                            if (item is Reel) {
-                              title = item.title;
-                            } else if (item is Timelapse) {
-                              title = item.title;
-                            }
-                            return Card(
+                                              ...contentProvider.content.map((item) {
+                          String title = '';
+                          if (item is Reel) {
+                            title = item.title;
+                          } else if (item is Timelapse) {
+                            title = item.title;
+                          }
+                          return GestureDetector(
+                            onLongPress: () {
+                              _showContentContextMenu(context, item);
+                            },
+                            child: Card(
                               child: Center(
                                 child: Text(title),
                               ),
-                            );
-                          }).toList(),
-                        ],
-                      ),
+                            ),
+                          );
+                        }).toList(),
                   ],
                 ),
               ),
@@ -219,5 +249,34 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _showContentContextMenu(BuildContext context, dynamic contentItem) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text('View Details'),
+                onTap: () {
+                  Navigator.pop(bc);
+                  // TODO: Navigate to content detail screen based on type
+                  if (contentItem is Reel) {
+                    print('View details for Reel: ${contentItem.title}');
+                  } else if (contentItem is Timelapse) {
+                    print('View details for Timelapse: ${contentItem.title}');
+                  }
+                },
+              ),
+              // Add other relevant actions like share, add to playlist, etc.
+              // These would need to be implemented based on content type
+            ],
+          ),
+        );
+      },
+    );
   }
 }

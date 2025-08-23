@@ -96,6 +96,8 @@ export default function UserContentManagementPage() {
       if (response.success && response.data) {
         setUser(response.data);
         toast.success('User suspended successfully');
+        // Refresh the user content to get updated status
+        fetchUserContent();
       } else {
         throw new Error(response.message || 'Failed to suspend user');
       }
@@ -115,6 +117,8 @@ export default function UserContentManagementPage() {
       if (response.success && response.data) {
         setUser(response.data);
         toast.success('User banned successfully');
+        // Refresh the user content to get updated status
+        fetchUserContent();
       } else {
         throw new Error(response.message || 'Failed to ban user');
       }
@@ -131,7 +135,7 @@ export default function UserContentManagementPage() {
     
     try {
       // In a real implementation, we would generate a random password or send a reset link
-      // For this demo, we'll just show a success message
+      // For this demo with mock data, we'll just show a success message
       const response = await userContentService.resetUserPassword(user.id, 'temporaryPassword123');
       if (response.success) {
         toast.success('Password reset successfully. A temporary password has been generated.');

@@ -80,4 +80,21 @@ class ContentRepository {
       rethrow;
     }
   }
+
+  Future<List<dynamic>> fetchRecommendedContent() async {
+    try {
+      final response = await _apiService.get('content/recommended');
+      List<dynamic> content = [];
+      if (response['reels'] != null) {
+        content.addAll((response['reels'] as List).map((json) => Reel.fromJson(json)).toList());
+      }
+      if (response['timelapses'] != null) {
+        content.addAll((response['timelapses'] as List).map((json) => Timelapse.fromJson(json)).toList());
+      }
+      return content;
+    } catch (e) {
+      logger.e('Error fetching recommended content: $e');
+      rethrow;
+    }
+  }
 }

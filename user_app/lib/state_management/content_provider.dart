@@ -7,6 +7,7 @@ class ContentProvider with ChangeNotifier {
   List<dynamic> _content = [];
   List<dynamic> _trendingContent = [];
   List<dynamic> _popularContent = [];
+  List<dynamic> _recommendedContent = [];
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -15,6 +16,7 @@ class ContentProvider with ChangeNotifier {
   List<dynamic> get content => _content;
   List<dynamic> get trendingContent => _trendingContent;
   List<dynamic> get popularContent => _popularContent;
+  List<dynamic> get recommendedContent => _recommendedContent;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -67,6 +69,21 @@ class ContentProvider with ChangeNotifier {
     } catch (e) {
       _errorMessage = e.toString();
       logger.e('Error in ContentProvider.fetchPopularContent: $_errorMessage');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchRecommendedContent() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      _recommendedContent = await _contentRepository.fetchRecommendedContent();
+    } catch (e) {
+      _errorMessage = e.toString();
+      logger.e('Error in ContentProvider.fetchRecommendedContent: $_errorMessage');
     } finally {
       _isLoading = false;
       notifyListeners();

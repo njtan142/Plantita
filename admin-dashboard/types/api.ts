@@ -130,6 +130,8 @@ export interface Media {
   createdAt: string;
   updatedAt: string;
   metadata?: MediaMetadata;
+  engagement?: MediaEngagement;
+  moderation?: MediaModeration;
 }
 
 export enum MediaStatus {
@@ -140,12 +142,46 @@ export enum MediaStatus {
 }
 
 export interface MediaMetadata {
+  // Image metadata
   width?: number;
   height?: number;
+  camera?: string;
+  lens?: string;
+  iso?: number;
+  aperture?: string;
+  shutterSpeed?: string;
+  focalLength?: string;
+  
+  // Video metadata
   duration?: number;
   bitrate?: number;
   codec?: string;
   format?: string;
+  
+  // General metadata
+  fileSize?: number;
+  uploadDate?: string;
+  lastModified?: string;
+}
+
+export interface MediaEngagement {
+  views: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  engagementRate: number;
+}
+
+export interface MediaModeration {
+  status: 'pending' | 'approved' | 'rejected' | 'flagged';
+  flags: Array<{
+    type: string;
+    reason: string;
+    timestamp: string;
+    moderatorId?: string;
+  }>;
+  warnings: string[];
+  category: string;
 }
 
 export interface CreateMediaData {
@@ -404,7 +440,26 @@ export const MOCK_MEDIAS: Media[] = [
     updatedAt: '2024-01-22T15:35:00Z',
     metadata: {
       width: 1920,
-      height: 1080
+      height: 1080,
+      camera: 'Canon EOS R5',
+      lens: 'RF 24-70mm f/2.8L IS USM',
+      iso: 100,
+      aperture: 'f/8',
+      shutterSpeed: '1/250s',
+      focalLength: '35mm'
+    },
+    engagement: {
+      views: 1245,
+      likes: 87,
+      comments: 23,
+      shares: 12,
+      engagementRate: 0.78
+    },
+    moderation: {
+      status: 'approved',
+      flags: [],
+      warnings: [],
+      category: 'nature'
     }
   },
   {
@@ -425,7 +480,102 @@ export const MOCK_MEDIAS: Media[] = [
     metadata: {
       duration: 300,
       bitrate: 5000000,
-      codec: 'H.264'
+      codec: 'H.264',
+      format: 'MP4'
+    },
+    engagement: {
+      views: 2156,
+      likes: 124,
+      comments: 42,
+      shares: 35,
+      engagementRate: 0.85
+    },
+    moderation: {
+      status: 'approved',
+      flags: [],
+      warnings: [],
+      category: 'family'
+    }
+  },
+  {
+    id: 'media-3',
+    filename: 'photo2.jpg',
+    originalName: 'garden-plants.jpg',
+    mimeType: 'image/jpeg',
+    size: 3048576,
+    url: 'https://example.com/media/photo2.jpg',
+    thumbnailUrl: 'https://example.com/media/thumb/photo2.jpg',
+    uploadedBy: '1',
+    uploadedByUser: MOCK_USERS[0],
+    tags: ['plants', 'garden', 'flowers'],
+    description: 'My beautiful garden with blooming flowers',
+    status: MediaStatus.PENDING,
+    createdAt: '2024-01-23T10:30:00Z',
+    updatedAt: '2024-01-23T10:30:00Z',
+    metadata: {
+      width: 3840,
+      height: 2160,
+      camera: 'Sony A7R IV',
+      lens: 'FE 85mm f/1.4 GM',
+      iso: 200,
+      aperture: 'f/1.4',
+      shutterSpeed: '1/500s',
+      focalLength: '85mm'
+    },
+    engagement: {
+      views: 0,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      engagementRate: 0
+    },
+    moderation: {
+      status: 'pending',
+      flags: [],
+      warnings: [],
+      category: 'plants'
+    }
+  },
+  {
+    id: 'media-4',
+    filename: 'video2.mp4',
+    originalName: 'plant-care-tutorial.mp4',
+    mimeType: 'video/mp4',
+    size: 25485760,
+    url: 'https://example.com/media/video2.mp4',
+    thumbnailUrl: 'https://example.com/media/thumb/video2.jpg',
+    uploadedBy: '2',
+    uploadedByUser: MOCK_USERS[1],
+    tags: ['tutorial', 'plant care', 'tips'],
+    description: 'Step-by-step guide to caring for your indoor plants',
+    status: MediaStatus.FLAGGED,
+    createdAt: '2024-01-23T14:15:00Z',
+    updatedAt: '2024-01-23T16:20:00Z',
+    metadata: {
+      duration: 620,
+      bitrate: 8000000,
+      codec: 'H.265',
+      format: 'MP4'
+    },
+    engagement: {
+      views: 876,
+      likes: 65,
+      comments: 18,
+      shares: 22,
+      engagementRate: 0.62
+    },
+    moderation: {
+      status: 'flagged',
+      flags: [
+        {
+          type: 'inappropriate_content',
+          reason: 'Contains misleading information about plant care',
+          timestamp: '2024-01-23T16:20:00Z',
+          moderatorId: '3'
+        }
+      ],
+      warnings: ['Content may contain inaccurate information'],
+      category: 'tutorial'
     }
   }
 ];

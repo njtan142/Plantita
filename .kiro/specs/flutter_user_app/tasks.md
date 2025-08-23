@@ -159,7 +159,7 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 7.18. Implement trending/popular content sections.
     - Display trending and popular content on the discovery page.
     - References: AC 4.21
-- [ ] 7.19. Implement content recommendation system.
+- [x] 7.19. Implement content recommendation system.
     - Develop a system to recommend content to users.
     - References: AC 4.22
 
@@ -167,13 +167,13 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 8.1. Implement responsive breakpoints using `MediaQuery`.
     - Utilize `MediaQuery` to adapt UI components based on screen size.
     - References: AC 5.1
-- [ ] 8.2. Implement general swipe gestures for navigation.
+- [x] 8.2. Implement general swipe gestures for navigation.
     - Add swipe gestures for navigation beyond just reels.
     - References: AC 5.5
 - [ ] 8.3. Implement pinch-to-zoom for images.
     - Allow users to pinch-to-zoom on images.
     - References: AC 5.6
-- [ ] 8.4. Implement long-press context menus.
+- [x] 8.4. Implement long-press context menus.
     - Add context menus triggered by long-press gestures.
     - References: AC 5.8
 - [ ] 8.5. Implement lazy loading for images.
