@@ -30,6 +30,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.1 # Added for HTTP requests
+  video_player: ^2.8.1 # Added for video playback
+  chewie: ^1.7.4 # Added for custom video player controls
+  provider: ^6.1.2 # Added for state management
+  shared_preferences: ^2.2.3 # Added for local storage
+  intl: ^0.19.0 # Added for internationalization and localization
+  url_launcher: ^6.2.5 # Added for launching URLs
+  cached_network_image: ^3.3.1 # Added for caching network images
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

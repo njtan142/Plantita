@@ -9,11 +9,19 @@ const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = () => {
-      // Replace with your actual auth check logic
-      const token = localStorage.getItem('authToken');
-      setIsAuthenticated(!!token);
-      setLoading(false);
+    const checkAuth = async () => {
+      try {
+        // Call the API endpoint to check authentication
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
+        console.log('Auth check API response:', data);
+        setIsAuthenticated(data.authenticated);
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth check error:', error);
+        setIsAuthenticated(false);
+        setLoading(false);
+      }
     };
 
     checkAuth();
@@ -28,7 +36,9 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
     const { isAuthenticated, loading } = useAuth();
 
     useEffect(() => {
+      console.log('withAuth effect - isAuthenticated:', isAuthenticated, 'loading:', loading);
       if (!loading && !isAuthenticated) {
+        console.log('Redirecting to login because not authenticated');
         router.push('/login');
       }
     }, [isAuthenticated, loading, router]);
@@ -38,9 +48,11 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
     }
 
     if (!isAuthenticated) {
+      console.log('Not authenticated, returning null');
       return null; // Or a redirect component
     }
 
+    console.log('Authenticated, rendering component');
     return <WrappedComponent {...props} />;
   };
 

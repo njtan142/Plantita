@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         path: '/',
         maxAge: 60 * 60 * 24 * 7, // 1 week
-        sameSite: 'strict',
+        sameSite: 'lax', // Changed from 'strict' to 'lax'
       });
 
       if (refreshToken) {
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
           secure: process.env.NODE_ENV === 'production',
           path: '/',
           maxAge: 60 * 60 * 24 * 30, // 1 month
-          sameSite: 'strict',
+          sameSite: 'lax', // Changed from 'strict' to 'lax'
         });
       }
 
