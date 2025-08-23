@@ -2,14 +2,14 @@
 
 ## Project Setup and Configuration
 - [ ] 1. Initialize Flutter Project with Web Support
-    - [ ] 1.1. Initialize a new Flutter project named `flutter_user_app` with web support.
+    - [x] 1.1. Initialize a new Flutter project named `flutter_user_app` with web support.
         - Prompt: "Initialize a new Flutter project named `flutter_user_app` with web support enabled."
         - References: Acceptance Criteria 1.1
 - [ ] 2. Configure Project Structure
     - [ ] 2.1. Create core directories for `features`, `widgets`, and `services` within the `lib` folder.
         - Prompt: "Create the following directories inside `lib`: `features`, `widgets`, `services`."
         - References: Acceptance Criteria 1.2
-    - [ ] 2.2. Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`.
+    - [x] 2.2. Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`.
         - Prompt: "Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`. Create `lib/features/home/home_screen.dart` with a basic `StatelessWidget`."
         - References: Acceptance Criteria 1.2
 - [ ] 3. Configure Web Deployment Settings

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Breadcrumb } from './Breadcrumb';
@@ -11,6 +12,13 @@ interface ClientLayoutProps {
 
 export function ClientLayout({ children }: ClientLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login';
+
+  // If on login page, render only the children without sidebar, header, and breadcrumb
+  if (isLoginPage) {
+    return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -5,6 +5,7 @@ import {
   getCurrentUser,
   logout,
 } from '../controllers/authController';
+import { authenticate } from '../middleware/authMiddleware';
 
 const router: Router = Router();
 
@@ -12,8 +13,8 @@ const router: Router = Router();
 router.post('/login', login);
 router.post('/register', register);
 
-// Protected routes (these would typically be protected by auth middleware)
-router.get('/me', getCurrentUser);
-router.post('/logout', logout);
+// Protected routes
+router.get('/me', authenticate, getCurrentUser);
+router.post('/logout', authenticate, logout);
 
 export default router;
