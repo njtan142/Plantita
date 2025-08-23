@@ -176,6 +176,36 @@ export interface Activity {
   timestamp: string;
 }
 
+// Analytics data
+export interface AnalyticsData {
+  userGrowth: {
+    date: string;
+    count: number;
+  }[];
+  mediaUploads: {
+    date: string;
+    count: number;
+  }[];
+  engagementMetrics: {
+    date: string;
+    likes: number;
+    comments: number;
+    shares: number;
+  }[];
+  platformMetrics: {
+    totalUsers: number;
+    activeUsers: number;
+    totalMedia: number;
+    storageUsed: number;
+  };
+}
+
+export interface AnalyticsQueryParams {
+  startDate?: string;
+  endDate?: string;
+  interval?: 'day' | 'week' | 'month';
+}
+
 // Error types
 export interface ApiError {
   message: string;
@@ -195,4 +225,20 @@ export interface AuthResponse {
   token: string;
   refreshToken: string;
   expiresIn: number;
+}
+
+// Platform settings
+export interface PlatformSettings {
+  siteName: string;
+  siteDescription: string;
+  contactEmail: string;
+  maxFileSize: number;
+  allowedFileTypes: string[];
+  userRegistration: boolean;
+  emailVerification: boolean;
+  maxLoginAttempts: number;
+}
+
+export interface SettingsUpdatePayload {
+  [key: string]: any;
 }

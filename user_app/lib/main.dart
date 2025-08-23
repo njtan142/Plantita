@@ -11,10 +11,12 @@ import 'package:user_app/data/repositories/comment_repository.dart';
 import 'package:user_app/state_management/auth_provider.dart';
 import 'package:user_app/state_management/reel_provider.dart';
 import 'package:user_app/ui/theme.dart'; // Import the theme
+import 'package:user_app/config/environment_config.dart';
 
 final GetIt getIt = GetIt.instance;
 
-void main() {
+void startApp(EnvironmentConfig config) {
+  
   setupLocator();
   runApp(
     MultiProvider(
@@ -26,6 +28,10 @@ void main() {
       child: const MyApp(),
     ),
   );
+}
+
+void main() {
+  startApp(EnvironmentConfig.development());
 }
 
 class MyApp extends StatelessWidget {

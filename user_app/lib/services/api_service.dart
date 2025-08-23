@@ -3,9 +3,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:async'; // Import for TimeoutException
 import 'package:user_app/utils/logger.dart'; // Import the logger
+import 'package:user_app/main.dart'; // Import getIt
+import 'package:user_app/config/environment_config.dart';
 
 class ApiService {
-  final String _baseUrl = "https://api.example.com"; // Replace with your actual API base URL
+  final String _baseUrl;
+
+  ApiService() : _baseUrl = getIt<EnvironmentConfig>().baseUrl;
   final int _maxRetries = 3;
   final Duration _timeout = const Duration(seconds: 10);
 

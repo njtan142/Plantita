@@ -11,6 +11,12 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 1.3. Implement responsive scaffold and theme.
     - Create `lib/ui/responsive_scaffold.dart` for adaptive layouts.
     - Define `lib/ui/theme.dart` for typography and color scheme.
+- [x] 1.4. Implement and configure service worker for offline capabilities.
+    - Ensure `flutter_service_worker.js` is properly generated and configured for offline access.
+    - References: AC 1.6
+- [ ] 1.5. Configure build flavors for different environments.
+    - Implement distinct build configurations for development, staging, and production.
+    - References: AC 1.9
 
 ## 2. Data Layer Implementation
 - [x] 2.1. Define User Data Model.
@@ -39,6 +45,16 @@ This document outlines the coding tasks for implementing the Flutter User App, b
     - Create `lib/services/auth_service.dart` for user authentication.
 - [x] 3.3. Implement Video Player Service.
     - Create `lib/services/video_player_service.dart` for video playback control.
+- [ ] 3.4. Integrate `go_router` for web-friendly URLs.
+    - Configure `go_router` for navigation, including nested routes and deep linking.
+    - Ensure browser back/forward button functionality is supported.
+    - References: AC 2.3, 2.13, 2.14
+- [ ] 3.5. Implement request and response interceptors in `ApiService`.
+    - Add logic to intercept and modify HTTP requests (e.g., adding auth tokens) and responses.
+    - References: AC 2.8
+- [ ] 3.6. Implement offline data caching strategy using `shared_preferences`.
+    - Utilize `shared_preferences` to cache data for offline access.
+    - References: AC 2.12
 
 ## 4. State Management Integration
 - [x] 4.1. Integrate Provider for state management.
@@ -64,6 +80,18 @@ This document outlines the coding tasks for implementing the Flutter User App, b
     - Create Timelapse Gallery (`lib/ui/screens/timelapse_gallery.dart`).
     - Create User Profile Pages (`lib/ui/screens/user_profile_screen.dart`).
     - Create Content Discovery/Search components (`lib/ui/screens/content_discovery_screen.dart`).
+- [ ] 5.5. Implement video quality selection in `CustomVideoPlayer`.
+    - Allow users to select different video qualities if available.
+    - References: AC 3.12
+- [ ] 5.6. Implement infinite scroll for Timelapse Gallery and Content Discovery.
+    - Add infinite scroll functionality to `timelapse_gallery.dart` and `content_discovery_screen.dart`.
+    - References: AC 3.14
+- [ ] 5.7. Implement pull-to-refresh functionality.
+    - Add pull-to-refresh to `reels_view.dart`, `timelapse_gallery.dart`, and `content_discovery_screen.dart`.
+    - References: AC 3.15
+- [ ] 5.8. Implement content filtering and sorting options.
+    - Add UI and logic for filtering and sorting content in `timelapse_gallery.dart` and `content_discovery_screen.dart`.
+    - References: AC 3.16
 
 ## 6. Error Handling Implementation
 - [x] 6.1. Implement centralized API error handling.
@@ -76,10 +104,145 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 6.4. Integrate logging.
     - Set up a logging framework.
 
-## 7. Testing
-- [x] 7.1. Write Unit Tests.
+## 7. Core Features Implementation
+- [x] 7.1. Complete registration logic.
+    - Implement the full registration process in `register_screen.dart` and `auth_service.dart`.
+    - References: AC 4.1
+- [ ] 7.2. Implement token storage and usage for authentication.
+    - Store authentication tokens securely and attach them to subsequent API requests.
+    - References: AC 4.2
+- [ ] 7.3. Implement route protection based on authentication status.
+    - Secure routes that require user authentication.
+    - References: AC 4.3
+- [ ] 7.4. Implement full logout functionality.
+    - Clear stored tokens and user session data upon logout.
+    - References: AC 4.4
+- [ ] 7.5. Implement "remember me" feature for authentication.
+    - Persist user login state across sessions.
+    - References: AC 4.5
+- [ ] 7.6. Enable like, comment, and share functionality for reels.
+    - Implement UI and backend integration for these interactions in `reels_view.dart` and `ReelRepository`.
+    - References: AC 4.7
+- [ ] 7.7. Implement user interaction tracking with reels.
+    - Track user engagement with reels for analytics.
+    - References: AC 4.8
+- [ ] 7.8. Implement filtering by plant type and duration in Timelapse Gallery.
+    - Add UI and logic to filter timelapses.
+    - References: AC 4.10
+- [ ] 7.9. Implement timelapse comparison features.
+    - Develop UI and logic for comparing timelapses.
+    - References: AC 4.11
+- [ ] 7.10. Implement timelapse playlist creation.
+    - Allow users to create and manage timelapse playlists.
+    - References: AC 4.12
+- [ ] 7.11. Implement download functionality for timelapses.
+    - Provide an option to download timelapse videos.
+    - References: AC 4.13
+- [ ] 7.12. Implement uploaded content grid on user profile.
+    - Display a grid of user's uploaded content on `user_profile_screen.dart`.
+    - References: AC 4.14
+- [ ] 7.13. Implement profile editing functionality.
+    - Allow users to edit their profile information.
+    - References: AC 4.15
+- [ ] 7.14. Implement follower/following system.
+    - Develop the logic and UI for users to follow/unfollow others.
+    - References: AC 4.16
+- [ ] 7.15. Display comprehensive user statistics.
+    - Show detailed user statistics on the profile page.
+    - References: AC 4.17
+- [ ] 7.16. Implement search filters for content discovery.
+    - Enhance search functionality with filtering options.
+    - References: AC 4.19
+- [ ] 7.17. Implement category-based browsing for content discovery.
+    - Allow users to browse content by categories.
+    - References: AC 4.20
+- [ ] 7.18. Implement trending/popular content sections.
+    - Display trending and popular content on the discovery page.
+    - References: AC 4.21
+- [ ] 7.19. Implement content recommendation system.
+    - Develop a system to recommend content to users.
+    - References: AC 4.22
+
+## 8. Responsive Design and Mobile Optimization
+- [x] 8.1. Implement responsive breakpoints using `MediaQuery`.
+    - Utilize `MediaQuery` to adapt UI components based on screen size.
+    - References: AC 5.1
+- [ ] 8.2. Implement general swipe gestures for navigation.
+    - Add swipe gestures for navigation beyond just reels.
+    - References: AC 5.5
+- [ ] 8.3. Implement pinch-to-zoom for images.
+    - Allow users to pinch-to-zoom on images.
+    - References: AC 5.6
+- [ ] 8.4. Implement long-press context menus.
+    - Add context menus triggered by long-press gestures.
+    - References: AC 5.8
+- [ ] 8.5. Implement lazy loading for images.
+    - Ensure images are lazy loaded to improve performance.
+    - References: AC 5.9
+- [ ] 8.6. Use `cached_network_image` for image caching.
+    - Integrate `cached_network_image` for efficient image caching.
+    - References: AC 5.10
+- [ ] 8.7. Optimize video loading and buffering.
+    - Implement strategies to improve video loading and buffering performance.
+    - References: AC 5.11
+- [ ] 8.8. Further optimize memory management.
+    - Review and enhance memory usage efficiency throughout the application.
+    - References: AC 5.12
+- [ ] 8.9. Add proper semantic markup for accessibility.
+    - Implement `Semantics` widgets for improved accessibility.
+    - References: AC 5.13
+- [ ] 8.10. Implement keyboard navigation.
+    - Ensure all interactive elements are navigable via keyboard.
+    - References: AC 5.14
+- [ ] 8.11. Configure screen reader support.
+    - Ensure the application is compatible with screen readers.
+    - References: AC 5.15
+
+## 9. Testing and Quality Assurance
+- [x] 9.1. Write Unit Tests.
     - Create unit tests for data models, services, and business logic.
-- [x] 7.2. Write Widget Tests.
+- [x] 9.2. Write Widget Tests.
     - Create widget tests for UI components and their interactions.
-- [ ] 7.3. Write Integration Tests.
+- [x] 9.3. Write Integration Tests.
     - Create integration tests for end-to-end user flows and API integrations.
+- [ ] 9.4. Configure test coverage report generation.
+    - Set up tools to generate and analyze test coverage reports.
+    - References: AC 6.3
+- [ ] 9.5. Implement performance testing.
+    - Set up and run performance tests to identify bottlenecks.
+    - References: AC 6.5
+- [ ] 9.6. Implement cross-browser testing.
+    - Set up and run tests across different web browsers.
+    - References: AC 6.6
+
+## 10. Deployment and Production
+- [x] 10.1. Configure production build settings.
+    - Configure code obfuscation and minification.
+- [x] 10.2. Configure environment-specific variables.
+    - Implement a system for managing environment variables (e.g., API keys, base URLs).
+    - References: AC 7.2
+- [x] 10.3. Optimize assets for production builds.
+    - Ensure all assets are optimized for size and performance.
+- [x] 10.4. Build the Flutter web app for production.
+    - Automate the production build process.
+- [x] 10.5. Configure hosting settings.
+    - Set up configuration for deployment to a hosting provider (e.g., Firebase, Netlify).
+    - References: AC 7.5
+- [x] 10.6. Set up a CDN for static assets.
+    - Configure a Content Delivery Network for faster asset delivery.
+    - References: AC 7.6
+- [x] 10.7. Configure SSL and security headers.
+    - Ensure secure communication and proper security headers are in place.
+    - References: AC 7.7
+- [x] 10.8. Set up error tracking and monitoring.
+    - Integrate an error tracking and monitoring solution (e.g., Sentry, Crashlytics).
+    - References: AC 7.8
+- [x] 10.9. Implement user analytics.
+    - Integrate an analytics solution to track user behavior.
+    - References: AC 7.9
+- [x] 10.10. Configure performance monitoring and crash reporting.
+    - Set up tools for monitoring application performance and reporting crashes.
+    - References: AC 7.10
+- [x] 10.11. Create comprehensive documentation.
+    - Develop user documentation, API integration documentation, developer guides, and deployment documentation.
+    - References: AC 7.11
