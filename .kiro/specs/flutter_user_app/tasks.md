@@ -1,0 +1,458 @@
+# Flutter User App Implementation Tasks
+
+## Project Setup and Configuration
+- [ ] 1. Initialize Flutter Project with Web Support
+    - [ ] 1.1. Initialize a new Flutter project named `flutter_user_app` with web support.
+        - Prompt: "Initialize a new Flutter project named `flutter_user_app` with web support enabled."
+        - References: Acceptance Criteria 1.1
+- [ ] 2. Configure Project Structure
+    - [ ] 2.1. Create core directories for `features`, `widgets`, and `services` within the `lib` folder.
+        - Prompt: "Create the following directories inside `lib`: `features`, `widgets`, `services`."
+        - References: Acceptance Criteria 1.2
+    - [ ] 2.2. Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`.
+        - Prompt: "Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`. Create `lib/features/home/home_screen.dart` with a basic `StatelessWidget`."
+        - References: Acceptance Criteria 1.2
+- [ ] 3. Configure Web Deployment Settings
+    - [ ] 3.1. Ensure `web/index.html` is configured for basic web deployment, including meta tags and title.
+        - Prompt: "Ensure `web/index.html` has appropriate meta tags for responsiveness and a title for the application."
+        - References: Acceptance Criteria 1.3
+    - [ ] 3.2. Create a script or command to build the Flutter web app for deployment.
+        - Prompt: "Create a shell script or command to build the Flutter web app for deployment, e.g., `flutter build web --release`."
+        - References: Acceptance Criteria 1.3
+- [ ] 4. Configure PWA Manifest
+    - [ ] 4.1. Create or update `web/manifest.json` with essential PWA details (name, short_name, start_url, display, background_color, theme_color, icons).
+        - Prompt: "Create or update `web/manifest.json` with essential PWA details, including `name`, `short_name`, `start_url`, `display`, `background_color`, `theme_color`, and placeholder `icons`."
+        - References: Acceptance Criteria 1.4
+- [ ] 5. Set up Base Href for Web Hosting
+    - [ ] 5.1. Ensure `<base href="/">` is correctly configured in `web/index.html` for proper web hosting.
+        - Prompt: "Verify and set `<base href="/">` in `web/index.html`."
+        - References: Acceptance Criteria 1.5
+- [ ] 6. Configure Service Worker
+    - [ ] 6.1. Ensure `flutter_service_worker.js` is enabled and configured for basic offline capabilities.
+        - Prompt: "Verify that `flutter_service_worker.js` is correctly referenced and enabled in `web/index.html` for offline support."
+        - References: Acceptance Criteria 1.6
+- [ ] 7. Add Required Dependencies
+    - [ ] 7.1. Add `http` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `http` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.2. Add `video_player` and `chewie` dependencies to `pubspec.yaml`.
+        - Prompt: "Add `video_player` and `chewie` packages to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.3. Add `provider` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `provider` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.4. Add `shared_preferences` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `shared_preferences` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.5. Add `intl` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `intl` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.6. Add `url_launcher` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `url_launcher` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.7. Add `cached_network_image` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `cached_network_image` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+    - [ ] 7.8. Add `flutter_staggered_grid_view` dependency to `pubspec.yaml`.
+        - Prompt: "Add the `flutter_staggered_grid_view` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 1.7
+- [ ] 8. Set up Dependency Injection
+    - [ ] 8.1. Integrate a chosen dependency injection framework (e.g., `GetIt`) into the project.
+        - Prompt: "Add the `get_it` package to `pubspec.yaml` and initialize `GetIt` in `main.dart`."
+        - References: Acceptance Criteria 1.8
+    - [ ] 8.2. Register a simple placeholder service using the chosen DI framework.
+        - Prompt: "Create a placeholder service (e.g., `UserService`) and register it with `GetIt`."
+        - References: Acceptance Criteria 1.8
+- [ ] 9. Configure Build Flavors
+    - [ ] 9.1. Implement flavor-specific configurations for development, staging, and production environments.
+        - Prompt: "Create `lib/config/flavor_config.dart` to manage environment-specific variables (e.g., API base URL) based on build flavors."
+        - References: Acceptance Criteria 1.9
+    - [ ] 9.2. Modify `main.dart` to initialize `FlavorConfig` based on the build flavor.
+        - Prompt: "Update `main.dart` to initialize `FlavorConfig` based on the `FLUTTER_APP_FLAVOR` environment variable."
+        - References: Acceptance Criteria 1.9
+
+## Core Architecture and State Management
+- [ ] 1. Implement the Provider pattern for state management.
+    - [ ] 1.1. Create a basic `ChangeNotifier` and provide it to the widget tree.
+        - Prompt: "Create a simple `AppNotifier` extending `ChangeNotifier` and provide it at the root of the widget tree using `ChangeNotifierProvider`."
+        - References: Acceptance Criteria 2.1
+- [ ] 2. Set up a service layer for API communication.
+    - [ ] 2.1. Create a base `ApiService` class.
+        - Prompt: "Create `lib/services/api_service.dart` with a base `ApiService` class."
+        - References: Acceptance Criteria 2.2
+- [ ] 3. Configure routing using `go_router` for web-friendly URLs.
+    - [ ] 3.1. Add `go_router` dependency.
+        - Prompt: "Add the `go_router` package to `pubspec.yaml`."
+        - References: Acceptance Criteria 2.3
+    - [ ] 3.2. Initialize `GoRouter` and define a basic route.
+        - Prompt: "Initialize `GoRouter` in `main.dart` and define a basic route for the home screen."
+        - References: Acceptance Criteria 2.3, 2.13
+- [ ] 4. Implement the repository pattern for data management.
+    - [ ] 4.1. Create a base `Repository` interface/abstract class.
+        - Prompt: "Create `lib/data/repositories/base_repository.dart` with a base `Repository` abstract class."
+        - References: Acceptance Criteria 2.4
+    - [ ] 4.2. Implement a placeholder `UserRepository` using the `ApiService`.
+        - Prompt: "Create `lib/data/repositories/user_repository.dart` and implement a placeholder `UserRepository` that uses the `ApiService`."
+        - References: Acceptance Criteria 2.4
+- [ ] 5. Create an HTTP client with proper error handling.
+    - [ ] 5.1. Configure `http` client with base URL and headers.
+        - Prompt: "Configure the `http` client in `ApiService` with a base URL (from `FlavorConfig`) and default headers."
+        - References: Acceptance Criteria 2.5
+    - [ ] 5.2. Implement basic error handling for HTTP responses.
+        - Prompt: "Add basic error handling to `ApiService` to catch common HTTP status codes (e.g., 401, 404, 500) and throw custom exceptions."
+        - References: Acceptance Criteria 2.5
+- [ ] 6. Implement an authentication service.
+    - [ ] 6.1. Create `AuthService` with login/logout methods.
+        - Prompt: "Create `lib/services/auth_service.dart` with placeholder `login` and `logout` methods."
+        - References: Acceptance Criteria 2.6
+- [ ] 7. Define API endpoints for reels, timelapse, and user data.
+    - [ ] 7.1. Define API endpoint constants.
+        - Prompt: "Create `lib/core/constants/api_endpoints.dart` and define constants for user, reels, and timelapse API endpoints."
+        - References: Acceptance Criteria 2.7
+- [ ] 8. Configure request/response interceptors.
+    - [ ] 8.1. Implement a request interceptor for adding auth tokens.
+        - Prompt: "Implement a request interceptor in `ApiService` to add authentication tokens to outgoing requests."
+        - References: Acceptance Criteria 2.8
+    - [ ] 8.2. Implement a response interceptor for refreshing tokens or handling global errors.
+        - Prompt: "Implement a response interceptor in `ApiService` to handle token refresh or global error responses (e.g., 401 Unauthorized)."
+        - References: Acceptance Criteria 2.8
+- [ ] 9. Implement retry logic and timeout handling for API calls.
+    - [ ] 9.1. Add retry logic to `ApiService`.
+        - Prompt: "Implement retry logic in `ApiService` for transient network errors."
+        - References: Acceptance Criteria 2.9
+    - [ ] 9.2. Configure timeouts for API requests.
+        - Prompt: "Set appropriate timeouts for all API requests within `ApiService`."
+        - References: Acceptance Criteria 2.9
+- [ ] 10. Create Dart models for API responses with JSON serialization/deserialization.
+    - [ ] 10.1. Create `User` model with `fromJson`/`toJson`.
+        - Prompt: "Create `lib/data/models/user.dart` with `User` model and `fromJson`/`toJson` methods."
+        - References: Acceptance Criteria 2.10
+    - [ ] 10.2. Create `Reel` model with `fromJson`/`toJson`.
+        - Prompt: "Create `lib/data/models/reel.dart` with `Reel` model and `fromJson`/`toJson` methods."
+        - References: Acceptance Criteria 2.10
+    - [ ] 10.3. Create `Timelapse` model with `fromJson`/`toJson`.
+        - Prompt: "Create `lib/data/models/timelapse.dart` with `Timelapse` model and `fromJson`/`toJson` methods."
+        - References: Acceptance Criteria 2.10
+- [ ] 11. Implement data validation and error handling for models.
+    - [ ] 11.1. Add basic validation to models.
+        - Prompt: "Add basic data validation (e.g., null checks, type assertions) to `User`, `Reel`, and `Timelapse` models during `fromJson`."
+        - References: Acceptance Criteria 2.11
+- [ ] 12. Configure an offline data caching strategy.
+    - [ ] 12.1. Implement local storage using `shared_preferences`.
+        - Prompt: "Implement a simple caching mechanism using `shared_preferences` to store user data or API responses."
+        - References: Acceptance Criteria 2.12
+- [ ] 13. Support browser back/forward button functionality.
+    - [ ] 13.1. Verify `go_router`'s browser history integration.
+        - Prompt: "Verify that `go_router` correctly handles browser back/forward button functionality with the defined routes."
+        - References: Acceptance Criteria 2.14
+
+## User Interface Components
+- [ ] 1. Create a responsive scaffold with a mobile-first design.
+    - [ ] 1.1. Implement a responsive `AppScaffold` widget.
+        - Prompt: "Create `lib/widgets/app_scaffold.dart` that provides a responsive scaffold adapting to different screen sizes using `MediaQuery`."
+        - References: Acceptance Criteria 3.1, 5.1
+- [ ] 2. Implement touch-friendly button components with a minimum 44px touch target.
+    - [ ] 2.1. Create a custom `AppButton` widget.
+        - Prompt: "Create `lib/widgets/app_button.dart` that ensures a minimum touch target of 44px and consistent styling."
+        - References: Acceptance Criteria 3.2, 5.4
+- [ ] 3. Establish a consistent typography and color scheme.
+    - [ ] 3.1. Define app theme in `theme.dart`.
+        - Prompt: "Create `lib/core/theme/app_theme.dart` to define typography, color scheme, and other theme data."
+        - References: Acceptance Criteria 3.3
+- [ ] 4. Display appropriate loading indicators and error states.
+    - [ ] 4.1. Create `LoadingIndicator` and `ErrorDisplay` widgets.
+        - Prompt: "Create `lib/widgets/loading_indicator.dart` and `lib/widgets/error_display.dart` for consistent visual feedback."
+        - References: Acceptance Criteria 3.4
+- [ ] 5. Implement a bottom navigation bar for mobile (max 5 tabs).
+    - [ ] 5.1. Create `BottomNavBar` widget.
+        - Prompt: "Create `lib/widgets/bottom_nav_bar.dart` for mobile navigation with up to 5 tabs."
+        - References: Acceptance Criteria 3.5
+- [ ] 6. Create a responsive navigation drawer for larger screens.
+    - [ ] 6.1. Implement `AppDrawer` widget.
+        - Prompt: "Create `lib/widgets/app_drawer.dart` that serves as a responsive navigation drawer for larger screens."
+        - References: Acceptance Criteria 3.6
+- [ ] 7. Include an app bar with search functionality.
+    - [ ] 7.1. Create `CustomAppBar` with search input.
+        - Prompt: "Create `lib/widgets/custom_app_bar.dart` that includes a search input field."
+        - References: Acceptance Criteria 3.7
+- [ ] 8. Implement breadcrumb navigation for web.
+    - [ ] 8.1. Create `Breadcrumb` widget.
+        - Prompt: "Create `lib/widgets/breadcrumb.dart` to display breadcrumb navigation for web."
+        - References: Acceptance Criteria 3.8
+- [ ] 9. Implement a custom video player using `chewie` with touch-optimized controls.
+    - [ ] 9.1. Create `CustomVideoPlayer` widget.
+        - Prompt: "Create `lib/widgets/custom_video_player.dart` that wraps `chewie` and provides touch-optimized controls."
+        - References: Acceptance Criteria 3.9
+- [ ] 10. Support fullscreen video playback.
+    - [ ] 10.1. Configure `chewie` for fullscreen.
+        - Prompt: "Configure `CustomVideoPlayer` to support fullscreen video playback."
+        - References: Acceptance Criteria 3.10
+- [ ] 11. Handle video buffering and errors gracefully.
+    - [ ] 11.1. Implement buffering indicators and error messages in `CustomVideoPlayer`.
+        - Prompt: "Add buffering indicators and error message display to `CustomVideoPlayer`."
+        - References: Acceptance Criteria 3.11
+- [ ] 12. Allow selection of video quality.
+    - [ ] 12.1. Add quality selection UI to `CustomVideoPlayer`.
+        - Prompt: "Implement a UI for selecting video quality within `CustomVideoPlayer`."
+        - References: Acceptance Criteria 3.12
+- [ ] 13. Create responsive grid layouts for content browsing.
+    - [ ] 13.1. Implement `ResponsiveGridView` using `flutter_staggered_grid_view`.
+        - Prompt: "Create `lib/widgets/responsive_grid_view.dart` using `flutter_staggered_grid_view` for responsive content display."
+        - References: Acceptance Criteria 3.13
+- [ ] 14. Implement infinite scroll for content loading.
+    - [ ] 14.1. Implement `InfiniteScrollList` widget.
+        - Prompt: "Create `lib/widgets/infinite_scroll_list.dart` that supports infinite scrolling for content loading."
+        - References: Acceptance Criteria 3.14
+- [ ] 15. Support pull-to-refresh functionality.
+    - [ ] 15.1. Integrate `RefreshIndicator` into relevant lists.
+        - Prompt: "Integrate `RefreshIndicator` into lists that require pull-to-refresh functionality."
+        - References: Acceptance Criteria 3.15
+- [ ] 16. Provide content filtering and sorting options.
+    - [ ] 16.1. Create `FilterSortBar` widget.
+        - Prompt: "Create `lib/widgets/filter_sort_bar.dart` for content filtering and sorting options."
+        - References: Acceptance Criteria 3.16
+
+## Core Features Implementation
+- [ ] 1. Provide login and registration screens.
+    - [ ] 1.1. Create `LoginScreen`.
+        - Prompt: "Create `lib/features/auth/login_screen.dart` with basic login form UI."
+        - References: Acceptance Criteria 4.1
+    - [ ] 1.2. Create `RegistrationScreen`.
+        - Prompt: "Create `lib/features/auth/registration_screen.dart` with basic registration form UI."
+        - References: Acceptance Criteria 4.1
+- [ ] 2. Implement token-based authentication.
+    - [ ] 2.1. Implement `AuthService.login` to handle token exchange.
+        - Prompt: "Implement `AuthService.login` to send credentials and receive an authentication token."
+        - References: Acceptance Criteria 4.2
+    - [ ] 2.2. Store token securely using `shared_preferences`.
+        - Prompt: "Store the received authentication token securely using `shared_preferences`."
+        - References: Acceptance Criteria 4.2
+- [ ] 3. Protect routes requiring authentication.
+    - [ ] 3.1. Implement `GoRouter` redirect for authenticated routes.
+        - Prompt: "Configure `GoRouter` to redirect unauthenticated users from protected routes to the login screen."
+        - References: Acceptance Criteria 4.3
+- [ ] 4. Provide logout functionality.
+    - [ ] 4.1. Implement `AuthService.logout`.
+        - Prompt: "Implement `AuthService.logout` to clear the authentication token and redirect to login."
+        - References: Acceptance Criteria 4.4
+- [ ] 5. Implement a "remember me" feature for authentication.
+    - [ ] 5.1. Add "remember me" option to login and persist token.
+        - Prompt: "Add a 'Remember Me' checkbox to `LoginScreen` and persist the authentication token based on its state."
+        - References: Acceptance Criteria 4.5
+- [ ] 6. Display reels in a vertical scrolling interface with autoplay on scroll.
+    - [ ] 6.1. Create `ReelsScreen` with vertical scroll.
+        - Prompt: "Create `lib/features/reels/reels_screen.dart` to display reels in a vertical scrolling interface."
+        - References: Acceptance Criteria 4.6
+    - [ ] 6.2. Implement autoplay on scroll for reels.
+        - Prompt: "Implement autoplay functionality for videos in `ReelsScreen` as they become visible during scrolling."
+        - References: Acceptance Criteria 4.6
+- [ ] 7. Enable like, comment, and share functionality for reels.
+    - [ ] 7.1. Add like/comment/share buttons to `ReelCard`.
+        - Prompt: "Create `lib/features/reels/widgets/reel_card.dart` and add placeholder like, comment, and share buttons."
+        - References: Acceptance Criteria 4.7
+- [ ] 8. Track user interactions with reels.
+    - [ ] 8.1. Implement analytics events for reel interactions.
+        - Prompt: "Implement basic analytics events (e.g., `reel_view`, `reel_like`) for user interactions with reels."
+        - References: Acceptance Criteria 4.8
+- [ ] 9. Display video progress indicators for reels.
+    - [ ] 9.1. Add progress bar to `ReelCard`.
+        - Prompt: "Add a video progress indicator to `ReelCard`."
+        - References: Acceptance Criteria 4.9
+- [ ] 10. Provide a timelapse video gallery with filtering by plant type and duration.
+    - [ ] 10.1. Create `TimelapseGalleryScreen`.
+        - Prompt: "Create `lib/features/timelapse/timelapse_gallery_screen.dart` to display a gallery of timelapse videos."
+        - References: Acceptance Criteria 4.10
+    - [ ] 10.2. Implement filtering UI for plant type and duration.
+        - Prompt: "Add UI elements for filtering timelapses by plant type and duration to `TimelapseGalleryScreen`."
+        - References: Acceptance Criteria 4.10
+- [ ] 11. Support timelapse comparison features.
+    - [ ] 11.1. Implement a `TimelapseComparison` widget.
+        - Prompt: "Create `lib/features/timelapse/widgets/timelapse_comparison.dart` to allow side-by-side comparison of timelapses."
+        - References: Acceptance Criteria 4.11
+- [ ] 12. Allow creation of timelapse playlists.
+    - [ ] 12.1. Implement playlist creation UI.
+        - Prompt: "Implement UI for creating and managing timelapse playlists."
+        - References: Acceptance Criteria 4.12
+- [ ] 13. Enable download functionality for timelapses.
+    - [ ] 13.1. Add download button to timelapse view.
+        - Prompt: "Add a download button to the timelapse view that triggers video download."
+        - References: Acceptance Criteria 4.13
+- [ ] 14. Display user profiles with avatar, bio, and uploaded content grid.
+    - [ ] 14.1. Create `UserProfileScreen`.
+        - Prompt: "Create `lib/features/profile/user_profile_screen.dart` to display user avatar, bio, and a grid of uploaded content."
+        - References: Acceptance Criteria 4.14
+- [ ] 15. Allow users to edit their profile.
+    - [ ] 15.1. Create `EditProfileScreen`.
+        - Prompt: "Create `lib/features/profile/edit_profile_screen.dart` with a form for editing user profile information."
+        - References: Acceptance Criteria 4.15
+- [ ] 16. Implement a follower/following system.
+    - [ ] 16.1. Add follow/unfollow buttons and display counts.
+        - Prompt: "Add follow/unfollow buttons and display follower/following counts on `UserProfileScreen`."
+        - References: Acceptance Criteria 4.16
+- [ ] 17. Display user statistics.
+    - [ ] 17.1. Display user statistics on profile.
+        - Prompt: "Display user statistics (e.g., total uploads, total likes) on `UserProfileScreen`."
+        - References: Acceptance Criteria 4.17
+- [ ] 18. Provide a content discovery page.
+    - [ ] 18.1. Create `DiscoveryScreen`.
+        - Prompt: "Create `lib/features/discovery/discovery_screen.dart` as a content discovery page."
+        - References: Acceptance Criteria 4.18
+- [ ] 19. Include search functionality with filters.
+    - [ ] 19.1. Implement search bar and filter options on `DiscoveryScreen`.
+        - Prompt: "Add a search bar and filter options to `DiscoveryScreen`."
+        - References: Acceptance Criteria 4.19
+- [ ] 20. Enable category-based browsing.
+    - [ ] 20.1. Implement category browsing UI.
+        - Prompt: "Implement UI for browsing content by categories on `DiscoveryScreen`."
+        - References: Acceptance Criteria 4.20
+- [ ] 21. Display trending/popular content sections.
+    - [ ] 21.1. Add trending/popular sections to `DiscoveryScreen`.
+        - Prompt: "Add sections for displaying trending and popular content on `DiscoveryScreen`."
+        - References: Acceptance Criteria 4.21
+- [ ] 22. Provide a content recommendation system.
+    - [ ] 22.1. Implement basic content recommendation logic.
+        - Prompt: "Implement basic content recommendation logic to display personalized suggestions on `DiscoveryScreen`."
+        - References: Acceptance Criteria 4.22
+
+## Responsive Design and Mobile Optimization
+- [ ] 1. Use flexible layouts (`Expanded`, `Flexible`) for content adaptation.
+    - [ ] 1.1. Apply flexible layouts in `AppScaffold` and other responsive widgets.
+        - Prompt: "Ensure `AppScaffold` and other responsive widgets utilize `Expanded` and `Flexible` for content adaptation."
+        - References: Acceptance Criteria 5.2
+- [ ] 2. Maintain proper aspect ratios for video content.
+    - [ ] 2.1. Ensure `CustomVideoPlayer` maintains aspect ratio.
+        - Prompt: "Ensure `CustomVideoPlayer` maintains proper aspect ratios for video content."
+        - References: Acceptance Criteria 5.3
+- [ ] 3. Implement swipe gestures for navigation.
+    - [ ] 3.1. Add swipe gestures to relevant screens (e.g., `ReelsScreen`).
+        - Prompt: "Implement swipe gestures for navigation in `ReelsScreen` (e.g., to next/previous reel)."
+        - References: Acceptance Criteria 5.5
+- [ ] 4. Support pinch-to-zoom for images.
+    - [ ] 4.1. Implement pinch-to-zoom for images using `InteractiveViewer`.
+        - Prompt: "Implement pinch-to-zoom functionality for images using `InteractiveViewer`."
+        - References: Acceptance Criteria 5.6
+- [ ] 5. Configure tap delays and provide feedback.
+    - [ ] 5.1. Ensure responsive tap feedback.
+        - Prompt: "Ensure tap delays are minimized and visual feedback is provided for all interactive elements."
+        - References: Acceptance Criteria 5.7
+- [ ] 6. Implement long-press context menus.
+    - [ ] 6.1. Add long-press context menus to relevant elements.
+        - Prompt: "Add long-press context menus for elements like reels or timelapses."
+        - References: Acceptance Criteria 5.8
+- [ ] 7. Implement lazy loading for images and videos.
+    - [ ] 7.1. Implement lazy loading for images using `cached_network_image`.
+        - Prompt: "Implement lazy loading for images using `cached_network_image` in content lists."
+        - References: Acceptance Criteria 5.9
+    - [ ] 7.2. Implement lazy loading for videos.
+        - Prompt: "Implement lazy loading for videos in `ReelsScreen` to optimize performance."
+        - References: Acceptance Criteria 5.9
+- [ ] 8. Optimize video loading and buffering.
+    - [ ] 8.1. Optimize video loading and buffering in `CustomVideoPlayer`.
+        - Prompt: "Implement optimizations for video loading and buffering within `CustomVideoPlayer`."
+        - References: Acceptance Criteria 5.11
+- [ ] 9. Manage memory efficiently.
+    - [ ] 9.1. Implement memory management best practices.
+        - Prompt: "Implement memory management best practices, such as disposing of controllers and subscriptions."
+        - References: Acceptance Criteria 5.12
+- [ ] 10. Add proper semantic markup for accessibility.
+    - [ ] 10.1. Add semantic markup to UI elements.
+        - Prompt: "Add appropriate semantic markup (e.g., `Semantics` widget) to UI elements for accessibility."
+        - References: Acceptance Criteria 5.13
+- [ ] 11. Support keyboard navigation.
+    - [ ] 11.1. Ensure keyboard navigation is supported for web.
+        - Prompt: "Ensure all interactive elements are navigable via keyboard for web users."
+        - References: Acceptance Criteria 5.14
+- [ ] 12. Configure screen reader support.
+    - [ ] 12.1. Configure screen reader support.
+        - Prompt: "Configure screen reader support for key UI elements."
+        - References: Acceptance Criteria 5.15
+- [ ] 13. Display focus indicators for web elements.
+    - [ ] 13.1. Ensure focus indicators are visible.
+        - Prompt: "Ensure focus indicators are clearly visible for interactive web elements."
+        - References: Acceptance Criteria 5.16
+
+## Testing and Quality Assurance
+- [ ] 1. Include unit tests for data models and API service methods.
+    - [ ] 1.1. Write unit tests for `User` model.
+        - Prompt: "Write unit tests for the `User` data model, covering `fromJson` and `toJson`."
+        - References: Acceptance Criteria 6.1
+    - [ ] 1.2. Write unit tests for `ApiService`.
+        - Prompt: "Write unit tests for `ApiService`, covering request handling and error parsing."
+        - References: Acceptance Criteria 6.1
+- [ ] 2. Include widget tests for UI components.
+    - [ ] 2.1. Write widget tests for `AppButton`.
+        - Prompt: "Write widget tests for `AppButton` to verify its rendering and tap behavior."
+        - References: Acceptance Criteria 6.2
+    - [ ] 2.2. Write widget tests for `LoadingIndicator`.
+        - Prompt: "Write widget tests for `LoadingIndicator` to verify its display."
+        - References: Acceptance Criteria 6.2
+- [ ] 3. Generate test coverage reports.
+    - [ ] 3.1. Configure test runner to generate coverage reports.
+        - Prompt: "Configure the Flutter test runner to generate test coverage reports."
+        - References: Acceptance Criteria 6.3
+- [ ] 4. Include integration tests for complete user flows, API integration, navigation, and responsive behavior.
+    - [ ] 4.1. Write integration test for login flow.
+        - Prompt: "Write an integration test for the user login flow, including API interaction."
+        - References: Acceptance Criteria 6.4
+    - [ ] 4.2. Write integration test for responsive layout.
+        - Prompt: "Write an integration test to verify the responsive behavior of `AppScaffold` across different screen sizes."
+        - References: Acceptance Criteria 6.4
+- [ ] 5. Perform performance testing on different devices, verifying video playback, scrolling, memory usage, and loading times.
+    - [ ] 5.1. Set up performance testing for video playback.
+        - Prompt: "Set up a performance test to measure video playback smoothness in `ReelsScreen`."
+        - References: Acceptance Criteria 6.5
+- [ ] 6. Perform cross-browser testing on Chrome, Firefox, Safari, and Edge, verifying PWA functionality, responsive behavior, and touch interactions.
+    - [ ] 6.1. Document manual cross-browser testing steps.
+        - Prompt: "Document the manual steps required for cross-browser testing of PWA functionality and responsive behavior."
+        - References: Acceptance Criteria 6.6
+
+## Deployment and Production
+- [ ] 1. Configure production build settings, including code obfuscation and minification.
+    - [ ] 1.1. Configure `flutter build web` for production.
+        - Prompt: "Configure `flutter build web --release` to include code obfuscation and minification."
+        - References: Acceptance Criteria 7.1
+- [ ] 2. Optimize assets for production builds.
+    - [ ] 2.1. Implement asset optimization steps.
+        - Prompt: "Implement steps to optimize assets (e.g., image compression) for production builds."
+        - References: Acceptance Criteria 7.3
+- [ ] 3. Build the Flutter web app for production.
+    - [ ] 3.1. Create a production build script.
+        - Prompt: "Create a script to build the Flutter web app for production deployment."
+        - References: Acceptance Criteria 7.4
+- [ ] 4. Configure hosting settings (e.g., Firebase, Netlify).
+    - [ ] 4.1. Document hosting configuration steps.
+        - Prompt: "Document the steps to configure hosting settings for the Flutter web app on a platform like Firebase Hosting or Netlify."
+        - References: Acceptance Criteria 7.5
+- [ ] 5. Set up a CDN for static assets.
+    - [ ] 5.1. Document CDN setup.
+        - Prompt: "Document the process of setting up a CDN for static assets to improve loading times."
+        - References: Acceptance Criteria 7.6
+- [ ] 6. Configure SSL and security headers.
+    - [ ] 6.1. Document SSL and security header configuration.
+        - Prompt: "Document the steps to configure SSL and appropriate security headers for the web application."
+        - References: Acceptance Criteria 7.7
+- [ ] 7. Set up error tracking and monitoring.
+    - [ ] 7.1. Integrate an error tracking service.
+        - Prompt: "Integrate an error tracking service (e.g., Sentry, Crashlytics) into the Flutter app."
+        - References: Acceptance Criteria 7.8
+- [ ] 8. Implement user analytics.
+    - [ ] 8.1. Integrate an analytics service.
+        - Prompt: "Integrate a user analytics service (e.g., Google Analytics, Firebase Analytics) into the Flutter app."
+        - References: Acceptance Criteria 7.9
+- [ ] 9. Configure performance monitoring and crash reporting.
+    - [ ] 9.1. Configure performance monitoring.
+        - Prompt: "Configure performance monitoring tools to track app performance in production."
+        - References: Acceptance Criteria 7.10
+- [ ] 10. Create user documentation, API integration documentation, developer guides, and deployment documentation.
+    - [ ] 10.1. Create placeholder for user documentation.
+        - Prompt: "Create a placeholder file for user documentation (e.g., `docs/user_guide.md`)."
+        - References: Acceptance Criteria 7.11
+    - [ ] 10.2. Create placeholder for API integration documentation.
+        - Prompt: "Create a placeholder file for API integration documentation (e.g., `docs/api_integration.md`)."
+        - References: Acceptance Criteria 7.11
+    - [ ] 10.3. Create placeholder for developer guides.
+        - Prompt: "Create a placeholder file for developer guides (e.g., `docs/developer_guide.md`)."
+        - References: Acceptance Criteria 7.11
+    - [ ] 10.4. Create placeholder for deployment documentation.
+        - Prompt: "Create a placeholder file for deployment documentation (e.g., `docs/deployment_guide.md`)."
+        - References: Acceptance Criteria 7.11

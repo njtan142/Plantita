@@ -56,7 +56,7 @@ console.log('---');
 
 // Hash the password
 const saltRounds = 10;
-bcrypt.hash(password, saltRounds, (err: any, hash: any) => {
+bcrypt.hash(password, saltRounds, (err, hash) => {
   if (err) {
     console.error('Error hashing password:', err);
     process.exit(1);
@@ -86,27 +86,28 @@ INSERT INTO users (
   true,
   NOW(),
   NOW()
-) ON CONFLICT (email) DO UPDATE SET
-  username = EXCLUDED.username,
-  password_hash = EXCLUDED.password_hash,
-  first_name = EXCLUDED.first_name,
-  last_name = EXCLUDED.last_name,
-  role = EXCLUDED.role,
-  is_active = EXCLUDED.is_active,
-  email_verified = EXCLUDED.email_verified,
-  updated_at = NOW();
+);
   `;
+
+  console.log('SQL Command:');
+  console.log(sql);
+  console.log('---');
 
   // Execute the SQL command using Docker
   try {
-    const command = `docker exec plantita-postgres psql -U postgres -d plantita_social_dev -c "${sql}"`;
-    execSync(command, { stdio: 'inherit' });
-    console.log('\n✅ Admin user created/updated successfully!');
+    // Remove newlines and extra spaces from SQL for command line
+    const cleanSql = sql.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+    const command = `docker exec plantita-postgres psql -U postgres -d plantita_social_dev -c "${cleanSql}"`;
+    console.log('Executing command:', command);
+    const result = execSync(command, { stdio: 'inherit' });
+    console.log('Command result:', result);
+    console.log('\n✅ Admin user created successfully!');
     console.log('\nLogin credentials:');
     console.log('- Email:', email);
     console.log('- Password:', password);
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error creating admin user:', error.message);
+    console.error('Error stack:', error.stack);
     process.exit(1);
   }
 });
