@@ -13,29 +13,29 @@ This document outlines the coding tasks for implementing the Flutter User App, b
     - Define `lib/ui/theme.dart` for typography and color scheme.
 
 ## 2. Data Layer Implementation
-- [ ] 2.1. Define User Data Model.
+- [x] 2.1. Define User Data Model.
     - Create `lib/data/models/user.dart` with `id`, `username`, `email`, `bio`, `avatarUrl`, `followersCount`, `followingCount`, `uploadedContent`.
     - Implement `fromJson` and `toJson` methods.
-- [ ] 2.2. Define Reel Data Model.
+- [x] 2.2. Define Reel Data Model.
     - Create `lib/data/models/reel.dart` with `id`, `videoUrl`, `thumbnailUrl`, `title`, `description`, `uploadDate`, `likesCount`, `commentsCount`, `sharesCount`, `userId`.
     - Implement `fromJson` and `toJson` methods.
-- [ ] 2.3. Define Timelapse Data Model.
+- [x] 2.3. Define Timelapse Data Model.
     - Create `lib/data/models/timelapse.dart` with `id`, `videoUrl`, `thumbnailUrl`, `title`, `description`, `plantType`, `duration`, `uploadDate`, `userId`.
     - Implement `fromJson` and `toJson` methods.
-- [ ] 2.4. Define Comment Data Model.
+- [x] 2.4. Define Comment Data Model.
     - Create `lib/data/models/comment.dart` with `id`, `text`, `userId`, `reelId`, `timestamp`.
     - Implement `fromJson` and `toJson` methods.
-- [ ] 2.5. Implement Repositories.
+- [x] 2.5. Implement Repositories.
     - Create `lib/data/repositories/user_repository.dart`.
     - Create `lib/data/repositories/reel_repository.dart`.
     - Create `lib/data/repositories/timelapse_repository.dart`.
     - Create `lib/data/repositories/comment_repository.dart`.
 
 ## 3. Service Layer Implementation
-- [ ] 3.1. Implement API Service.
+- [x] 3.1. Implement API Service.
     - Create `lib/services/api_service.dart` with HTTP client setup.
     - Implement centralized error handling for network requests.
-- [ ] 3.2. Implement Authentication Service.
+- [x] 3.2. Implement Authentication Service.
     - Create `lib/services/auth_service.dart` for user authentication.
 - [ ] 3.3. Implement Video Player Service.
     - Create `lib/services/video_player_service.dart` for video playback control.
