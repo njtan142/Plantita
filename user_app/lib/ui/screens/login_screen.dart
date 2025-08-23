@@ -15,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _rememberMe = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +58,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (bool? newValue) {
+                      setState(() {
+                        _rememberMe = newValue!;
+                      });
+                    },
+                  ),
+                  const Text('Remember Me'),
+                ],
+              ),
               const SizedBox(height: 24.0),
               TouchFriendlyButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                    await authProvider.login(_usernameController.text, _passwordController.text);
+                    await authProvider.login(_usernameController.text, _passwordController.text, _rememberMe);
                     if (authProvider.isAuthenticated) {
                       // Navigate to home screen or dashboard
-                      Navigator.of(context).pushReplacementNamed('/'); // Example navigation
+                      // Using go_router for navigation
+                      GoRouter.of(context).go('/');
                     } else {
                       // Show error message
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextButton(
                 onPressed: () {
                   // Navigate to registration screen
-                  Navigator.of(context).pushNamed('/register'); // Example navigation
+                  GoRouter.of(context).go('/register');
                 },
                 child: const Text('Don\'t have an account? Register here.'),
               ),

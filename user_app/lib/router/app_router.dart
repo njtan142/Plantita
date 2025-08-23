@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:user_app/features/home/home_screen.dart';
 import 'package:user_app/ui/screens/login_screen.dart';
 import 'package:user_app/ui/screens/register_screen.dart';
+import 'package:user_app/ui/screens/timelapse_comparison_screen.dart'; // Import the new screen
+import 'package:user_app/data/models/timelapse.dart'; // Import Timelapse model
 import 'package:user_app/services/auth_service.dart'; // Import AuthService
 import 'package:user_app/main.dart'; // Import getIt
 
@@ -43,6 +45,16 @@ final GoRouter appRouter = GoRouter(
       path: '/register',
       builder: (BuildContext context, GoRouterState state) {
         return const RegisterScreen();
+      },
+    ),
+    GoRoute(
+      path: '/compare-timelapses',
+      builder: (BuildContext context, GoRouterState state) {
+        final timelapses = state.extra as Map<String, Timelapse>;
+        return TimelapseComparisonScreen(
+          timelapse1: timelapses['timelapse1']!,
+          timelapse2: timelapses['timelapse2']!,
+        );
       },
     ),
   ],

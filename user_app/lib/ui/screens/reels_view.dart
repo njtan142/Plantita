@@ -14,11 +14,29 @@ class ReelsView extends StatefulWidget {
 }
 
 class _ReelsViewState extends State<ReelsView> {
+  PageController _pageController = PageController();
+
   @override
   void initState() {
     super.initState();
     // Fetch reels when the view is initialized
     Provider.of<ReelProvider>(context, listen: false).fetchReels();
+
+    _pageController.addListener(() {
+      if (_pageController.page != null && _pageController.page == _pageController.page!.round()) {
+        final reelProvider = Provider.of<ReelProvider>(context, listen: false);
+        final currentReelIndex = _pageController.page!.round();
+        if (currentReelIndex < reelProvider.reels.length) {
+          reelProvider.trackReelView(reelProvider.reels[currentReelIndex].id);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,6 +60,7 @@ class _ReelsViewState extends State<ReelsView> {
             return RefreshIndicator(
               onRefresh: () => reelProvider.fetchReels(),
               child: PageView.builder(
+                controller: _pageController,
                 scrollDirection: Axis.vertical,
                 itemCount: reelProvider.reels.length,
                 itemBuilder: (context, index) {
@@ -72,6 +91,40 @@ class _ReelsViewState extends State<ReelsView> {
                           Text(
                             reel.description,
                             style: const TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.favorite, color: Colors.white),
+                                onPressed: () => reelProvider.likeReel(reel.id),
+                              ),
+                              Text(
+                                '${reel.likesCount}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              const SizedBox(width: 20),
+                              IconButton(
+                                icon: const Icon(Icons.comment, color: Colors.white),
+                                onPressed: () {
+                                  // TODO: Implement comment dialog
+                                  print('Comment on ${reel.id}');
+                                },
+                              ),
+                              Text(
+                                '${reel.commentsCount}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              const SizedBox(width: 20),
+                              IconButton(
+                                icon: const Icon(Icons.share, color: Colors.white),
+                                onPressed: () => reelProvider.shareReel(reel.id),
+                              ),
+                              Text(
+                                '${reel.sharesCount}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ],
                           ),
                         ],
                       ),

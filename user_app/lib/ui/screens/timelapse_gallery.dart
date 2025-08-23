@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
+import 'package:user_app/state_management/timelapse_provider.dart';
+import 'package:user_app/ui/widgets/error_state_widget.dart';
 
 class TimelapseGallery extends StatefulWidget {
   const TimelapseGallery({Key? key}) : super(key: key);
@@ -11,55 +14,37 @@ class TimelapseGallery extends StatefulWidget {
 
 class _TimelapseGalleryState extends State<TimelapseGallery> {
   final ScrollController _scrollController = ScrollController();
-  List<String> _timelapseItems = [];
-  bool _isLoadingMore = false;
-  int _currentPage = 0;
-  final int _itemsPerPage = 20;
 
   String _selectedPlantType = 'All';
-  String _selectedSortOption = 'Newest';
+  String _selectedDuration = 'All'; // Assuming duration filter
 
   final List<String> _plantTypes = ['All', 'Rose', 'Sunflower', 'Tulip'];
-  final List<String> _sortOptions = ['Newest', 'Oldest', 'Most Viewed'];
+  final List<String> _durations = ['All', 'Short', 'Medium', 'Long']; // Example durations
 
   @override
   void initState() {
     super.initState();
-    _loadMoreItems();
+    // Fetch timelapses when the view is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<TimelapseProvider>(context, listen: false).fetchTimelapses(
+        plantType: _selectedPlantType,
+        duration: _selectedDuration,
+      );
+    });
+
+    // TODO: Implement infinite scroll with actual data fetching
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoadingMore) {
-        _loadMoreItems();
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<TimelapseProvider>(context, listen: false).isLoading) {
+        // _loadMoreItems(); // This will be replaced with actual pagination logic
       }
     });
   }
 
-  Future<void> _loadMoreItems() async {
-    if (_isLoadingMore) return;
-
-    setState(() {
-      _isLoadingMore = true;
-    });
-
-    // Simulate network delay and apply filtering/sorting
-    await Future.delayed(const Duration(seconds: 2));
-
-    final newItems = List.generate(_itemsPerPage, (index) {
-      return 'Timelapse ${(_currentPage * _itemsPerPage) + index + 1} (Type: $_selectedPlantType, Sort: $_selectedSortOption)';
-    });
-
-    setState(() {
-      _timelapseItems.addAll(newItems);
-      _currentPage++;
-      _isLoadingMore = false;
-    });
-  }
-
   Future<void> _handleRefresh() async {
-    setState(() {
-      _timelapseItems.clear();
-      _currentPage = 0;
-    });
-    await _loadMoreItems();
+    await Provider.of<TimelapseProvider>(context, listen: false).fetchTimelapses(
+      plantType: _selectedPlantType,
+      duration: _selectedDuration,
+    );
   }
 
   @override
@@ -85,14 +70,14 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
           ),
           const SizedBox(width: 10),
           DropdownButton<String>(
-            value: _selectedSortOption,
+            value: _selectedDuration,
             onChanged: (String? newValue) {
               setState(() {
-                _selectedSortOption = newValue!;
+                _selectedDuration = newValue!;
               });
               _handleRefresh();
             },
-            items: _sortOptions.map<DropdownMenuItem<String>>((String value) {
+            items: _durations.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),
@@ -102,22 +87,36 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
           const SizedBox(width: 10),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        child: ResponsiveGridLayout(
-          controller: _scrollController,
-          children: [
-          ..._timelapseItems.map((item) => Card(
-            child: Center(
-              child: Text(item),
-            ),
-          )).toList(),
-          if (_isLoadingMore)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-        ],
+      body: Consumer<TimelapseProvider>(
+        builder: (context, timelapseProvider, child) {
+          if (timelapseProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (timelapseProvider.errorMessage != null) {
+            return ErrorStateWidget(
+              message: timelapseProvider.errorMessage!,
+              onRetry: () => timelapseProvider.fetchTimelapses(
+                plantType: _selectedPlantType,
+                duration: _selectedDuration,
+              ),
+            );
+          } else if (timelapseProvider.timelapses.isEmpty) {
+            return const Center(child: Text('No timelapses available.'));
+          } else {
+            return RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: ResponsiveGridLayout(
+                controller: _scrollController,
+                children: [
+                  ...timelapseProvider.timelapses.map((timelapse) => Card(
+                    child: Center(
+                      child: Text(timelapse.title),
+                    ),
+                  )).toList(),
+                ],
+              ),
+            );
+          }
+        },
       ),
     );
   }

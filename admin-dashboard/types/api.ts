@@ -44,6 +44,33 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
+  reportedContentCount?: number; // For tracking content reported by user
+}
+
+// User Activity types
+export interface UserActivity {
+  id: string;
+  userId: string;
+  type: 'login' | 'upload' | 'comment' | 'like' | 'share';
+  description: string;
+  timestamp: string;
+  relatedMediaId?: string;
+}
+
+export interface UserStatistics {
+  totalUploads: number;
+  totalLikes: number;
+  totalComments: number;
+  totalViews: number;
+  engagementRate: number;
+  reportedContent: number;
+}
+
+export interface UserContentProfile {
+  user: User;
+  activity: UserActivity[];
+  media: Media[];
+  statistics: UserStatistics;
 }
 
 export enum UserRole {
@@ -242,3 +269,163 @@ export interface PlatformSettings {
 export interface SettingsUpdatePayload {
   [key: string]: any;
 }
+
+// Mock data structures for development
+export const MOCK_USERS: User[] = [
+  {
+    id: '1',
+    email: 'john.doe@example.com',
+    username: 'johndoe',
+    firstName: 'John',
+    lastName: 'Doe',
+    avatar: 'https://example.com/avatar1.jpg',
+    role: UserRole.USER,
+    status: UserStatus.ACTIVE,
+    emailVerified: true,
+    createdAt: '2024-01-15T08:30:00Z',
+    updatedAt: '2024-01-20T10:15:00Z',
+    lastLoginAt: '2024-01-22T14:20:00Z',
+    reportedContentCount: 2
+  },
+  {
+    id: '2',
+    email: 'jane.smith@example.com',
+    username: 'janesmith',
+    firstName: 'Jane',
+    lastName: 'Smith',
+    avatar: 'https://example.com/avatar2.jpg',
+    role: UserRole.MODERATOR,
+    status: UserStatus.ACTIVE,
+    emailVerified: true,
+    createdAt: '2024-01-10T12:45:00Z',
+    updatedAt: '2024-01-18T09:30:00Z',
+    lastLoginAt: '2024-01-22T16:45:00Z',
+    reportedContentCount: 0
+  },
+  {
+    id: '3',
+    email: 'admin@example.com',
+    username: 'admin',
+    firstName: 'Admin',
+    lastName: 'User',
+    avatar: 'https://example.com/avatar3.jpg',
+    role: UserRole.ADMIN,
+    status: UserStatus.ACTIVE,
+    emailVerified: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-01-01T00:00:00Z',
+    lastLoginAt: '2024-01-22T18:00:00Z',
+    reportedContentCount: 0
+  }
+];
+
+export const MOCK_USER_ACTIVITIES: UserActivity[] = [
+  {
+    id: 'activity-1',
+    userId: '1',
+    type: 'login',
+    description: 'User logged in',
+    timestamp: '2024-01-22T14:20:00Z'
+  },
+  {
+    id: 'activity-2',
+    userId: '1',
+    type: 'upload',
+    description: 'Uploaded a new photo',
+    timestamp: '2024-01-22T15:30:00Z',
+    relatedMediaId: 'media-1'
+  },
+  {
+    id: 'activity-3',
+    userId: '1',
+    type: 'comment',
+    description: 'Commented on a post',
+    timestamp: '2024-01-22T16:45:00Z'
+  },
+  {
+    id: 'activity-4',
+    userId: '2',
+    type: 'login',
+    description: 'User logged in',
+    timestamp: '2024-01-22T16:45:00Z'
+  },
+  {
+    id: 'activity-5',
+    userId: '2',
+    type: 'upload',
+    description: 'Uploaded a new video',
+    timestamp: '2024-01-22T17:15:00Z',
+    relatedMediaId: 'media-2'
+  }
+];
+
+export const MOCK_USER_STATISTICS: Record<string, UserStatistics> = {
+  '1': {
+    totalUploads: 15,
+    totalLikes: 87,
+    totalComments: 23,
+    totalViews: 456,
+    engagementRate: 0.78,
+    reportedContent: 2
+  },
+  '2': {
+    totalUploads: 8,
+    totalLikes: 124,
+    totalComments: 42,
+    totalViews: 789,
+    engagementRate: 0.85,
+    reportedContent: 0
+  },
+  '3': {
+    totalUploads: 0,
+    totalLikes: 0,
+    totalComments: 0,
+    totalViews: 0,
+    engagementRate: 0,
+    reportedContent: 0
+  }
+};
+
+export const MOCK_MEDIAS: Media[] = [
+  {
+    id: 'media-1',
+    filename: 'photo1.jpg',
+    originalName: 'vacation-photo.jpg',
+    mimeType: 'image/jpeg',
+    size: 2048576,
+    url: 'https://example.com/media/photo1.jpg',
+    thumbnailUrl: 'https://example.com/media/thumb/photo1.jpg',
+    uploadedBy: '1',
+    uploadedByUser: MOCK_USERS[0],
+    tags: ['vacation', 'beach'],
+    description: 'Beautiful beach view from our vacation',
+    status: MediaStatus.APPROVED,
+    createdAt: '2024-01-22T15:30:00Z',
+    updatedAt: '2024-01-22T15:35:00Z',
+    metadata: {
+      width: 1920,
+      height: 1080
+    }
+  },
+  {
+    id: 'media-2',
+    filename: 'video1.mp4',
+    originalName: 'family-video.mp4',
+    mimeType: 'video/mp4',
+    size: 10485760,
+    url: 'https://example.com/media/video1.mp4',
+    thumbnailUrl: 'https://example.com/media/thumb/video1.jpg',
+    uploadedBy: '2',
+    uploadedByUser: MOCK_USERS[1],
+    tags: ['family', 'event'],
+    description: 'Our family gathering last weekend',
+    status: MediaStatus.APPROVED,
+    createdAt: '2024-01-22T17:15:00Z',
+    updatedAt: '2024-01-22T17:20:00Z',
+    metadata: {
+      duration: 300,
+      bitrate: 5000000,
+      codec: 'H.264'
+    }
+  }
+];

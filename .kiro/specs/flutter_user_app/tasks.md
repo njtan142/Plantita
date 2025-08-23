@@ -117,16 +117,16 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 7.4. Implement full logout functionality.
     - Clear stored tokens and user session data upon logout.
     - References: AC 4.4
-- [ ] 7.5. Implement "remember me" feature for authentication.
+- [x] 7.5. Implement "remember me" feature for authentication.
     - Persist user login state across sessions.
     - References: AC 4.5
-- [ ] 7.6. Enable like, comment, and share functionality for reels.
+- [x] 7.6. Enable like, comment, and share functionality for reels.
     - Implement UI and backend integration for these interactions in `reels_view.dart` and `ReelRepository`.
     - References: AC 4.7
-- [ ] 7.7. Implement user interaction tracking with reels.
+- [x] 7.7. Implement user interaction tracking with reels.
     - Track user engagement with reels for analytics.
     - References: AC 4.8
-- [ ] 7.8. Implement filtering by plant type and duration in Timelapse Gallery.
+- [x] 7.8. Implement filtering by plant type and duration in Timelapse Gallery.
     - Add UI and logic to filter timelapses.
     - References: AC 4.10
 - [ ] 7.9. Implement timelapse comparison features.

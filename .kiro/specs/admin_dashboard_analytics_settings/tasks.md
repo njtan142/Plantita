@@ -130,7 +130,7 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Confirm that authentication protection is working
   - Check that 404 errors are resolved
 
-- [ ] 3.2. Conduct component testing
+- [x] 3.2. Conduct component testing
   - *Requirements: All components*
   - Write unit tests for all new service functions
   - Write unit tests for all new components with mock data
@@ -138,7 +138,7 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Verify that all components render correctly with mock data
   - Test error states and loading states
 
-- [ ] 3.3. Conduct end-to-end testing
+- [x] 3.3. Conduct end-to-end testing
   - *Requirements: 2.1.1, 2.2.1*
   - Test full user flow for accessing analytics page
   - Test full user flow for accessing and updating settings
