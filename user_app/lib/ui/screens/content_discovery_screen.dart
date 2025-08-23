@@ -7,6 +7,7 @@ import 'package:user_app/state_management/content_provider.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/reel.dart';
 import 'package:user_app/data/models/timelapse.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ContentDiscoveryScreen extends StatefulWidget {
   const ContentDiscoveryScreen({Key? key}) : super(key: key);
@@ -78,7 +79,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             items: _categories.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: const Text(value),
               );
             }).toList(),
           ),
@@ -94,7 +95,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             items: _sortOptions.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value),
+                child: const Text(value),
               );
             }).toList(),
           ),
@@ -229,8 +230,15 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                               _showContentContextMenu(context, item);
                             },
                             child: Card(
-                              child: Center(
-                                child: Text(title),
+                              child: InteractiveViewer(
+                                child: item.thumbnailUrl.isNotEmpty
+                                    ? CachedNetworkImage(
+                                        imageUrl: item.thumbnailUrl,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                                      )
+                                    : const Center(child: Text('No Thumbnail')),
                               ),
                             ),
                           );

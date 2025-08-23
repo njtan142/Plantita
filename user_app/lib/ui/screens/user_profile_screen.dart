@@ -6,6 +6,7 @@ import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
 import 'package:user_app/data/models/reel.dart';
 import 'package:user_app/data/models/timelapse.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String userId; // Assuming userId is passed as an argument
@@ -64,7 +65,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         CircleAvatar(
                           radius: 50,
                           backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                              ? NetworkImage(user.avatarUrl!)
+                              ? CachedNetworkImageProvider(user.avatarUrl!)
                               : null,
                           child: user.avatarUrl == null || user.avatarUrl!.isEmpty
                               ? const Icon(Icons.person, size: 50)
@@ -97,9 +98,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             child: Text(user.isFollowing ? 'Unfollow' : 'Follow'),
                           ),
                       ],
-                    ),
-                  ),
-                  const Divider(),
                     ),
                   ),
                   const Divider(),

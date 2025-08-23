@@ -5,12 +5,14 @@ import 'package:chewie/chewie.dart';
 import 'dart:collection'; // For LinkedHashMap
 
 class CustomVideoPlayer extends StatefulWidget {
+  final VideoPlayerController videoPlayerController; // External controller
   final Map<String, String> videoQualities; // Map of quality label to video URL
   final bool looping;
   final bool autoplay;
 
   const CustomVideoPlayer({
     Key? key,
+    required this.videoPlayerController,
     required this.videoQualities,
     this.looping = false,
     this.autoplay = false,
@@ -21,7 +23,6 @@ class CustomVideoPlayer extends StatefulWidget {
 }
 
 class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
-  late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
   late int _currentQualityIndex; // Index of the currently selected quality
 
@@ -32,16 +33,19 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     _initializePlayer();
   }
 
+  @override
+  void didUpdateWidget(covariant CustomVideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.videoPlayerController != oldWidget.videoPlayerController) {
+      _chewieController?.dispose();
+      _initializePlayer();
+    }
+  }
+
   Future<void> _initializePlayer() async {
-    _videoPlayerController = VideoPlayerController.networkUrl(
-      Uri.parse(widget.videoQualities.values.elementAt(_currentQualityIndex)),
-    );
-
-    await _videoPlayerController.initialize();
-
     _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController,
-      aspectRatio: _videoPlayerController.value.aspectRatio,
+      videoPlayerController: widget.videoPlayerController,
+      aspectRatio: widget.videoPlayerController.value.aspectRatio,
       autoPlay: widget.autoplay,
       looping: widget.looping,
       errorBuilder: (context, errorMessage) {
@@ -59,7 +63,6 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   void _changeVideoQuality(int newQualityIndex) async {
     if (newQualityIndex == _currentQualityIndex) return;
 
-    final oldVideoPlayerController = _videoPlayerController;
     final oldChewieController = _chewieController;
 
     setState(() {
@@ -67,10 +70,13 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
       _chewieController = null; // Clear controller to show loading
     });
 
-    await oldVideoPlayerController.dispose();
     oldChewieController?.dispose();
 
-    await _initializePlayer();
+    // Dispose and re-initialize the external videoPlayerController
+    await widget.videoPlayerController.dispose();
+    // Re-initialize with new quality URL
+    await widget.videoPlayerController.initialize();
+    _initializePlayer();
   }
 
   @override
@@ -105,7 +111,6 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
     _chewieController?.dispose();
     super.dispose();
   }

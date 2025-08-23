@@ -176,16 +176,16 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 8.4. Implement long-press context menus.
     - Add context menus triggered by long-press gestures.
     - References: AC 5.8
-- [ ] 8.5. Implement lazy loading for images.
+- [x] 8.5. Implement lazy loading for images.
     - Ensure images are lazy loaded to improve performance.
     - References: AC 5.9
-- [ ] 8.6. Use `cached_network_image` for image caching.
+- [x] 8.6. Use `cached_network_image` for image caching.
     - Integrate `cached_network_image` for efficient image caching.
     - References: AC 5.10
-- [ ] 8.7. Optimize video loading and buffering.
+- [x] 8.7. Optimize video loading and buffering.
     - Implement strategies to improve video loading and buffering performance.
     - References: AC 5.11
-- [ ] 8.8. Further optimize memory management.
+- [x] 8.8. Further optimize memory management.
     - Review and enhance memory usage efficiency throughout the application.
     - References: AC 5.12
 - [ ] 8.9. Add proper semantic markup for accessibility.
