@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Download, Trash2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,78 +36,68 @@ interface UserFilters {
   emailVerified: boolean | '';
 }
 
-interface PaginationState {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState<UserFilters>({
     search: '',
     role: '',
     status: '',
     emailVerified: '',
   });
-  const [pagination, setPagination] = useState<PaginationState>({
+  const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
-    total: 0,
-    totalPages: 0,
   });
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const queryParams: UserQueryParams = {
-        page: pagination.page,
-        limit: pagination.limit,
-        sort: sortBy,
-        order: sortOrder,
-        search: filters.search || undefined,
-        role: filters.role || undefined,
-        status: filters.status || undefined,
-        emailVerified: filters.emailVerified !== '' ? filters.emailVerified : undefined,
-      };
-
-      const response = await userService.getUsers(queryParams);
-
-      if (response.success && response.data) {
-        setUsers(response.data);
-        // Note: In a real implementation, the API should return pagination metadata
-        setPagination(prev => ({
-          ...prev,
-          total: response.data?.length || 0,
-          totalPages: Math.ceil((response.data?.length || 0) / prev.limit),
-        }));
-      } else {
-        setError(response.message || 'Failed to fetch users');
-      }
-    } catch (err) {
-      console.error('Error fetching users:', err);
-      setError('Failed to load users. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const queryParams: UserQueryParams = {
+    page: pagination.page,
+    limit: pagination.limit,
+    sort: sortBy,
+    order: sortOrder,
+    search: filters.search || undefined,
+    role: filters.role || undefined,
+    status: filters.status || undefined,
+    emailVerified: filters.emailVerified !== '' ? filters.emailVerified : undefined,
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [pagination.page, pagination.limit, sortBy, sortOrder, filters]);
+  const { data: usersData, isLoading, isError, error } = useQuery({
+    queryKey: ['users', queryParams],
+    queryFn: () => userService.getUsers(queryParams),
+  });
+
+  const users = usersData?.data || [];
+
+  const mutation = useMutation({
+    mutationFn: (action: 'activate' | 'deactivate' | 'delete') => {
+      if (action === 'delete') {
+        return userService.bulkDeleteUsers(selectedUsers);
+      } else {
+        const promises = selectedUsers.map(userId => {
+          if (action === 'activate') {
+            return userService.activateUser(userId);
+          } else {
+            return userService.deactivateUser(userId);
+          }
+        });
+        return Promise.all(promises);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setSelectedUsers([]);
+      toast.success('Bulk action successful');
+    },
+    onError: () => {
+      toast.error('Bulk action failed');
+    },
+  });
 
   const handleFilterChange = (key: keyof UserFilters, value: string | boolean) => {
     setFilters(prev => ({ ...prev, [key]: value }));
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page
+    setPagination(prev => ({ ...prev, page: 1 }));
   };
 
   const handleSort = (column: string) => {
@@ -134,38 +125,12 @@ export default function UsersPage() {
     }
   };
 
-  const handleBulkAction = async (action: 'activate' | 'deactivate' | 'delete') => {
+  const handleBulkAction = (action: 'activate' | 'deactivate' | 'delete') => {
     if (selectedUsers.length === 0) {
       toast.error('Please select users to perform this action');
       return;
     }
-
-    try {
-      setBulkActionLoading(true);
-
-      if (action === 'delete') {
-        await userService.bulkDeleteUsers(selectedUsers);
-        toast.success(`Successfully deleted ${selectedUsers.length} user(s)`);
-      } else {
-        // Handle activate/deactivate - these would need to be implemented in the service
-        for (const userId of selectedUsers) {
-          if (action === 'activate') {
-            await userService.activateUser(userId);
-          } else {
-            await userService.deactivateUser(userId);
-          }
-        }
-        toast.success(`Successfully ${action}d ${selectedUsers.length} user(s)`);
-      }
-
-      setSelectedUsers([]);
-      fetchUsers();
-    } catch (err) {
-      console.error(`Error performing bulk ${action}:`, err);
-      toast.error(`Failed to ${action} selected users`);
-    } finally {
-      setBulkActionLoading(false);
-    }
+    mutation.mutate(action);
   };
 
   const handleExport = async () => {
@@ -235,7 +200,7 @@ export default function UsersPage() {
     return user.username;
   };
 
-  if (loading && users.length === 0) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
         <LoadingSpinner />
@@ -243,11 +208,11 @@ export default function UsersPage() {
     );
   }
 
-  if (error && users.length === 0) {
+  if (isError) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 mb-4">{error}</p>
-        <Button onClick={fetchUsers}>Retry</Button>
+        <p className="text-red-600 mb-4">{error.message}</p>
+        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['users'] })}>Retry</Button>
       </div>
     );
   }
@@ -351,7 +316,7 @@ export default function UsersPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleBulkAction('activate')}
-                  disabled={bulkActionLoading}
+                  disabled={mutation.isPending}
                 >
                   Activate
                 </Button>
@@ -359,7 +324,7 @@ export default function UsersPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleBulkAction('deactivate')}
-                  disabled={bulkActionLoading}
+                  disabled={mutation.isPending}
                 >
                   Deactivate
                 </Button>
@@ -367,7 +332,7 @@ export default function UsersPage() {
                   variant="destructive"
                   size="sm"
                   onClick={() => handleBulkAction('delete')}
-                  disabled={bulkActionLoading}
+                  disabled={mutation.isPending}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
@@ -381,7 +346,7 @@ export default function UsersPage() {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Users ({pagination.total})</CardTitle>
+          <CardTitle>Users ({users.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="rounded-md border">
@@ -419,7 +384,7 @@ export default function UsersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading && users.length === 0 ? (
+                {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={8} className="text-center py-8">
                       <LoadingSpinner />
@@ -508,12 +473,12 @@ export default function UsersPage() {
           </div>
 
           {/* Pagination */}
-          {pagination.totalPages > 1 && (
+          {users.length > 0 && (
             <div className="flex items-center justify-between px-2 py-4">
               <div className="flex-1 text-sm text-gray-700">
                 Showing {((pagination.page - 1) * pagination.limit) + 1} to{' '}
-                {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-                {pagination.total} results
+                {Math.min(pagination.page * pagination.limit, users.length)} of{' '}
+                {users.length} results
               </div>
               <div className="flex items-center space-x-2">
                 <Button
@@ -525,7 +490,7 @@ export default function UsersPage() {
                   Previous
                 </Button>
                 <div className="flex items-center space-x-1">
-                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                  {Array.from({ length: Math.min(5, Math.ceil(users.length / pagination.limit)) }, (_, i) => {
                     const pageNum = i + 1;
                     return (
                       <Button
@@ -543,7 +508,7 @@ export default function UsersPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                  disabled={pagination.page === pagination.totalPages}
+                  disabled={pagination.page === Math.ceil(users.length / pagination.limit)}
                 >
                   Next
                 </Button>

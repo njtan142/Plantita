@@ -1,3 +1,4 @@
+import withAuth from '@/components/auth/with-auth';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -47,7 +48,7 @@ interface ActivityItem {
   };
 }
 
-export default function DashboardPage() {
+function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [mediaStats, setMediaStats] = useState<MediaStats | null>(null);
@@ -265,3 +266,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+export default withAuth(DashboardPage);
