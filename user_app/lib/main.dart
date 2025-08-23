@@ -1,12 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/features/home/home_screen.dart';
 import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+import 'package:user_app/services/api_service.dart';
+import 'package:user_app/services/auth_service.dart';
+import 'package:user_app/data/repositories/user_repository.dart';
+import 'package:user_app/data/repositories/reel_repository.dart';
+import 'package:user_app/data/repositories/timelapse_repository.dart';
+import 'package:user_app/data/repositories/comment_repository.dart';
+import 'package:user_app/state_management/auth_provider.dart';
+import 'package:user_app/state_management/reel_provider.dart';
+import 'package:user_app/ui/theme.dart'; // Import the theme
 
 final GetIt getIt = GetIt.instance;
 
 void main() {
   setupLocator();
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<ReelProvider>()),
+        // Add other providers here
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -17,24 +36,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: appTheme, // Use the defined theme
       home: const HomeScreen(),
     );
   }
@@ -43,6 +45,16 @@ class MyApp extends StatelessWidget {
 
 void setupLocator() {
   // Register services here
+  getIt.registerLazySingleton<ApiService>(() => ApiService());
+  getIt.registerLazySingleton<AuthService>(() => AuthService(getIt<ApiService>()));
+  getIt.registerLazySingleton<UserRepository>(() => UserRepository());
+  getIt.registerLazySingleton<ReelRepository>(() => ReelRepository());
+  getIt.registerLazySingleton<TimelapseRepository>(() => TimelapseRepository());
+  getIt.registerLazySingleton<CommentRepository>(() => CommentRepository());
+
+  // Register providers
+  getIt.registerLazySingleton<AuthProvider>(() => AuthProvider(getIt<AuthService>()));
+  getIt.registerLazySingleton<ReelProvider>(() => ReelProvider(getIt<ReelRepository>()));
 }
 
 
