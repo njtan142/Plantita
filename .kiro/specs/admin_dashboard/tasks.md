@@ -58,9 +58,9 @@
 - [x] 5.2. Add React Error Boundaries to critical components.
 - [x] 5.3. Implement toast notifications for user feedback.
   - *Requirements: 2.5.5*
-- [ ] 5.4. Add loading indicators (skeletons/spinners) to all data-fetching components.
+- [x] 5.4. Add loading indicators (skeletons/spinners) to all data-fetching components.
   - *Requirements: 2.5.3*
-- [ ] 5.5. Implement optimistic updates for user and media management.
+- [x] 5.5. Implement optimistic updates for user and media management.
   - *Requirements: 2.5.2*
-- [ ] 5.6. Implement code splitting and lazy loading for routes and heavy components.
+- [x] 5.6. Implement code splitting and lazy loading for routes and heavy components.
   - *Requirements: 2.5.6*

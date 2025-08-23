@@ -86,6 +86,7 @@ export default function UsersPage() {
 
   const users = usersData?.data || [];
 
+  // Optimistic update for bulk actions
   const mutation = useMutation({
     mutationFn: (action: 'activate' | 'deactivate' | 'delete') => {
       if (action === 'delete') {
@@ -101,26 +102,87 @@ export default function UsersPage() {
         return Promise.all(promises);
       }
     },
+    onMutate: async (action: 'activate' | 'deactivate' | 'delete') => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['users'] });
+
+      // Snapshot the previous value
+      const previousUsers = queryClient.getQueryData(['users', queryParams]);
+
+      // Optimistically update to the new value
+      if (action === 'delete') {
+        queryClient.setQueryData(['users', queryParams], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.filter((user: User) => !selectedUsers.includes(user.id))
+          };
+        });
+      } else {
+        queryClient.setQueryData(['users', queryParams], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.map((user: User) => {
+              if (selectedUsers.includes(user.id)) {
+                return {
+                  ...user,
+                  status: action === 'activate' ? UserStatus.ACTIVE : UserStatus.INACTIVE
+                };
+              }
+              return user;
+            })
+          };
+        });
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousUsers };
+    },
+    onError: (err, action, context) => {
+      // Rollback to the previous value
+      queryClient.setQueryData(['users', queryParams], context?.previousUsers);
+      toast.error('Bulk action failed');
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
       setSelectedUsers([]);
       toast.success('Bulk action successful');
     },
-    onError: () => {
-      toast.error('Bulk action failed');
+    onSettled: () => {
+      // Refetch anyway to sync with server
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 
+  // Optimistic update for deleting a single user
   const deleteUserMutation = useMutation({
     mutationFn: (userId: string) => userService.deleteUser(userId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('User deleted successfully');
-      setDeleteUserDialogOpen(false);
-      setUserToDelete(null);
+    onMutate: async (userId: string) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['users'] });
+
+      // Snapshot the previous value
+      const previousUsers = queryClient.getQueryData(['users', queryParams]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['users', queryParams], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          data: old.data.filter((user: User) => user.id !== userId)
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousUsers };
     },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to delete user');
+    onError: (err, userId, context) => {
+      // Rollback to the previous value
+      queryClient.setQueryData(['users', queryParams], context?.previousUsers);
+      toast.error('Failed to delete user');
+    },
+    onSuccess: () => {
+      toast.success('User deleted successfully');
       setDeleteUserDialogOpen(false);
       setUserToDelete(null);
     },

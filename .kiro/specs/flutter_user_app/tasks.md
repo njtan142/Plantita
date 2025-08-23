@@ -6,14 +6,14 @@
         - Prompt: "Initialize a new Flutter project named `flutter_user_app` with web support enabled."
         - References: Acceptance Criteria 1.1
 - [ ] 2. Configure Project Structure
-    - [ ] 2.1. Create core directories for `features`, `widgets`, and `services` within the `lib` folder.
+    - [x] 2.1. Create core directories for `features`, `widgets`, and `services` within the `lib` folder.
         - Prompt: "Create the following directories inside `lib`: `features`, `widgets`, `services`."
         - References: Acceptance Criteria 1.2
     - [x] 2.2. Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`.
         - Prompt: "Modify `lib/main.dart` to import and use a placeholder `home_screen.dart` from `lib/features/home`. Create `lib/features/home/home_screen.dart` with a basic `StatelessWidget`."
         - References: Acceptance Criteria 1.2
 - [ ] 3. Configure Web Deployment Settings
-    - [ ] 3.1. Ensure `web/index.html` is configured for basic web deployment, including meta tags and title.
+    - [x] 3.1. Ensure `web/index.html` is configured for basic web deployment, including meta tags and title.
         - Prompt: "Ensure `web/index.html` has appropriate meta tags for responsiveness and a title for the application."
         - References: Acceptance Criteria 1.3
     - [ ] 3.2. Create a script or command to build the Flutter web app for deployment.

@@ -66,38 +66,129 @@ const MediaGrid = () => {
     currentPage * itemsPerPage
   );
 
+  // Optimistic update for deleting media
   const deleteMutation = useMutation({
     mutationFn: (id: string) => mediaService.deleteMedia(id),
+    onMutate: async (id: string) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['media'] });
+
+      // Snapshot the previous value
+      const previousMedia = queryClient.getQueryData(['media']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['media'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          data: old.data.filter((item: Media) => item.id !== id)
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousMedia };
+    },
+    onError: (err, id, context) => {
+      // Rollback to the previous value
+      queryClient.setQueryData(['media'], context?.previousMedia);
+      toast.error('Failed to delete media');
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['media'] });
       toast.success('Media deleted successfully');
       setDeleteDialogOpen(false);
       setMediaToDelete(null);
     },
-    onError: () => {
-      toast.error('Failed to delete media');
+    onSettled: () => {
+      // Refetch anyway to sync with server
+      queryClient.invalidateQueries({ queryKey: ['media'] });
     },
   });
 
+  // Optimistic update for approving media
   const approveMutation = useMutation({
     mutationFn: (id: string) => mediaService.approveMedia(id),
+    onMutate: async (id: string) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['media'] });
+
+      // Snapshot the previous value
+      const previousMedia = queryClient.getQueryData(['media']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['media'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          data: old.data.map((item: Media) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                status: MediaStatus.APPROVED
+              };
+            }
+            return item;
+          })
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousMedia };
+    },
+    onError: (err, id, context) => {
+      // Rollback to the previous value
+      queryClient.setQueryData(['media'], context?.previousMedia);
+      toast.error('Failed to approve media');
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['media'] });
       toast.success('Media approved successfully');
     },
-    onError: () => {
-      toast.error('Failed to approve media');
+    onSettled: () => {
+      // Refetch anyway to sync with server
+      queryClient.invalidateQueries({ queryKey: ['media'] });
     },
   });
 
+  // Optimistic update for rejecting media
   const rejectMutation = useMutation({
     mutationFn: (id: string) => mediaService.rejectMedia(id),
+    onMutate: async (id: string) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['media'] });
+
+      // Snapshot the previous value
+      const previousMedia = queryClient.getQueryData(['media']);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(['media'], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          data: old.data.map((item: Media) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                status: MediaStatus.REJECTED
+              };
+            }
+            return item;
+          })
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousMedia };
+    },
+    onError: (err, id, context) => {
+      // Rollback to the previous value
+      queryClient.setQueryData(['media'], context?.previousMedia);
+      toast.error('Failed to reject media');
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['media'] });
       toast.success('Media rejected successfully');
     },
-    onError: () => {
-      toast.error('Failed to reject media');
+    onSettled: () => {
+      // Refetch anyway to sync with server
+      queryClient.invalidateQueries({ queryKey: ['media'] });
     },
   });
 

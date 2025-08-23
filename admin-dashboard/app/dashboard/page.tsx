@@ -4,13 +4,37 @@ import withAuth from '@/components/auth/with-auth';
 import { useQuery } from '@tanstack/react-query';
 import { Users, FileText, HardDrive, Activity } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { UserGrowthChart } from '@/components/dashboard/UserGrowthChart';
-import { MediaUploadChart } from '@/components/dashboard/MediaUploadChart';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { ErrorAlert } from '@/components/layout/ErrorAlert';
 import { dashboardService } from '@/services/dashboardService';
+import dynamic from 'next/dynamic';
+
+// Lazy load the chart components
+const UserGrowthChart = dynamic(
+  () => import('@/components/dashboard/UserGrowthChart'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="h-64 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+);
+
+const MediaUploadChart = dynamic(
+  () => import('@/components/dashboard/MediaUploadChart'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="h-64 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+);
 
 function DashboardPage() {
   // Fetch dashboard stats using TanStack Query
@@ -19,7 +43,7 @@ function DashboardPage() {
     isLoading: statsLoading, 
     isError: statsError, 
     error: statsErrorMessage,
-    refetch: refetchStats
+    refetch: refetchStats 
   } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: async () => {
