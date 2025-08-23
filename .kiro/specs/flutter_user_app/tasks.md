@@ -147,16 +147,16 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 7.14. Implement follower/following system.
     - Develop the logic and UI for users to follow/unfollow others.
     - References: AC 4.16
-- [ ] 7.15. Display comprehensive user statistics.
+- [x] 7.15. Display comprehensive user statistics.
     - Show detailed user statistics on the profile page.
     - References: AC 4.17
-- [ ] 7.16. Implement search filters for content discovery.
+- [x] 7.16. Implement search filters for content discovery.
     - Enhance search functionality with filtering options.
     - References: AC 4.19
-- [ ] 7.17. Implement category-based browsing for content discovery.
+- [x] 7.17. Implement category-based browsing for content discovery.
     - Allow users to browse content by categories.
     - References: AC 4.20
-- [ ] 7.18. Implement trending/popular content sections.
+- [x] 7.18. Implement trending/popular content sections.
     - Display trending and popular content on the discovery page.
     - References: AC 4.21
 - [ ] 7.19. Implement content recommendation system.

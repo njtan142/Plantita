@@ -29,6 +29,7 @@ Future<void> startApp(EnvironmentConfig config) async {
         ChangeNotifierProvider(create: (_) => getIt<ReelProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<TimelapseProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<UserProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<ContentProvider>()),
         // Add other providers here
       ],
       child: const MyApp(),
@@ -63,6 +64,7 @@ void setupLocator() {
   getIt.registerLazySingleton<ReelRepository>(() => ReelRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<TimelapseRepository>(() => TimelapseRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<CommentRepository>(() => CommentRepository());
+  getIt.registerLazySingleton<ContentRepository>(() => ContentRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<CacheService>(() => CacheService());
 
   // Register providers
@@ -70,6 +72,7 @@ void setupLocator() {
   getIt.registerLazySingleton<ReelProvider>(() => ReelProvider(getIt<ReelRepository>()));
   getIt.registerLazySingleton<TimelapseProvider>(() => TimelapseProvider(getIt<TimelapseRepository>()));
   getIt.registerLazySingleton<UserProvider>(() => UserProvider(getIt<UserRepository>()));
+  getIt.registerLazySingleton<ContentProvider>(() => ContentProvider(getIt<ContentRepository>()));
 }
 
 

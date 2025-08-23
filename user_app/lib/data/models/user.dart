@@ -10,7 +10,12 @@ class User {
   final int followersCount;
   final int followingCount;
   final List<String> uploadedContent;
-  final bool isFollowing; // Added field
+  final bool isFollowing;
+  final int totalLikesReceived; // New field
+  final int totalCommentsReceived; // New field
+  final int totalSharesReceived; // New field
+  final int totalReelsUploaded; // New field
+  final int totalTimelapsesUploaded; // New field
 
   User({
     required this.id,
@@ -21,7 +26,12 @@ class User {
     required this.followersCount,
     required this.followingCount,
     required this.uploadedContent,
-    this.isFollowing = false, // Default to false
+    this.isFollowing = false,
+    this.totalLikesReceived = 0,
+    this.totalCommentsReceived = 0,
+    this.totalSharesReceived = 0,
+    this.totalReelsUploaded = 0,
+    this.totalTimelapsesUploaded = 0,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -44,7 +54,12 @@ class User {
       followersCount: json['followersCount'],
       followingCount: json['followingCount'],
       uploadedContent: List<String>.from(json['uploadedContent']),
-      isFollowing: json['isFollowing'] ?? false, // Read from JSON or default
+      isFollowing: json['isFollowing'] ?? false,
+      totalLikesReceived: json['totalLikesReceived'] ?? 0,
+      totalCommentsReceived: json['totalCommentsReceived'] ?? 0,
+      totalSharesReceived: json['totalSharesReceived'] ?? 0,
+      totalReelsUploaded: json['totalReelsUploaded'] ?? 0,
+      totalTimelapsesUploaded: json['totalTimelapsesUploaded'] ?? 0,
     );
   }
 
@@ -58,7 +73,11 @@ class User {
       'followersCount': followersCount,
       'followingCount': followingCount,
       'uploadedContent': uploadedContent,
-      // isFollowing is not sent to backend
+      'totalLikesReceived': totalLikesReceived,
+      'totalCommentsReceived': totalCommentsReceived,
+      'totalSharesReceived': totalSharesReceived,
+      'totalReelsUploaded': totalReelsUploaded,
+      'totalTimelapsesUploaded': totalTimelapsesUploaded,
     };
   }
 
@@ -72,6 +91,11 @@ class User {
     int? followingCount,
     List<String>? uploadedContent,
     bool? isFollowing,
+    int? totalLikesReceived,
+    int? totalCommentsReceived,
+    int? totalSharesReceived,
+    int? totalReelsUploaded,
+    int? totalTimelapsesUploaded,
   }) {
     return User(
       id: id ?? this.id,
@@ -83,6 +107,11 @@ class User {
       followingCount: followingCount ?? this.followingCount,
       uploadedContent: uploadedContent ?? this.uploadedContent,
       isFollowing: isFollowing ?? this.isFollowing,
+      totalLikesReceived: totalLikesReceived ?? this.totalLikesReceived,
+      totalCommentsReceived: totalCommentsReceived ?? this.totalCommentsReceived,
+      totalSharesReceived: totalSharesReceived ?? this.totalSharesReceived,
+      totalReelsUploaded: totalReelsUploaded ?? this.totalReelsUploaded,
+      totalTimelapsesUploaded: totalTimelapsesUploaded ?? this.totalTimelapsesUploaded,
     );
   }
 }

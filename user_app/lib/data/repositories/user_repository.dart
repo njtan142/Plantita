@@ -17,6 +17,7 @@ class UserRepository {
   Future<User> fetchUserProfile(String userId) async {
     try {
       final response = await _apiService.get('users/$userId');
+      // Assuming the API response for user profile includes these new statistics
       return User.fromJson(response);
     } catch (e) {
       logger.e('Error fetching user profile for $userId: $e');

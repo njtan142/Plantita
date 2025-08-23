@@ -1,7 +1,12 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:user_app/ui/widgets/app_bar_with_search.dart';
 import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
+import 'package:user_app/state_management/content_provider.dart';
+import 'package:user_app/ui/widgets/error_state_widget.dart';
+import 'package:user_app/data/models/reel.dart';
+import 'package:user_app/data/models/timelapse.dart';
 
 class ContentDiscoveryScreen extends StatefulWidget {
   const ContentDiscoveryScreen({Key? key}) : super(key: key);
@@ -12,11 +17,7 @@ class ContentDiscoveryScreen extends StatefulWidget {
 
 class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
   final ScrollController _scrollController = ScrollController();
-  List<String> _contentItems = [];
-  bool _isLoadingMore = false;
-  int _currentPage = 0;
-  final int _itemsPerPage = 30;
-
+  String _searchQuery = '';
   String _selectedCategory = 'All';
   String _selectedSortOption = 'Popularity';
 
@@ -26,41 +27,32 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadMoreItems();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchContent();
+      Provider.of<ContentProvider>(context, listen: false).fetchTrendingContent();
+      Provider.of<ContentProvider>(context, listen: false).fetchPopularContent();
+    });
+
+    // TODO: Implement infinite scroll with actual data fetching
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoadingMore) {
-        _loadMoreItems();
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
+        // Implement pagination here
       }
     });
   }
 
-  Future<void> _loadMoreItems() async {
-    if (_isLoadingMore) return;
-
-    setState(() {
-      _isLoadingMore = true;
-    });
-
-    // Simulate network delay and apply filtering/sorting
-    await Future.delayed(const Duration(seconds: 2));
-
-    final newItems = List.generate(_itemsPerPage, (index) {
-      return 'Content Item ${(_currentPage * _itemsPerPage) + index + 1} (Category: $_selectedCategory, Sort: $_selectedSortOption)';
-    });
-
-    setState(() {
-      _contentItems.addAll(newItems);
-      _currentPage++;
-      _isLoadingMore = false;
-    });
+  void _searchContent() {
+    Provider.of<ContentProvider>(context, listen: false).searchContent(
+      query: _searchQuery,
+      category: _selectedCategory,
+      sortBy: _selectedSortOption,
+    );
   }
 
   Future<void> _handleRefresh() async {
-    setState(() {
-      _contentItems.clear();
-      _currentPage = 0;
-    });
-    await _loadMoreItems();
+    _searchContent();
+    Provider.of<ContentProvider>(context, listen: false).fetchTrendingContent();
+    Provider.of<ContentProvider>(context, listen: false).fetchPopularContent();
   }
 
   @override
@@ -68,6 +60,12 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
     return Scaffold(
       appBar: AppBarWithSearch(
         title: 'Discover Content',
+        onSearchChanged: (query) {
+          setState(() {
+            _searchQuery = query;
+          });
+          _searchContent();
+        },
         actions: [
           DropdownButton<String>(
             value: _selectedCategory,
@@ -75,7 +73,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
               setState(() {
                 _selectedCategory = newValue!;
               });
-              _handleRefresh();
+              _searchContent();
             },
             items: _categories.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
@@ -91,7 +89,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
               setState(() {
                 _selectedSortOption = newValue!;
               });
-              _handleRefresh();
+              _searchContent();
             },
             items: _sortOptions.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
@@ -103,39 +101,116 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
           const SizedBox(width: 10),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(onPressed: () {}, child: const Text('Trending')),
-                ElevatedButton(onPressed: () {}, child: const Text('Categories')),
-                ElevatedButton(onPressed: () {}, child: const Text('Recommended')),
-              ],
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
+      body: Consumer<ContentProvider>(
+        builder: (context, contentProvider, child) {
+          if (contentProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (contentProvider.errorMessage != null) {
+            return ErrorStateWidget(
+              message: contentProvider.errorMessage!,
+              onRetry: () => _searchContent(),
+            );
+          } else {
+            return RefreshIndicator(
               onRefresh: _handleRefresh,
-              child: ResponsiveGridLayout(
-                controller: _scrollController,
-                children: [
-                ..._contentItems.map((item) => Card(
-                  child: Center(
-                    child: Text(item),
-                  ),
-                )).toList(),
-                if (_isLoadingMore)
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-              ],
-            ),
-          ),
-        ],
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Trending Content',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 200, // Adjust height as needed
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: contentProvider.trendingContent.length,
+                        itemBuilder: (context, index) {
+                          final item = contentProvider.trendingContent[index];
+                          String title = '';
+                          if (item is Reel) {
+                            title = item.title;
+                          } else if (item is Timelapse) {
+                            title = item.title;
+                          }
+                          return Card(
+                            margin: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              width: 150, // Adjust width as needed
+                              child: Center(child: Text(title)),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Popular Content',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 200, // Adjust height as needed
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: contentProvider.popularContent.length,
+                        itemBuilder: (context, index) {
+                          final item = contentProvider.popularContent[index];
+                          String title = '';
+                          if (item is Reel) {
+                            title = item.title;
+                          } else if (item is Timelapse) {
+                            title = item.title;
+                          }
+                          return Card(
+                            margin: const EdgeInsets.all(8.0),
+                            child: SizedBox(
+                              width: 150, // Adjust width as needed
+                              child: Center(child: Text(title)),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'All Content',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    if (contentProvider.content.isEmpty)
+                      const Center(child: Text('No content found.'))
+                    else
+                      ResponsiveGridLayout(
+                        controller: _scrollController,
+                        children: [
+                          ...contentProvider.content.map((item) {
+                            String title = '';
+                            if (item is Reel) {
+                              title = item.title;
+                            } else if (item is Timelapse) {
+                              title = item.title;
+                            }
+                            return Card(
+                              child: Center(
+                                child: Text(title),
+                              ),
+                            );
+                          }).toList(),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            );
+          }
+        },
       ),
     );
   }

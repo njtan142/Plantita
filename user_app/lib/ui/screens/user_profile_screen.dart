@@ -81,7 +81,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           style: const TextStyle(fontSize: 16),
                         ),
                         const SizedBox(height: 20),
-                        Text('Followers: ${user.followersCount} | Following: ${user.followingCount}'),
+                        Text(
+                          'Followers: ${user.followersCount} | Following: ${user.followingCount}',
+                        ),
+                        const SizedBox(height: 10),
+                        Text('Total Reels: ${user.totalReelsUploaded} | Total Timelapses: ${user.totalTimelapsesUploaded}'),
+                        const SizedBox(height: 10),
+                        Text('Total Likes: ${user.totalLikesReceived} | Total Comments: ${user.totalCommentsReceived} | Total Shares: ${user.totalSharesReceived}'),
                         const SizedBox(height: 10),
                         if (user.id != 'currentUserId') // Replace with actual current user ID check
                           ElevatedButton(
@@ -91,6 +97,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             child: Text(user.isFollowing ? 'Unfollow' : 'Follow'),
                           ),
                       ],
+                    ),
+                  ),
+                  const Divider(),
                     ),
                   ),
                   const Divider(),
