@@ -5,22 +5,25 @@ import 'dart:async'; // Import for TimeoutException
 import 'package:user_app/utils/logger.dart'; // Import the logger
 import 'package:user_app/main.dart'; // Import getIt
 import 'package:user_app/config/environment_config.dart';
+import 'package:user_app/services/auth_service.dart'; // Import AuthService
 
 class ApiService {
   final String _baseUrl;
+  late final AuthService _authService;
 
-  ApiService() : _baseUrl = getIt<EnvironmentConfig>().baseUrl;
+  ApiService() : _baseUrl = getIt<EnvironmentConfig>().baseUrl {
+    _authService = getIt<AuthService>();
+  }
   final int _maxRetries = 3;
   final Duration _timeout = const Duration(seconds: 10);
 
   // Request Interceptor
   Future<http.BaseRequest> _requestInterceptor(http.BaseRequest request) async {
     logger.d('Intercepting Request: ${request.method} ${request.url}');
-    // Example: Add Authorization header
-    // String? token = await _authService.getToken();
-    // if (token != null) {
-    //   request.headers['Authorization'] = 'Bearer $token';
-    // }
+    String? token = _authService.getToken();
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
     return request;
   }
 

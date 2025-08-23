@@ -108,13 +108,13 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 7.1. Complete registration logic.
     - Implement the full registration process in `register_screen.dart` and `auth_service.dart`.
     - References: AC 4.1
-- [ ] 7.2. Implement token storage and usage for authentication.
+- [x] 7.2. Implement token storage and usage for authentication.
     - Store authentication tokens securely and attach them to subsequent API requests.
     - References: AC 4.2
-- [ ] 7.3. Implement route protection based on authentication status.
+- [x] 7.3. Implement route protection based on authentication status.
     - Secure routes that require user authentication.
     - References: AC 4.3
-- [ ] 7.4. Implement full logout functionality.
+- [x] 7.4. Implement full logout functionality.
     - Clear stored tokens and user session data upon logout.
     - References: AC 4.4
 - [ ] 7.5. Implement "remember me" feature for authentication.

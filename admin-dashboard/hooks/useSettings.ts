@@ -20,7 +20,7 @@ export const usePlatformSettings = (): UseQueryResult<PlatformSettings, Error> =
     // Cache data for 5 minutes
     staleTime: 1000 * 60 * 5,
     // Keep data in cache for 10 minutes after it's no longer active
-    cacheTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 10,
   });
 };
 
@@ -70,6 +70,8 @@ export const usePlatformSettingsWithError = (): UseQueryResult<PlatformSettings,
     retry: false,
     // Cache data for 1 minute
     staleTime: 1000 * 60,
+    // Keep data in cache for 2 minutes after it's no longer active
+    gcTime: 1000 * 60 * 2,
   });
 };
 

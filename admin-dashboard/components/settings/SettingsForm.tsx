@@ -159,7 +159,7 @@ export function SettingsForm({
           description="Comma-separated list of allowed file types"
           type="text"
           value={form.watch('allowedFileTypes').join(', ')}
-          onChange={(value) => handleFieldChange('allowedFileTypes', value.split(',').map(type => type.trim()))}
+          onChange={(value) => handleFieldChange('allowedFileTypes', (value as string).split(',').map(type => type.trim()))}
           placeholder="e.g., image/jpeg, image/png, video/mp4"
           disabled={isUpdating}
         />
