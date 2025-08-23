@@ -79,7 +79,7 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 ## 7. Testing
 - [x] 7.1. Write Unit Tests.
     - Create unit tests for data models, services, and business logic.
-- [ ] 7.2. Write Widget Tests.
+- [x] 7.2. Write Widget Tests.
     - Create widget tests for UI components and their interactions.
 - [ ] 7.3. Write Integration Tests.
     - Create integration tests for end-to-end user flows and API integrations.
