@@ -1,31 +1,4 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
-
-// Lazy load the chart components
-const UserGrowthChart = dynamic(
-  () => import('@/components/dashboard/UserGrowthChart'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="h-64 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    )
-  }
-);
-
-const MediaUploadChart = dynamic(
-  () => import('@/components/dashboard/MediaUploadChart'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="h-64 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    )
-  }
-);
-
-export { UserGrowthChart, MediaUploadChart };
+export { UserGrowthChartWrapper as UserGrowthChart } from '@/components/dashboard/user-growth-chart-wrapper';
+export { MediaUploadChartWrapper as MediaUploadChart } from '@/components/dashboard/media-upload-chart-wrapper';

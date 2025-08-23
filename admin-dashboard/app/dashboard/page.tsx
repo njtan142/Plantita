@@ -9,7 +9,8 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { ErrorAlert } from '@/components/layout/ErrorAlert';
 import { dashboardService } from '@/services/dashboardService';
-import { UserGrowthChart, MediaUploadChart } from '@/components/dashboard/charts-wrapper';
+import { UserGrowthChart } from '@/components/dashboard/UserGrowthChart';
+import { MediaUploadChart } from '@/components/dashboard/MediaUploadChart';
 
 function DashboardPage() {
   // Fetch dashboard stats using TanStack Query

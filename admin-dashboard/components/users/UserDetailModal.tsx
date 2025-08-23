@@ -22,7 +22,7 @@ interface UserActivity {
   type: 'login' | 'media_upload' | 'profile_update' | 'status_change';
   description: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean>;
 }
 
 export function UserDetailModal({ userId, open, onClose }: UserDetailModalProps) {
@@ -34,7 +34,7 @@ export function UserDetailModal({ userId, open, onClose }: UserDetailModalProps)
     if (userId && open) {
       fetchUserDetails();
     }
-  }, [userId, open]);
+  }, [userId, open, fetchUserDetails]);
 
   const fetchUserDetails = async () => {
     if (!userId) return;

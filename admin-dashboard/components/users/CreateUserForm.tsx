@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import {
@@ -46,7 +45,6 @@ interface CreateUserFormProps {
 }
 
 export function CreateUserForm({ onUserCreated, onCancel }: CreateUserFormProps) {
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CreateUserFormValues>({

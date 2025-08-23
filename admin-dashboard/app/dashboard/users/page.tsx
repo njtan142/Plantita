@@ -88,7 +88,7 @@ export default function UsersPage() {
 
   // Optimistic update for bulk actions
   const mutation = useMutation({
-    mutationFn: (action: 'activate' | 'deactivate' | 'delete') => {
+    mutationFn: async (action: 'activate' | 'deactivate' | 'delete') => {
       if (action === 'delete') {
         return userService.bulkDeleteUsers(selectedUsers);
       } else {
@@ -162,10 +162,10 @@ export default function UsersPage() {
       await queryClient.cancelQueries({ queryKey: ['users'] });
 
       // Snapshot the previous value
-      const previousUsers = queryClient.getQueryData(['users', queryParams]);
+      const previousUsers = queryClient.getQueryData<{ data: User[] }>(['users', queryParams]);
 
       // Optimistically update to the new value
-      queryClient.setQueryData(['users', queryParams], (old: any) => {
+      queryClient.setQueryData<{ data: User[] }>(['users', queryParams], (old) => {
         if (!old) return old;
         return {
           ...old,
