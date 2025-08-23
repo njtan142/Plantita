@@ -28,6 +28,7 @@ import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { userService } from '@/services/userService';
 import { User, UserRole, UserStatus, UserQueryParams } from '@/types/api';
 import { toast } from 'sonner';
+import { CreateUserForm } from '@/components/users/CreateUserForm';
 
 interface UserFilters {
   search: string;
@@ -51,6 +52,7 @@ export default function UsersPage() {
   const [sortBy, setSortBy] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [showCreateUserForm, setShowCreateUserForm] = useState(false);
 
   const queryParams: UserQueryParams = {
     page: pagination.page,
@@ -230,12 +232,27 @@ export default function UsersPage() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button>
+          <Button onClick={() => setShowCreateUserForm(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add User
           </Button>
         </div>
       </div>
+
+      {/* Create User Form */}
+      {showCreateUserForm && (
+        <Card>
+          <CardContent className="pt-6">
+            <CreateUserForm 
+              onUserCreated={() => {
+                queryClient.invalidateQueries({ queryKey: ['users'] });
+                setShowCreateUserForm(false);
+              }}
+              onCancel={() => setShowCreateUserForm(false)}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card>

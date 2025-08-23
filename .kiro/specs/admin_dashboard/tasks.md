@@ -24,15 +24,15 @@
   - *Requirements: 2.1.1, 2.1.2, 2.1.3, 2.1.4*
 - [x] 2.3. Implement charts to display user growth and media uploads.
   - *Requirements: 2.1.5*
-- [ ] 2.4. Display a list of recent activities.
+- [x] 2.4. Display a list of recent activities.
   - *Requirements: 2.1.6*
 
 ## 3. User Management
 
-- [ ] 3.1. Create the user management page with a data table.
-- [ ] 3.2. Implement the user data table using `TanStack Table` with sorting, filtering, and pagination.
+- [x] 3.1. Create the user management page with a data table.
+- [x] 3.2. Implement the user data table using `TanStack Table` with sorting, filtering, and pagination.
   - *Requirements: 2.2.1, 2.2.2, 2.2.3*
-- [ ] 3.3. Create a form for creating a new user with `React Hook Form` and `Zod` for validation.
+- [x] 3.3. Create a form for creating a new user with `React Hook Form` and `Zod` for validation.
   - *Requirements: 2.2.4*
 - [ ] 3.4. Create a form for editing an existing user's details.
   - *Requirements: 2.2.5*
