@@ -129,13 +129,13 @@ This document outlines the coding tasks for implementing the Flutter User App, b
 - [x] 7.8. Implement filtering by plant type and duration in Timelapse Gallery.
     - Add UI and logic to filter timelapses.
     - References: AC 4.10
-- [ ] 7.9. Implement timelapse comparison features.
+- [x] 7.9. Implement timelapse comparison features.
     - Develop UI and logic for comparing timelapses.
     - References: AC 4.11
-- [ ] 7.10. Implement timelapse playlist creation.
+- [x] 7.10. Implement timelapse playlist creation.
     - Allow users to create and manage timelapse playlists.
     - References: AC 4.12
-- [ ] 7.11. Implement download functionality for timelapses.
+- [x] 7.11. Implement download functionality for timelapses.
     - Provide an option to download timelapse videos.
     - References: AC 4.13
 - [ ] 7.12. Implement uploaded content grid on user profile.

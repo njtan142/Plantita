@@ -48,6 +48,21 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '/playlists',
+      builder: (BuildContext context, GoRouterState state) {
+        return const PlaylistScreen();
+      },
+      routes: <RouteBase>[
+        GoRoute(
+          path: ':playlistId',
+          builder: (BuildContext context, GoRouterState state) {
+            final playlistId = state.pathParameters['playlistId']!;
+            return PlaylistDetailScreen(playlistId: playlistId);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
       path: '/compare-timelapses',
       builder: (BuildContext context, GoRouterState state) {
         final timelapses = state.extra as Map<String, Timelapse>;

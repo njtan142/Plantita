@@ -27,6 +27,7 @@ Future<void> startApp(EnvironmentConfig config) async {
       providers: [
         ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<ReelProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<TimelapseProvider>()),
         // Add other providers here
       ],
       child: const MyApp(),
@@ -66,6 +67,7 @@ void setupLocator() {
   // Register providers
   getIt.registerLazySingleton<AuthProvider>(() => AuthProvider(getIt<AuthService>()));
   getIt.registerLazySingleton<ReelProvider>(() => ReelProvider(getIt<ReelRepository>()));
+  getIt.registerLazySingleton<TimelapseProvider>(() => TimelapseProvider(getIt<TimelapseRepository>()));
 }
 
 
