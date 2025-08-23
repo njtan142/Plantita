@@ -107,11 +107,11 @@ export default function UsersPage() {
       await queryClient.cancelQueries({ queryKey: ['users'] });
 
       // Snapshot the previous value
-      const previousUsers = queryClient.getQueryData(['users', queryParams]);
+      const previousUsers = queryClient.getQueryData<{ data: User[] }>(['users', queryParams]);
 
       // Optimistically update to the new value
       if (action === 'delete') {
-        queryClient.setQueryData(['users', queryParams], (old: any) => {
+        queryClient.setQueryData<{ data: User[] }>(['users', queryParams], (old) => {
           if (!old) return old;
           return {
             ...old,
@@ -119,7 +119,7 @@ export default function UsersPage() {
           };
         });
       } else {
-        queryClient.setQueryData(['users', queryParams], (old: any) => {
+        queryClient.setQueryData<{ data: User[] }>(['users', queryParams], (old) => {
           if (!old) return old;
           return {
             ...old,

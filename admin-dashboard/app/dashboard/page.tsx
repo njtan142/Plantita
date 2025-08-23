@@ -9,32 +9,7 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { ErrorAlert } from '@/components/layout/ErrorAlert';
 import { dashboardService } from '@/services/dashboardService';
-import dynamic from 'next/dynamic';
-
-// Lazy load the chart components
-const UserGrowthChart = dynamic(
-  () => import('@/components/dashboard/UserGrowthChart'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="h-64 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    )
-  }
-);
-
-const MediaUploadChart = dynamic(
-  () => import('@/components/dashboard/MediaUploadChart'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="h-64 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    )
-  }
-);
+import { UserGrowthChart, MediaUploadChart } from '@/components/dashboard/charts-wrapper';
 
 function DashboardPage() {
   // Fetch dashboard stats using TanStack Query

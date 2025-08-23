@@ -78,26 +78,28 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login error:', error);
 
     // Handle different types of errors
-    if (error.code === 'ECONNREFUSED') {
-      return NextResponse.json(
-        { success: false, message: 'Unable to connect to authentication server' },
-        { status: 503 }
-      );
-    }
+    if (axios.isAxiosError(error)) {
+      if (error.code === 'ECONNREFUSED') {
+        return NextResponse.json(
+          { success: false, message: 'Unable to connect to authentication server' },
+          { status: 503 }
+        );
+      }
 
-    if (error.response) {
-      // Backend returned an error response
-      const status = error.response.status;
-      const message = error.response.data?.message || 'Authentication failed';
-      
-      return NextResponse.json(
-        { success: false, message },
-        { status }
-      );
+      if (error.response) {
+        // Backend returned an error response
+        const status = error.response.status;
+        const message = error.response.data?.message || 'Authentication failed';
+        
+        return NextResponse.json(
+          { success: false, message },
+          { status }
+        );
+      }
     }
 
     // Other errors

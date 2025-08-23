@@ -74,10 +74,10 @@ const MediaGrid = () => {
       await queryClient.cancelQueries({ queryKey: ['media'] });
 
       // Snapshot the previous value
-      const previousMedia = queryClient.getQueryData(['media']);
+      const previousMedia = queryClient.getQueryData<{ data: Media[] }>(['media']);
 
       // Optimistically update to the new value
-      queryClient.setQueryData(['media'], (old: any) => {
+      queryClient.setQueryData<{ data: Media[] }>(['media'], (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -112,10 +112,10 @@ const MediaGrid = () => {
       await queryClient.cancelQueries({ queryKey: ['media'] });
 
       // Snapshot the previous value
-      const previousMedia = queryClient.getQueryData(['media']);
+      const previousMedia = queryClient.getQueryData<{ data: Media[] }>(['media']);
 
       // Optimistically update to the new value
-      queryClient.setQueryData(['media'], (old: any) => {
+      queryClient.setQueryData<{ data: Media[] }>(['media'], (old) => {
         if (!old) return old;
         return {
           ...old,
@@ -156,10 +156,10 @@ const MediaGrid = () => {
       await queryClient.cancelQueries({ queryKey: ['media'] });
 
       // Snapshot the previous value
-      const previousMedia = queryClient.getQueryData(['media']);
+      const previousMedia = queryClient.getQueryData<{ data: Media[] }>(['media']);
 
       // Optimistically update to the new value
-      queryClient.setQueryData(['media'], (old: any) => {
+      queryClient.setQueryData<{ data: Media[] }>(['media'], (old) => {
         if (!old) return old;
         return {
           ...old,

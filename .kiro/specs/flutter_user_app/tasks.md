@@ -20,11 +20,11 @@
         - Prompt: "Create a shell script or command to build the Flutter web app for deployment, e.g., `flutter build web --release`."
         - References: Acceptance Criteria 1.3
 - [ ] 4. Configure PWA Manifest
-    - [ ] 4.1. Create or update `web/manifest.json` with essential PWA details (name, short_name, start_url, display, background_color, theme_color, icons).
+    - [x] 4.1. Create or update `web/manifest.json` with essential PWA details (name, short_name, start_url, display, background_color, theme_color, icons).
         - Prompt: "Create or update `web/manifest.json` with essential PWA details, including `name`, `short_name`, `start_url`, `display`, `background_color`, `theme_color`, and placeholder `icons`."
         - References: Acceptance Criteria 1.4
 - [ ] 5. Set up Base Href for Web Hosting
-    - [ ] 5.1. Ensure `<base href="/">` is correctly configured in `web/index.html` for proper web hosting.
+    - [x] 5.1. Ensure `<base href="/">` is correctly configured in `web/index.html` for proper web hosting.
         - Prompt: "Verify and set `<base href="/">` in `web/index.html`."
         - References: Acceptance Criteria 1.5
 - [ ] 6. Configure Service Worker
