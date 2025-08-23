@@ -64,16 +64,17 @@ function DashboardPage() {
   } = useQuery({
     queryKey: ['userGrowth'],
     queryFn: async () => {
-      // In a real implementation, this would fetch actual user growth data
-      // For now, we'll return mock data that matches the expected format
-      return [
-        { date: '2024-01', users: 1200 },
-        { date: '2024-02', users: 1350 },
-        { date: '2024-03', users: 1480 },
-        { date: '2024-04', users: 1620 },
-        { date: '2024-05', users: 1780 },
-        { date: '2024-06', users: 1950 },
-      ];
+      // In a real implementation, this would fetch actual user growth data from the API
+      // Using the stats data which already contains userGrowth
+      const response = await dashboardService.getDashboardStats();
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to fetch user growth data');
+      }
+      // Transform the data to match the expected format for the chart
+      return response.data?.userGrowth.map(item => ({
+        date: item.date,
+        users: item.count
+      })) || [];
     },
   });
 
@@ -85,16 +86,17 @@ function DashboardPage() {
   } = useQuery({
     queryKey: ['mediaUploads'],
     queryFn: async () => {
-      // In a real implementation, this would fetch actual media upload data
-      // For now, we'll return mock data that matches the expected format
-      return [
-        { date: '2024-01', uploads: 450 },
-        { date: '2024-02', uploads: 520 },
-        { date: '2024-03', uploads: 480 },
-        { date: '2024-04', uploads: 610 },
-        { date: '2024-05', uploads: 580 },
-        { date: '2024-06', uploads: 720 },
-      ];
+      // In a real implementation, this would fetch actual media upload data from the API
+      // Using the stats data which already contains mediaUploads
+      const response = await dashboardService.getDashboardStats();
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to fetch media uploads data');
+      }
+      // Transform the data to match the expected format for the chart
+      return response.data?.mediaUploads.map(item => ({
+        date: item.date,
+        uploads: item.count
+      })) || [];
     },
   });
 
