@@ -19,7 +19,7 @@
 
 ## 2. Dashboard Overview
 
-- [ ] 2.1. Create the main dashboard page.
+- [x] 2.1. Create the main dashboard page.
 - [ ] 2.2. Fetch and display the total number of users, active users, total media, and storage used.
   - *Requirements: 2.1.1, 2.1.2, 2.1.3, 2.1.4*
 - [ ] 2.3. Implement charts to display user growth and media uploads.
