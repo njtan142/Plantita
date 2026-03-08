@@ -1,0 +1,121 @@
+{
+  "version": "1.0.0",
+  "build": {
+    "production": {
+      "optimization": {
+        "treeShaking": true,
+        "minify": true,
+        "compress": true,
+        "sourcemaps": false
+      },
+      "performance": {
+        "bundleSizeLimit": "2MB",
+        "chunkSizeLimit": "500KB",
+        "performanceBudget": {
+          "maxEntrypointSize": "2MB",
+          "maxAssetSize": "1MB"
+        }
+      },
+      "pwa": {
+        "enabled": true,
+        "serviceWorker": true,
+        "backgroundSync": true,
+        "pushNotifications": true
+      },
+      "security": {
+        "contentSecurityPolicy": true,
+        "httpsOnly": true,
+        "corsEnabled": false
+      },
+      "analytics": {
+        "enabled": true,
+        "googleAnalytics": true,
+        "firebaseAnalytics": true,
+        "errorTracking": true
+      }
+    },
+    "staging": {
+      "optimization": {
+        "treeShaking": true,
+        "minify": true,
+        "compress": false,
+        "sourcemaps": true
+      },
+      "performance": {
+        "bundleSizeLimit": "3MB",
+        "chunkSizeLimit": "1MB"
+      },
+      "pwa": {
+        "enabled": true,
+        "serviceWorker": true,
+        "backgroundSync": false,
+        "pushNotifications": false
+      },
+      "analytics": {
+        "enabled": true,
+        "debugMode": true
+      }
+    },
+    "development": {
+      "optimization": {
+        "treeShaking": false,
+        "minify": false,
+        "compress": false,
+        "sourcemaps": true
+      },
+      "performance": {
+        "bundleSizeLimit": "5MB",
+        "chunkSizeLimit": "2MB"
+      },
+      "pwa": {
+        "enabled": false,
+        "serviceWorker": false
+      },
+      "analytics": {
+        "enabled": false
+      }
+    }
+  },
+  "cdn": {
+    "enabled": true,
+    "providers": [
+      {
+        "name": "Firebase Hosting",
+        "url": "https://uploader.plantita.app"
+      },
+      {
+        "name": "Vercel",
+        "url": "https://uploader.vercel.app"
+      },
+      {
+        "name": "Netlify",
+        "url": "https://uploader.netlify.app"
+      }
+    ]
+  },
+  "monitoring": {
+    "lighthouse": {
+      "enabled": true,
+      "performanceThreshold": 90,
+      "accessibilityThreshold": 90,
+      "bestPracticesThreshold": 90,
+      "seoThreshold": 90,
+      "pwaThreshold": 90
+    },
+    "coreWebVitals": {
+      "enabled": true,
+      "largestContentfulPaint": 2500,
+      "firstInputDelay": 100,
+      "cumulativeLayoutShift": 0.1
+    }
+  },
+  "security": {
+    "headers": {
+      "contentSecurityPolicy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://*.firebase.com https://*.googleapis.com;",
+      "strictTransportSecurity": "max-age=31536000; includeSubDomains; preload",
+      "xFrameOptions": "DENY",
+      "xContentTypeOptions": "nosniff",
+      "referrerPolicy": "strict-origin-when-cross-origin"
+    }
+  }
+}

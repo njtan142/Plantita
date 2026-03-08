@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+
+  <!-- SEO and Meta Tags -->
+  <title>Plantita Uploader - Media Management App</title>
+  <meta name="description" content="Professional media management and upload application for content creators. Upload, organize, and manage your media files with ease.">
+  <meta name="keywords" content="media upload, file management, content creator, photo upload, video upload, media organization">
+  <meta name="author" content="Plantita Team">
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uploader.plantita.app/">
+  <meta property="og:title" content="Plantita Uploader - Media Management App">
+  <meta property="og:description" content="Professional media management and upload application for content creators.">
+  <meta property="og:image" content="/icons/Icon-512.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://uploader.plantita.app/">
+  <meta property="twitter:title" content="Plantita Uploader - Media Management App">
+  <meta property="twitter:description" content="Professional media management and upload application for content creators.">
+  <meta property="twitter:image" content="/icons/Icon-512.png">
+
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <!-- Preconnect to external domains -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.googleapis.com">
+  <link rel="preconnect" href="https://firebase.googleapis.com">
+
+  <!-- DNS prefetch for performance -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//www.googleapis.com">
+  <link rel="dns-prefetch" href="//firebase.googleapis.com">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Plantita Uploader">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <link rel="apple-touch-icon" href="/icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/icons/Icon-512.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/Icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/Icon-512.png">
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/flutter_service_worker.js')
+          .then(function(registration) {
+            console.log('SW registered: ', registration);
+          })
+          .catch(function(registrationError) {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+
+  <!-- Theme color for browsers -->
+  <meta name="theme-color" content="#1976d2">
+  <meta name="msapplication-TileColor" content="#1976d2">
+
+  <!-- Performance optimization -->
+  <link rel="preload" href="/assets/fonts/MaterialIcons-Regular.otf" as="font" type="font/otf" crossorigin>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

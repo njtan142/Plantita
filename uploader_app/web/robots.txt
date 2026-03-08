@@ -1,0 +1,65 @@
+# Robots.txt for Plantita Uploader PWA
+# Updated: 2024
+
+User-agent: *
+Allow: /
+
+# Allow crawling of main pages
+Allow: /#/
+Allow: /#/upload
+Allow: /#/gallery
+Allow: /#/settings
+
+# Disallow crawling of sensitive or dynamic content
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/
+Disallow: /uploads/temp/
+Disallow: /debug/
+Disallow: /test/
+
+# Disallow file extensions that shouldn't be crawled
+Disallow: /*.json
+Disallow: /*.xml
+Disallow: /*.txt
+Disallow: /flutter_service_worker.js
+Disallow: /manifest.json
+
+# Sitemap location
+Sitemap: https://uploader.plantita.app/sitemap.xml
+
+# Crawl delay for polite crawling
+Crawl-delay: 1
+
+# Specific rules for different crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# Block problematic bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Allow social media crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /

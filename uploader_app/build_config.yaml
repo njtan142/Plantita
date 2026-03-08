@@ -1,0 +1,185 @@
+# Flutter Build Configuration for Production Deployment
+# Plantita Uploader App - Phase 8: Web Deployment Preparation
+
+# Build environments
+environments:
+  development:
+    name: "Development"
+    debug: true
+    track-widgets: true
+    profile: false
+    release: false
+    optimization-level: "O0"
+    tree-shake-icons: false
+
+  staging:
+    name: "Staging"
+    debug: false
+    track-widgets: false
+    profile: true
+    release: false
+    optimization-level: "O1"
+    tree-shake-icons: true
+
+  production:
+    name: "Production"
+    debug: false
+    track-widgets: false
+    profile: false
+    release: true
+    optimization-level: "O3"
+    tree-shake-icons: true
+    split-debug-info: "/tmp/debug-info"
+    obfuscate: true
+    dart-define:
+      - ENVIRONMENT=production
+      - API_BASE_URL=https://api.plantita.app
+      - ENABLE_ANALYTICS=true
+      - ENABLE_CRASHLYTICS=true
+      - ENABLE_PERFORMANCE_MONITORING=true
+
+# Platform-specific configurations
+platforms:
+  web:
+    # Web-specific build settings
+    renderer: canvaskit  # Use CanvasKit for better performance
+    csp: true           # Enable Content Security Policy
+    pwa: true          # Enable PWA features
+
+    # CanvasKit-specific settings
+    canvaskit:
+      enable: true
+      url: "https://unpkg.com/canvaskit-wasm@0.39.1/bin/"
+
+    # Web optimization settings
+    optimization:
+      minify: true
+      compress: true
+      preload-fonts: true
+      bundle-size-limit: "2MB"
+
+  android:
+    target-platform: "android-arm,android-arm64,android-x64"
+    split-per-abi: true
+    shrink-resources: true
+    proguard-files: "proguard-rules.pro"
+
+  ios:
+    target-platform: "ios-arm64"
+    codesign: true
+    bundle-id: "com.plantita.uploader"
+
+# Performance budgets
+performance-budgets:
+  web:
+    max-bundle-size: "2MB"
+    max-chunk-size: "500KB"
+    max-entrpoint-size: "1MB"
+
+  android:
+    max-apk-size: "50MB"
+    max-dex-size: "10MB"
+
+  ios:
+    max-ipa-size: "100MB"
+
+# Asset optimization
+assets:
+  optimization:
+    enabled: true
+    image-compression: true
+    font-subsetting: true
+    unused-assets-removal: true
+
+  web-specific:
+    preload-critical-assets: true
+    cache-static-assets: true
+    service-worker-caching: true
+
+# Code splitting configuration
+code-splitting:
+  enabled: true
+  strategy: "dynamic-import"
+  chunks:
+    - name: "vendor"
+      packages: ["firebase", "http", "provider"]
+    - name: "ui"
+      packages: ["material", "widgets"]
+    - name: "features"
+      packages: ["camera", "image_picker", "file_picker"]
+
+# Security configuration
+security:
+  web:
+    content-security-policy:
+      enabled: true
+      policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.firebase.com https://*.googleapis.com;"
+    cors:
+      enabled: false
+      allowed-origins: ["https://uploader.plantita.app"]
+
+  mobile:
+    certificate-pinning: true
+    network-security-config: "res/xml/network_security_config.xml"
+
+# Monitoring and analytics
+monitoring:
+  enabled: true
+  firebase:
+    analytics: true
+    crashlytics: true
+    performance: true
+
+  web-vitals:
+    enabled: true
+    report-to: "https://uploader.plantita.app/api/web-vitals"
+
+# PWA configuration
+pwa:
+  enabled: true
+  features:
+    offline-mode: true
+    background-sync: true
+    push-notifications: true
+    install-prompt: true
+
+  manifest:
+    name: "Plantita Uploader"
+    short-name: "Plantita"
+    description: "Professional media management and upload application"
+    theme-color: "#1976d2"
+    background-color: "#ffffff"
+    display: "standalone"
+    start-url: "/"
+
+# CDN configuration
+cdn:
+  enabled: true
+  providers:
+    primary: "firebase-hosting"
+    fallback: ["vercel", "netlify"]
+
+  asset-optimization:
+    image-optimization: true
+    font-loading: "preload"
+    static-compression: true
+
+# Build hooks
+hooks:
+  pre-build:
+    - command: "flutter pub get"
+    - command: "flutter pub run build_runner build --delete-conflicting-outputs"
+    - command: "flutter gen-l10n"
+
+  post-build:
+    - command: "flutter analyze"
+    - command: "flutter test"
+    - command: "lighthouse https://uploader.plantita.app --output json --output-path ./reports/lighthouse-report.json"
+
+  deploy:
+    - provider: "firebase"
+      command: "firebase deploy --only hosting"
+    - provider: "vercel"
+      command: "vercel --prod"
+    - provider: "netlify"
+      command: "netlify deploy --prod --dir=build/web"

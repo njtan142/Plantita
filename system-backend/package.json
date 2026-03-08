@@ -8,6 +8,7 @@
     "build:dev": "tsc --watch",
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js",
+    "create-admin": "node dist/scripts/create-admin-user.js",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write src/**/*.ts",

@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { env } from './config/environment';
 import { getDatabaseHealth } from './config/database';
+import authRoutes from './routes/authRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -38,6 +39,9 @@ app.use((req, res, next) => {
   console.log(`${timestamp} - ${req.method} ${req.path}`);
   next();
 });
+
+// API routes
+app.use('/api/v1/auth', authRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -77,6 +81,7 @@ app.get('/api', (req, res) => {
     message: 'System Backend API',
     version: '1.0.0',
     endpoints: {
+      auth: '/api/v1/auth',
       health: '/health',
       api: '/api',
     },
