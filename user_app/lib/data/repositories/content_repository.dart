@@ -13,6 +13,8 @@ class ContentRepository {
     String? contentType,
     String? category,
     String? sortBy,
+    int? page,
+    int? limit,
   }) async {
     try {
       final Map<String, dynamic> queryParams = {};
@@ -27,6 +29,12 @@ class ContentRepository {
       }
       if (sortBy != null && sortBy.isNotEmpty) {
         queryParams['sortBy'] = sortBy;
+      }
+      if (page != null) {
+        queryParams['page'] = page.toString();
+      }
+      if (limit != null) {
+        queryParams['limit'] = limit.toString();
       }
 
       final response = await _apiService.get('content/search', queryParams: queryParams);

@@ -10,6 +10,8 @@ class ContentProvider with ChangeNotifier {
   List<dynamic> _recommendedContent = [];
   bool _isLoading = false;
   String? _errorMessage;
+  int _currentPage = 0;
+  bool _hasMore = true;
 
   ContentProvider(this._contentRepository);
 
@@ -19,23 +21,40 @@ class ContentProvider with ChangeNotifier {
   List<dynamic> get recommendedContent => _recommendedContent;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get hasMore => _hasMore;
 
   Future<void> searchContent({
     String? query,
     String? contentType,
     String? category,
     String? sortBy,
+    bool isLoadMore = false,
   }) async {
+    if (_isLoading || (!_hasMore && isLoadMore)) return; // Prevent multiple loads or loading if no more data
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
+
     try {
-      _content = await _contentRepository.searchContent(
+      final newContent = await _contentRepository.searchContent(
         query: query,
         contentType: contentType,
         category: category,
         sortBy: sortBy,
+        page: _currentPage + 1,
+        limit: 10, // Define a limit for pagination
       );
+
+      if (isLoadMore) {
+        _content.addAll(newContent);
+      } else {
+        _content = newContent;
+      }
+
+      _currentPage++;
+      _hasMore = newContent.length == 10; // Assuming limit is 10
+
     } catch (e) {
       _errorMessage = e.toString();
       logger.e('Error in ContentProvider.searchContent: $_errorMessage');
