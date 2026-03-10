@@ -10,9 +10,11 @@ import 'package:user_app/services/auth_service.dart'; // Import AuthService
 class ApiService {
   final String _baseUrl;
   late final AuthService _authService;
-  final http.Client? _client;
+  final http.Client _client;
 
-  ApiService({http.Client? client}) : _baseUrl = getIt<EnvironmentConfig>().baseUrl, _client = client {
+  ApiService({http.Client? client})
+      : _baseUrl = getIt<EnvironmentConfig>().baseUrl,
+        _client = client ?? http.Client() {
     _authService = getIt<AuthService>();
   }
   final int _maxRetries = 3;
@@ -42,7 +44,7 @@ class ApiService {
   Future<Map<String, dynamic>> _sendRequestWithInterceptor(http.Request originalRequest) async {
     for (int i = 0; i < _maxRetries; i++) {
       try {
-        final client = _client ?? http.Client();
+        final client = _client;
         final interceptedRequest = await _requestInterceptor(originalRequest);
         logger.d('Sending Request: ${interceptedRequest.method} ${interceptedRequest.url}');
 
