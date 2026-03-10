@@ -24,12 +24,10 @@ export default function ContentReportingPage() {
 
   const handleExportStart = () => {
     // Callback when export starts
-    console.log('Export started');
   };
 
   const handleExportComplete = () => {
     // Callback when export completes
-    console.log('Export completed');
   };
 
   const handleExportError = (error: string) => {

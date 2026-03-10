@@ -3,12 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'logger.dart';
 
 /// Error severity levels
-enum ErrorSeverity {
-  low,
-  medium,
-  high,
-  critical,
-}
+enum ErrorSeverity { low, medium, high, critical }
 
 /// App error types
 enum AppErrorType {
@@ -48,13 +43,18 @@ class AppError {
   String get displayMessage => userMessage ?? _getDefaultUserMessage();
 
   /// Get recovery suggestion
-  String get recoveryMessage => recoverySuggestion ?? _getDefaultRecoverySuggestion();
+  String get recoveryMessage =>
+      recoverySuggestion ?? _getDefaultRecoverySuggestion();
 
   /// Check if error is recoverable
   bool get isRecoverable => severity != ErrorSeverity.critical;
 
   /// Create error from network exception
-  factory AppError.network(String message, {Object? originalError, StackTrace? stackTrace}) {
+  factory AppError.network(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -62,13 +62,18 @@ class AppError {
       type: AppErrorType.network,
       severity: ErrorSeverity.medium,
       userMessage: 'Connection issue',
-      recoverySuggestion: 'Please check your internet connection and try again.',
+      recoverySuggestion:
+          'Please check your internet connection and try again.',
       context: {'timestamp': DateTime.now().toIso8601String()},
     );
   }
 
   /// Create error from authentication exception
-  factory AppError.authentication(String message, {Object? originalError, StackTrace? stackTrace}) {
+  factory AppError.authentication(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -82,7 +87,12 @@ class AppError {
   }
 
   /// Create error from validation exception
-  factory AppError.validation(String message, {Object? originalError, StackTrace? stackTrace, String? field}) {
+  factory AppError.validation(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+    String? field,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -91,15 +101,17 @@ class AppError {
       severity: ErrorSeverity.low,
       userMessage: 'Invalid input',
       recoverySuggestion: 'Please check your input and try again.',
-      context: {
-        'timestamp': DateTime.now().toIso8601String(),
-        'field': field,
-      },
+      context: {'timestamp': DateTime.now().toIso8601String(), 'field': field},
     );
   }
 
   /// Create error from file system exception
-  factory AppError.fileSystem(String message, {Object? originalError, StackTrace? stackTrace, String? filePath}) {
+  factory AppError.fileSystem(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+    String? filePath,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -116,7 +128,11 @@ class AppError {
   }
 
   /// Create error from camera exception
-  factory AppError.camera(String message, {Object? originalError, StackTrace? stackTrace}) {
+  factory AppError.camera(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -130,7 +146,12 @@ class AppError {
   }
 
   /// Create error from upload exception
-  factory AppError.upload(String message, {Object? originalError, StackTrace? stackTrace, String? fileName}) {
+  factory AppError.upload(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+    String? fileName,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -138,7 +159,8 @@ class AppError {
       type: AppErrorType.upload,
       severity: ErrorSeverity.medium,
       userMessage: 'Upload failed',
-      recoverySuggestion: 'Please check your connection and try uploading again.',
+      recoverySuggestion:
+          'Please check your connection and try uploading again.',
       context: {
         'timestamp': DateTime.now().toIso8601String(),
         'file_name': fileName,
@@ -147,7 +169,12 @@ class AppError {
   }
 
   /// Create error from permission exception
-  factory AppError.permission(String message, {Object? originalError, StackTrace? stackTrace, String? permission}) {
+  factory AppError.permission(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+    String? permission,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -155,7 +182,8 @@ class AppError {
       type: AppErrorType.permission,
       severity: ErrorSeverity.medium,
       userMessage: 'Permission denied',
-      recoverySuggestion: 'Please grant the required permissions and try again.',
+      recoverySuggestion:
+          'Please grant the required permissions and try again.',
       context: {
         'timestamp': DateTime.now().toIso8601String(),
         'permission': permission,
@@ -164,7 +192,11 @@ class AppError {
   }
 
   /// Create generic error
-  factory AppError.generic(String message, {Object? originalError, StackTrace? stackTrace}) {
+  factory AppError.generic(
+    String message, {
+    Object? originalError,
+    StackTrace? stackTrace,
+  }) {
     return AppError(
       message: message,
       originalError: originalError,
@@ -172,7 +204,8 @@ class AppError {
       type: AppErrorType.unknown,
       severity: ErrorSeverity.medium,
       userMessage: 'Something went wrong',
-      recoverySuggestion: 'Please try again or contact support if the problem persists.',
+      recoverySuggestion:
+          'Please try again or contact support if the problem persists.',
       context: {'timestamp': DateTime.now().toIso8601String()},
     );
   }
@@ -229,9 +262,31 @@ class AppError {
 
 /// Error handler for managing and reporting errors across the app
 class ErrorHandler {
-  static final StreamController<AppError> _errorController = StreamController<AppError>.broadcast();
+  static final StreamController<AppError> _errorController =
+      StreamController<AppError>.broadcast();
   static final List<AppError> _errorHistory = [];
   static const int _maxHistorySize = 100;
+
+  static final RegExp _networkErrorPattern = RegExp(
+    r'network|connect',
+    caseSensitive: false,
+  );
+  static final RegExp _authErrorPattern = RegExp(
+    r'auth|unauthorized|401',
+    caseSensitive: false,
+  );
+  static final RegExp _permissionErrorPattern = RegExp(
+    r'permission|denied',
+    caseSensitive: false,
+  );
+  static final RegExp _cameraErrorPattern = RegExp(
+    r'camera|media',
+    caseSensitive: false,
+  );
+  static final RegExp _uploadErrorPattern = RegExp(
+    r'upload|file',
+    caseSensitive: false,
+  );
 
   /// Stream of errors for reactive error handling
   static Stream<AppError> get errorStream => _errorController.stream;
@@ -278,7 +333,11 @@ class ErrorHandler {
   }
 
   /// Handle async errors
-  static void handleAsyncError(Object error, StackTrace stackTrace, {String? context}) {
+  static void handleAsyncError(
+    Object error,
+    StackTrace stackTrace, {
+    String? context,
+  }) {
     handleError(error, stackTrace: stackTrace, context: context);
   }
 
@@ -333,15 +392,19 @@ class ErrorHandler {
   }
 
   /// Convert any error to AppError
-  static AppError _createAppError(Object error, StackTrace? stackTrace, String? context) {
+  static AppError _createAppError(
+    Object error,
+    StackTrace? stackTrace,
+    String? context,
+  ) {
     if (error is AppError) {
       return error;
     }
 
     // Handle specific error types
-    final errorString = error.toString().toLowerCase();
+    final errorString = error.toString();
 
-    if (errorString.contains('network') || errorString.contains('connect')) {
+    if (_networkErrorPattern.hasMatch(errorString)) {
       return AppError.network(
         'Network error occurred',
         originalError: error,
@@ -349,7 +412,7 @@ class ErrorHandler {
       );
     }
 
-    if (errorString.contains('auth') || errorString.contains('unauthorized') || errorString.contains('401')) {
+    if (_authErrorPattern.hasMatch(errorString)) {
       return AppError.authentication(
         'Authentication failed',
         originalError: error,
@@ -357,7 +420,7 @@ class ErrorHandler {
       );
     }
 
-    if (errorString.contains('permission') || errorString.contains('denied')) {
+    if (_permissionErrorPattern.hasMatch(errorString)) {
       return AppError.permission(
         'Permission denied',
         originalError: error,
@@ -365,7 +428,7 @@ class ErrorHandler {
       );
     }
 
-    if (errorString.contains('camera') || errorString.contains('media')) {
+    if (_cameraErrorPattern.hasMatch(errorString)) {
       return AppError.camera(
         'Camera error occurred',
         originalError: error,
@@ -373,7 +436,7 @@ class ErrorHandler {
       );
     }
 
-    if (errorString.contains('upload') || errorString.contains('file')) {
+    if (_uploadErrorPattern.hasMatch(errorString)) {
       return AppError.upload(
         'Upload error occurred',
         originalError: error,
@@ -410,16 +473,13 @@ class ErrorStats {
   /// Get most common error type
   AppErrorType? get mostCommonErrorType {
     if (errorsByType.isEmpty) return null;
-    return errorsByType.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
-        .key;
+    return errorsByType.entries.reduce((a, b) => a.value > b.value ? a : b).key;
   }
 
   /// Get highest severity error
   ErrorSeverity? get highestSeverity {
     if (errorsBySeverity.isEmpty) return null;
-    return errorsBySeverity.keys
-        .reduce((a, b) => a.index > b.index ? a : b);
+    return errorsBySeverity.keys.reduce((a, b) => a.index > b.index ? a : b);
   }
 
   @override

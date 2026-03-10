@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/state_management/reel_provider.dart';
 import 'package:user_app/ui/widgets/custom_video_player.dart';
+import 'package:user_app/ui/widgets/comment_dialog.dart'; // Import CommentDialog
 import 'package:video_player/video_player.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart'; // Import ErrorStateWidget
 
@@ -74,11 +75,12 @@ class _ReelsViewState extends State<ReelsView> {
     }
 
     // Dispose controllers that are no longer active
-    _videoControllers.keys.toList().forEach((reelId) {
+    _videoControllers.removeWhere((reelId, controller) {
       if (!activeReelIds.contains(reelId)) {
-        _videoControllers[reelId]?.dispose();
-        _videoControllers.remove(reelId);
+        controller.dispose();
+        return true;
       }
+      return false;
     });
   }
 
@@ -199,8 +201,19 @@ class _ReelsViewState extends State<ReelsView> {
                                   child: IconButton(
                                     icon: const Icon(Icons.comment, color: Colors.white),
                                     onPressed: () {
-                                      // TODO: Implement comment dialog
-                                      print('Comment on ${reel.id}');
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (context) => Container(
+                                            height: MediaQuery.of(context).size.height * 0.7,
+                                            decoration: const BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                            ),
+                                            child: CommentDialog(reelId: reel.id),
+                                          ),
+                                        );
                                     },
                                   ),
                                 ),

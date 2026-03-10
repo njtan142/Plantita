@@ -173,6 +173,7 @@ void main() {
     });
 
     test('User equality and hashCode work correctly', () {
+      final now = DateTime.now();
       final user1 = UserModel(
         id: 1,
         username: 'testuser',
@@ -180,7 +181,7 @@ void main() {
         firstName: 'John',
         lastName: 'Doe',
         isActive: true,
-        createdAt: DateTime.now(),
+        createdAt: now,
       );
 
       final user2 = UserModel(
@@ -190,7 +191,7 @@ void main() {
         firstName: 'John',
         lastName: 'Doe',
         isActive: true,
-        createdAt: DateTime.now(),
+        createdAt: now,
       );
 
       final user3 = UserModel(
@@ -200,7 +201,7 @@ void main() {
         firstName: 'Jane',
         lastName: 'Smith',
         isActive: true,
-        createdAt: DateTime.now(),
+        createdAt: now,
       );
 
       expect(user1 == user2, true);

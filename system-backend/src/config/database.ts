@@ -99,15 +99,22 @@ async function runMigrations(): Promise<void> {
     .sort();
 
   const executedMigrations = await getExecutedMigrations();
+  const successfulMigrations: string[] = [];
 
-  for (const file of migrationFiles) {
-    if (!executedMigrations.includes(file)) {
-      console.log(`🔄 Running migration: ${file}`);
-      await executeMigration(file);
-      await recordMigration(file);
-      console.log(`✅ Migration completed: ${file}`);
-    } else {
-      console.log(`⏭️  Migration already executed: ${file}`);
+  try {
+    for (const file of migrationFiles) {
+      if (!executedMigrations.includes(file)) {
+        console.log(`🔄 Running migration: ${file}`);
+        await executeMigration(file);
+        successfulMigrations.push(file);
+        console.log(`✅ Migration completed: ${file}`);
+      } else {
+        console.log(`⏭️  Migration already executed: ${file}`);
+      }
+    }
+  } finally {
+    if (successfulMigrations.length > 0) {
+      await recordMigrationsBulk(successfulMigrations);
     }
   }
 }
@@ -134,6 +141,24 @@ async function executeMigration(filename: string): Promise<void> {
     await sequelize.query(sql);
   } catch (error) {
     console.error(`❌ Migration failed: ${filename}`, error);
+    throw error;
+  }
+}
+
+// Record migrations in bulk
+async function recordMigrationsBulk(filenames: string[]): Promise<void> {
+  if (filenames.length === 0) return;
+
+  try {
+    const valuesPlaceholders = filenames.map(() => '(?)').join(', ');
+    await sequelize.query(
+      `INSERT INTO migrations (name) VALUES ${valuesPlaceholders}`,
+      {
+        replacements: filenames,
+      }
+    );
+  } catch (error) {
+    console.error(`❌ Failed to bulk record migrations`, error);
     throw error;
   }
 }

@@ -1,8 +1,6 @@
 
 import 'package:user_app/services/api_service.dart';
 import 'package:user_app/data/models/user.dart';
-import 'package:user_app/data/models/reel.dart';
-import 'package:user_app/data/models/timelapse.dart';
 import 'package:user_app/data/repositories/reel_repository.dart';
 import 'package:user_app/data/repositories/timelapse_repository.dart';
 import 'package:user_app/utils/logger.dart';
@@ -26,27 +24,28 @@ class UserRepository {
   }
 
   Future<List<dynamic>> fetchUploadedContent(List<String> contentIds) async {
-    List<dynamic> uploadedContent = [];
-    for (String id in contentIds) {
+    final futures = contentIds.map((id) async {
       try {
         if (id.startsWith('reel-')) {
           // Assuming reel IDs start with 'reel-'
           // This is a simplification; ideally, the API would return content type
           // Or the contentIds would be structured to indicate type
-          final reel = await _reelRepository.fetchReelDetails(id);
-          uploadedContent.add(reel);
+          return await _reelRepository.fetchReelDetails(id);
         } else if (id.startsWith('timelapse-')) {
           // Assuming timelapse IDs start with 'timelapse-'
-          final timelapse = await _timelapseRepository.fetchTimelapseDetails(id);
-          uploadedContent.add(timelapse);
+          return await _timelapseRepository.fetchTimelapseDetails(id);
         } else {
           logger.w('Unknown content type for ID: $id');
+          return null;
         }
       } catch (e) {
         logger.e('Error fetching content for ID $id: $e');
+        return null;
       }
-    }
-    return uploadedContent;
+    });
+
+    final results = await Future.wait(futures);
+    return results.where((item) => item != null).toList();
   }
 
   Future<User> updateUserProfile(User user) async {
