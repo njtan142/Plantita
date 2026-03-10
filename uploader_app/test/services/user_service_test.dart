@@ -125,6 +125,20 @@ void main() {
       expect(userService.isLoading, false);
     });
 
+    test('fetchUsers handles exceptions correctly', () async {
+      // Arrange
+      when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
+          .thenThrow(Exception('Network disconnected'));
+
+      // Act
+      final result = await userService.fetchUsers(forceRefresh: true);
+
+      // Assert
+      expect(result.success, false);
+      expect(result.message, contains('Failed to fetch users: Exception: Network disconnected'));
+      expect(userService.isLoading, false);
+    });
+
     test('searchUsers returns filtered cached results for non-empty query', () async {
       // Arrange
       final users = [
