@@ -32,6 +32,15 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     );
   }
 
+  if (!process.env.DB_NAME)
+    throw new Error('DB_NAME environment variable is required');
+  if (!process.env.DB_USER)
+    throw new Error('DB_USER environment variable is required');
+  if (!process.env.DB_PASSWORD)
+    throw new Error('DB_PASSWORD environment variable is required');
+  if (!process.env.JWT_SECRET)
+    throw new Error('JWT_SECRET environment variable is required');
+
   return {
     NODE_ENV:
       (process.env.NODE_ENV as 'development' | 'production' | 'test') ||
@@ -40,10 +49,10 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
     HOST: process.env.HOST || 'localhost',
     DB_HOST: process.env.DB_HOST || 'localhost',
     DB_PORT: parseInt(process.env.DB_PORT || '5432', 10),
-    DB_NAME: process.env.DB_NAME || 'plantita_social',
-    DB_USER: process.env.DB_USER || 'postgres',
-    DB_PASSWORD: process.env.DB_PASSWORD || 'password',
-    JWT_SECRET: process.env.JWT_SECRET || 'fallback_secret',
+    DB_NAME: process.env.DB_NAME,
+    DB_USER: process.env.DB_USER,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    JWT_SECRET: process.env.JWT_SECRET,
     JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
     ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS?.split(',') || [
       'http://localhost:3000',
