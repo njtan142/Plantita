@@ -74,11 +74,12 @@ class _ReelsViewState extends State<ReelsView> {
     }
 
     // Dispose controllers that are no longer active
-    _videoControllers.keys.toList().forEach((reelId) {
+    _videoControllers.removeWhere((reelId, controller) {
       if (!activeReelIds.contains(reelId)) {
-        _videoControllers[reelId]?.dispose();
-        _videoControllers.remove(reelId);
+        controller.dispose();
+        return true;
       }
+      return false;
     });
   }
 
