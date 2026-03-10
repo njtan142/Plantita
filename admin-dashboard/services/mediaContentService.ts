@@ -257,6 +257,7 @@ export class MediaContentService {
     
     const updatedMedia: Media[] = [];
     const errors: string[] = [];
+    const updatedAt = new Date().toISOString();
     
     for (const mediaId of mediaIds) {
       const mediaIndex = MOCK_MEDIAS.findIndex(m => m.id === mediaId);
@@ -270,7 +271,7 @@ export class MediaContentService {
       MOCK_MEDIAS[mediaIndex] = {
         ...MOCK_MEDIAS[mediaIndex],
         ...updates,
-        updatedAt: new Date().toISOString()
+        updatedAt
       };
       
       updatedMedia.push(MOCK_MEDIAS[mediaIndex]);
@@ -304,6 +305,7 @@ export class MediaContentService {
     
     const updatedMedia: Media[] = [];
     const errors: string[] = [];
+    const updatedAt = new Date().toISOString();
     
     for (const mediaId of mediaIds) {
       const mediaIndex = MOCK_MEDIAS.findIndex(m => m.id === mediaId);
@@ -320,7 +322,7 @@ export class MediaContentService {
           ...MOCK_MEDIAS[mediaIndex].moderation,
           status: moderationStatus
         },
-        updatedAt: new Date().toISOString()
+        updatedAt
       };
       
       updatedMedia.push(MOCK_MEDIAS[mediaIndex]);
