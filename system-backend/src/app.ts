@@ -33,10 +33,44 @@ app.use(
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Request logging middleware (simple version)
+// Request logging middleware
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
-  console.log(`${timestamp} - ${req.method} ${req.path}`);
+
+  try {
+    // Parse the original URL. If req.originalUrl is just a path (e.g. /api/v1/auth?token=123),
+    // provide a dummy base to make it parseable.
+    const url = new URL(
+      req.originalUrl || req.url,
+      `http://${req.headers.host || 'localhost'}`
+    );
+
+    // List of sensitive query parameter keys to mask
+    const sensitiveKeys = [
+      'password',
+      'token',
+      'secret',
+      'authorization',
+      'key',
+      'apikey',
+      'api_key',
+    ];
+
+    // Mask sensitive query parameters
+    url.searchParams.forEach((value, key) => {
+      if (sensitiveKeys.includes(key.toLowerCase())) {
+        url.searchParams.set(key, '***');
+      }
+    });
+
+    // Log the sanitized path and query string
+    const sanitizedPathAndQuery = url.pathname + url.search;
+    console.log(`${timestamp} - ${req.method} ${sanitizedPathAndQuery}`);
+  } catch (error) {
+    // Fallback to logging just the path if URL parsing fails for some reason
+    console.log(`${timestamp} - ${req.method} ${req.path}`);
+  }
+
   next();
 });
 

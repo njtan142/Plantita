@@ -25,8 +25,11 @@ class UploadModelProvider extends BaseProvider {
   List<UploadModel> get completedUploadModels => _completedUploadModels;
   List<UploadModel> get failedUploadModels => _failedUploadModels;
   bool get isUploadModeling => _isUploadModeling;
-  int get totalProgress => _uploadQueue.isEmpty ? 0 :
-    (_completedUploadModels.length + _failedUploadModels.length) * 100 ~/ _uploadQueue.length;
+  int get totalProgress => _uploadQueue.isEmpty
+      ? 0
+      : (_completedUploadModels.length + _failedUploadModels.length) *
+            100 ~/
+            _uploadQueue.length;
 
   void addFilesToUploadModel(List<PlatformFile> files) {
     if (_userSelectionProvider.selectedUser == null) {
@@ -34,14 +37,18 @@ class UploadModelProvider extends BaseProvider {
       return;
     }
 
-    final newUploadModels = files.map((file) => UploadModel(
-      id: '${DateTime.now().millisecondsSinceEpoch}_${file.name}',
-      file: file,
-      user: _userSelectionProvider.selectedUser!,
-      status: UploadStatus.pending,
-      progress: 0,
-      createdAt: DateTime.now(),
-    )).toList();
+    final newUploadModels = files
+        .map(
+          (file) => UploadModel(
+            id: '${DateTime.now().millisecondsSinceEpoch}_${file.name}',
+            file: file,
+            user: _userSelectionProvider.selectedUser!,
+            status: UploadStatus.pending,
+            progress: 0,
+            createdAt: DateTime.now(),
+          ),
+        )
+        .toList();
 
     _uploadQueue.addAll(newUploadModels);
     notifyListeners();
@@ -83,14 +90,32 @@ class UploadModelProvider extends BaseProvider {
       clearError();
       _isUploadModeling = true;
 
-      // Process uploads sequentially to avoid overwhelming the server
+      // Process uploads with limited concurrency to improve speed without overwhelming the server
+      const int maxConcurrentUploads = 3;
+      final List<Future<void>> activeUploads = [];
+
       for (final upload in _uploadQueue) {
         if (upload.status == UploadStatus.uploading ||
             upload.status == UploadStatus.completed) {
           continue;
         }
 
-        await _uploadFile(upload);
+        // Start the upload and track it
+        final future = _uploadFile(upload);
+        activeUploads.add(future);
+
+        // Remove from tracking list when complete
+        future.whenComplete(() => activeUploads.remove(future));
+
+        // Wait if we reach the concurrency limit
+        if (activeUploads.length >= maxConcurrentUploads) {
+          await Future.any(activeUploads);
+        }
+      }
+
+      // Wait for all remaining active uploads to finish
+      if (activeUploads.isNotEmpty) {
+        await Future.wait(activeUploads);
       }
     } catch (e) {
       setError(e.toString());
@@ -109,8 +134,8 @@ class UploadModelProvider extends BaseProvider {
         fileName: upload.file.name,
         fileBytes: upload.file.bytes!,
         mimeType: upload.file.extension != null
-          ? 'application/${upload.file.extension}'
-          : 'application/octet-stream',
+            ? 'application/${upload.file.extension}'
+            : 'application/octet-stream',
         userId: upload.user.id,
         onProgress: (progress) {
           upload.progress = progress.toInt();
@@ -169,8 +194,10 @@ class UploadModelProvider extends BaseProvider {
     await startUploadModel();
   }
 
-  int get pendingCount => _uploadQueue.where((u) => u.status == UploadStatus.pending).length;
-  int get uploadingCount => _uploadQueue.where((u) => u.status == UploadStatus.uploading).length;
+  int get pendingCount =>
+      _uploadQueue.where((u) => u.status == UploadStatus.pending).length;
+  int get uploadingCount =>
+      _uploadQueue.where((u) => u.status == UploadStatus.uploading).length;
   int get completedCount => _completedUploadModels.length;
   int get failedCount => _failedUploadModels.length;
 
