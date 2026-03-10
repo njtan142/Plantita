@@ -125,17 +125,17 @@ void main() {
       expect(userService.isLoading, false);
     });
 
-    test('fetchUsers handles exceptions correctly', () async {
+    test('fetchUsers catches exceptions and returns error response', () async {
       // Arrange
       when(mockHttpClient.get<PaginatedResponse<UserModel>>(any, fromJson: anyNamed('fromJson')))
-          .thenThrow(Exception('Network disconnected'));
+          .thenThrow(Exception('Network failure'));
 
       // Act
       final result = await userService.fetchUsers(forceRefresh: true);
 
       // Assert
       expect(result.success, false);
-      expect(result.message, contains('Failed to fetch users: Exception: Network disconnected'));
+      expect(result.message, contains('Failed to fetch users: Exception: Network failure'));
       expect(userService.isLoading, false);
     });
 
