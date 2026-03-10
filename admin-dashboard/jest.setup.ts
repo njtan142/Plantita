@@ -1,4 +1,3 @@
-
 import '@testing-library/jest-dom';
 
 const originalConsoleError = console.error;
