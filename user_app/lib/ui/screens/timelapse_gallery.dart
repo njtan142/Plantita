@@ -1,14 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
-import 'package:user_app/state_management/timelapse_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
 import 'package:user_app/state_management/timelapse_provider.dart';
-import 'package:user_app/ui/widgets/error_state_widget';
+import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/timelapse.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -251,25 +247,19 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
       context: context,
       builder: (BuildContext bc) {
         return SafeArea(
-          child: Wrap(
-            children: <Widget>[
-              Semantics(
-                button: true,
-                label: 'View details for ${timelapse.title}',
-                child: ListTile(
+          child: Semantics(
+            label: 'Timelapse context menu for ${timelapse.title}',
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
                   leading: const Icon(Icons.info),
                   title: const Text('View Details'),
                   onTap: () {
                     Navigator.pop(bc);
-                    // TODO: Navigate to Timelapse Detail Screen
-                    print('View details for ${timelapse.title}');
+                    context.push('/timelapses/${timelapse.id}', extra: timelapse);
                   },
                 ),
-              ),
-              Semantics(
-                button: true,
-                label: 'Add ${timelapse.title} to playlist',
-                child: ListTile(
+                ListTile(
                   leading: const Icon(Icons.playlist_add),
                   title: const Text('Add to Playlist'),
                   onTap: () {
@@ -277,11 +267,7 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
                     _showAddToPlaylistDialog(timelapse);
                   },
                 ),
-              ),
-              Semantics(
-                button: true,
-                label: 'Download ${timelapse.title}',
-                child: ListTile(
+                ListTile(
                   leading: const Icon(Icons.download),
                   title: const Text('Download'),
                   onTap: () {
@@ -289,8 +275,8 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
                     Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
                   },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -367,123 +353,6 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
                 },
                 child: const Text('Cancel'),
               ),
-            ),
-            Semantics(
-              button: true,
-              label: 'Create Playlist button',
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (playlistName.isNotEmpty) {
-                    await Provider.of<TimelapseProvider>(context, listen: false).createPlaylist(playlistName, playlistDescription);
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Playlist name cannot be empty.')),
-                    );
-                  }
-                },
-                child: const Text('Create'),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showTimelapseContextMenu(BuildContext context, Timelapse timelapse) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext bc) {
-        return SafeArea(
-          child: Semantics(
-            label: 'Timelapse context menu for ${timelapse.title}',
-            child: Wrap(
-              children: <Widget>[
-                ListTile(
-                  leading: const Icon(Icons.info),
-                  title: const Text('View Details'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    // TODO: Navigate to Timelapse Detail Screen
-                    print('View details for ${timelapse.title}');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.playlist_add),
-                  title: const Text('Add to Playlist'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    _showAddToPlaylistDialog(timelapse);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: const Text('Download'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _showAddToPlaylistDialog(Timelapse timelapse) async {
-    final timelapseProvider = Provider.of<TimelapseProvider>(context, listen: false);
-    await timelapseProvider.fetchPlaylists(); // Ensure playlists are fetched
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add to Playlist'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (timelapseProvider.playlists.isEmpty)
-                  const Text('No playlists available. Create a new one.')
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: timelapseProvider.playlists.length,
-                    itemBuilder: (context, index) {
-                      final playlist = timelapseProvider.playlists[index];
-                      return ListTile(
-                        title: Text(playlist.name),
-                        subtitle: Text(playlist.description),
-                        onTap: () async {
-                          await timelapseProvider.addTimelapseToPlaylist(playlist.id, timelapse.id);
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Added ${timelapse.title} to ${playlist.name}')),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _createPlaylistDialog(); // Call the create playlist dialog
-                  },
-                  child: const Text('Create New Playlist'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
             ),
           ],
         );
@@ -562,6 +431,3 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
     );
   }
 }
-
-
-

@@ -4,6 +4,9 @@ import 'package:user_app/features/home/home_screen.dart';
 import 'package:user_app/ui/screens/login_screen.dart';
 import 'package:user_app/ui/screens/register_screen.dart';
 import 'package:user_app/ui/screens/timelapse_comparison_screen.dart'; // Import the new screen
+import 'package:user_app/ui/screens/reel_detail_screen.dart';
+import 'package:user_app/ui/screens/timelapse_detail_screen.dart';
+import 'package:user_app/data/models/reel.dart';
 import 'package:user_app/data/models/timelapse.dart'; // Import Timelapse model
 import 'package:user_app/services/auth_service.dart'; // Import AuthService
 import 'package:user_app/main.dart'; // Import getIt
@@ -83,6 +86,20 @@ final GoRouter appRouter = GoRouter(
           timelapse1: timelapses['timelapse1']!,
           timelapse2: timelapses['timelapse2']!,
         );
+      },
+    ),
+    GoRoute(
+      path: '/reels/:reelId',
+      builder: (BuildContext context, GoRouterState state) {
+        final reel = state.extra as Reel;
+        return ReelDetailScreen(reel: reel);
+      },
+    ),
+    GoRoute(
+      path: '/timelapses/:timelapseId',
+      builder: (BuildContext context, GoRouterState state) {
+        final timelapse = state.extra as Timelapse;
+        return TimelapseDetailScreen(timelapse: timelapse);
       },
     ),
   ],
