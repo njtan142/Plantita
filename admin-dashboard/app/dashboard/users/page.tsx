@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Download, Trash2, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -109,13 +109,16 @@ export default function UsersPage() {
       // Snapshot the previous value
       const previousUsers = queryClient.getQueryData<{ data: User[] }>(['users', queryParams]);
 
+      // Create a Set for efficient lookup
+      const selectedUsersSet = new Set(selectedUsers);
+
       // Optimistically update to the new value
       if (action === 'delete') {
         queryClient.setQueryData<{ data: User[] }>(['users', queryParams], (old) => {
           if (!old) return old;
           return {
             ...old,
-            data: old.data.filter((user: User) => !selectedUsers.includes(user.id))
+            data: old.data.filter((user: User) => !selectedUsersSet.has(user.id))
           };
         });
       } else {
@@ -124,7 +127,7 @@ export default function UsersPage() {
           return {
             ...old,
             data: old.data.map((user: User) => {
-              if (selectedUsers.includes(user.id)) {
+              if (selectedUsersSet.has(user.id)) {
                 return {
                   ...user,
                   status: action === 'activate' ? UserStatus.ACTIVE : UserStatus.INACTIVE
@@ -307,6 +310,8 @@ export default function UsersPage() {
     }
     return user.username;
   };
+
+  const selectedUsersSet = useMemo(() => new Set(selectedUsers), [selectedUsers]);
 
   if (isLoading) {
     return (
@@ -535,7 +540,7 @@ export default function UsersPage() {
                     <TableRow key={user.id}>
                       <TableCell>
                         <Checkbox
-                          checked={selectedUsers.includes(user.id)}
+                          checked={selectedUsersSet.has(user.id)}
                           onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
                         />
                       </TableCell>
