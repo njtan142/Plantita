@@ -173,17 +173,28 @@ async function processBackgroundUploads() {
   try {
     // Get pending uploads from IndexedDB or similar storage
     const pendingUploads = await getPendingUploads();
+    const concurrencyLimit = 3;
+    let i = 0;
 
-    for (const upload of pendingUploads) {
-      try {
-        await performUpload(upload);
-        await removePendingUpload(upload.id);
-        console.log('Service Worker: Background upload successful:', upload.id);
-      } catch (error) {
-        console.error('Service Worker: Background upload failed:', upload.id, error);
-        // Could implement retry logic here
+    async function worker() {
+      while (i < pendingUploads.length) {
+        const upload = pendingUploads[i++];
+        try {
+          await performUpload(upload);
+          await removePendingUpload(upload.id);
+          console.log('Service Worker: Background upload successful:', upload.id);
+        } catch (error) {
+          console.error('Service Worker: Background upload failed:', upload.id, error);
+          // Could implement retry logic here
+        }
       }
     }
+
+    const workers = Array.from(
+      { length: Math.min(concurrencyLimit, pendingUploads.length) },
+      () => worker()
+    );
+    await Promise.all(workers);
   } catch (error) {
     console.error('Service Worker: Background sync failed:', error);
   }
