@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../constants/app_constants.dart';
 import '../../utils/responsive_config.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
@@ -97,13 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       );
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful. Please log in.'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed(AppConstants.homeRoute);
       } else if (!success && mounted) {
         setState(() {
           _errorMessage = authProvider.errorMessage ?? 'Registration failed';

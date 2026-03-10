@@ -116,15 +116,23 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       final response = await _authService.register(
-        username: username,
-        email: email,
-        password: password,
-        firstName: firstName,
-        lastName: lastName,
+        username,
+        email,
+        password,
+        firstName,
+        lastName,
       );
 
-      if (response.success) {
+      if (response.success && response.data != null) {
+        _authToken = response.data;
+        // User will be fetched by the AuthService internally
+        _currentUser = _authService.currentUser;
+
+        // Store auth data securely
+        await _storeAuthData();
+
         _setLoading(false);
+        notifyListeners();
         return true;
       } else {
         _setError(response.message ?? 'Registration failed');

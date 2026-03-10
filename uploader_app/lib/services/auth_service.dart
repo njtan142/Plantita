@@ -75,16 +75,16 @@ class AuthService {
     }
   }
 
-  /// Register a new user
-  Future<ApiResponse<void>> register({
-    required String username,
-    required String email,
-    required String password,
-    required String firstName,
-    required String lastName,
-  }) async {
+  /// Register new user
+  Future<ApiResponse<AuthTokenModel>> register(
+    String username,
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+  ) async {
     try {
-      final response = await _httpClient.post<void>(
+      final response = await _httpClient.post<AuthTokenModel>(
         '/auth/register',
         body: {
           'username': username,
@@ -93,8 +93,34 @@ class AuthService {
           'firstName': firstName,
           'lastName': lastName,
         },
+        fromJson: (json) {
+          // The backend returns { token: "...", user: {...} }
+          // We map it to AuthTokenModel format
+          final token = json['token'] as String;
+          return AuthTokenModel.fromMap({
+            'access_token': token,
+            'refresh_token': token, // No separate refresh token provided in register
+            'expires_in': 7 * 24 * 60 * 60, // Default to 7 days as per backend JWT_EXPIRES_IN
+          });
+        },
         retryOnFailure: false, // Don't retry auth requests
       );
+
+      if (response.success && response.data != null) {
+        _currentToken = response.data;
+
+        // Store token securely
+        await _secureStorage.write(
+          key: _tokenKey,
+          value: jsonEncode(_currentToken!.toJson()),
+        );
+
+        // Set token in HTTP client
+        _httpClient.setToken(_currentToken!);
+
+        // Fetch user profile
+        await _fetchUserProfile();
+      }
 
       return response;
     } catch (e) {
