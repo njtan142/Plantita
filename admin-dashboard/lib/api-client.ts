@@ -25,15 +25,6 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Log requests in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API Request:', {
-        method: config.method?.toUpperCase(),
-        url: config.url,
-        data: config.data,
-      });
-    }
-
     return config;
   },
   (error: AxiosError): Promise<AxiosError> => {
