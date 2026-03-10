@@ -16,6 +16,15 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  // To deal with the "AggregateError" in testing-library with React 19
+  // see https://github.com/testing-library/react-testing-library/issues/1368
+  transformIgnorePatterns: [
+    '/node_modules/',
+    '^.+\\.module\\.(css|sass|scss)$',
+  ],
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
