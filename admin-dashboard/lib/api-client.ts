@@ -45,15 +45,6 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
-    // Log responses in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('API Response:', {
-        status: response.status,
-        url: response.config.url,
-        data: response.data,
-      });
-    }
-
     return response;
   },
   (error: AxiosError): Promise<ApiError> => {
