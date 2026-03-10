@@ -41,6 +41,9 @@ class UserService {
   DateTime? _lastFetchTime;
   bool _isLoading = false;
 
+  // Cache for user search strings to avoid repeated toLowerCase() calls
+  final Expando<List<String>> _userSearchIndex = Expando<List<String>>();
+
   // Stream controllers for reactive updates
   final StreamController<List<UserModel>> _usersController =
       StreamController<List<UserModel>>.broadcast();
@@ -266,6 +269,21 @@ class UserService {
     }).map((su) => su.user).toList();
   }
 
+  /// Helper to get a cached list of lowercase searchable fields for a user
+  List<String> _getUserSearchFields(UserModel user) {
+    var searchFields = _userSearchIndex[user];
+    if (searchFields == null) {
+      searchFields = [
+        user.username.toLowerCase(),
+        user.firstName.toLowerCase(),
+        user.lastName.toLowerCase(),
+        user.email.toLowerCase(),
+      ];
+      _userSearchIndex[user] = searchFields;
+    }
+    return searchFields;
+  }
+
   /// Get users for selection (active users only)
   List<UserModel> getUsersForSelection({String? searchQuery}) {
     var suUsers = _searchableUsers.where((su) => su.user.isActive);
@@ -273,11 +291,7 @@ class UserService {
     if (searchQuery != null && searchQuery.isNotEmpty) {
       final query = searchQuery.toLowerCase();
       suUsers = suUsers.where(
-        (su) =>
-            su.usernameLower.contains(query) ||
-            su.firstNameLower.contains(query) ||
-            su.lastNameLower.contains(query) ||
-            su.emailLower.contains(query),
+        (su) => _getUserSearchFields(su.user).any((field) => field.contains(query)),
       );
     }
 
