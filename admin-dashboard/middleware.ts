@@ -58,7 +58,6 @@ export async function middleware(req: NextRequest) {
   }
 
   // For all other routes, allow access
-  console.log('Allowing access to other route:', url.pathname);
   return NextResponse.next();
 }
 

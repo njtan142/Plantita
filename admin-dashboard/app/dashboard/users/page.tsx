@@ -110,7 +110,7 @@ export default function UsersPage() {
       const previousUsers = queryClient.getQueryData<{ data: User[] }>(['users', queryParams]);
 
       // Create a Set for efficient lookup
-      const selectedUsersSet = new Set(selectedUsers);
+      const selectedUsersLookupSet = new Set(selectedUsers);
 
       // Optimistically update to the new value
       if (action === 'delete') {
@@ -118,7 +118,7 @@ export default function UsersPage() {
           if (!old) return old;
           return {
             ...old,
-            data: old.data.filter((user: User) => !selectedUsersSet.has(user.id))
+            data: old.data.filter((user: User) => !selectedUsersLookupSet.has(user.id))
           };
         });
       } else {
@@ -127,7 +127,7 @@ export default function UsersPage() {
           return {
             ...old,
             data: old.data.map((user: User) => {
-              if (selectedUsersSet.has(user.id)) {
+              if (selectedUsersLookupSet.has(user.id)) {
                 return {
                   ...user,
                   status: action === 'activate' ? UserStatus.ACTIVE : UserStatus.INACTIVE
@@ -311,7 +311,7 @@ export default function UsersPage() {
     return user.username;
   };
 
-  const selectedUsersSet = useMemo(() => new Set(selectedUsers), [selectedUsers]);
+  const selectedUsersLookupSet = useMemo(() => new Set(selectedUsers), [selectedUsers]);
 
   if (isLoading) {
     return (
@@ -540,7 +540,7 @@ export default function UsersPage() {
                     <TableRow key={user.id}>
                       <TableCell>
                         <Checkbox
-                          checked={selectedUsersSet.has(user.id)}
+                          checked={selectedUsersLookupSet.has(user.id)}
                           onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
                         />
                       </TableCell>

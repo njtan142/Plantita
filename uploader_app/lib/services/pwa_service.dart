@@ -13,15 +13,19 @@ class PWAService {
   // Service Worker state
   bool _serviceWorkerRegistered = false;
   bool _isOnline = true;
-  final StreamController<bool> _onlineStatusController = StreamController<bool>.broadcast();
-  final StreamController<String> _messageController = StreamController<String>.broadcast();
+  final StreamController<bool> _onlineStatusController =
+      StreamController<bool>.broadcast();
+  final StreamController<String> _messageController =
+      StreamController<String>.broadcast();
 
   // Background sync queue
   final List<BackgroundSyncTask> _syncQueue = [];
-  final StreamController<BackgroundSyncTask> _syncController = StreamController<BackgroundSyncTask>.broadcast();
+  final StreamController<BackgroundSyncTask> _syncController =
+      StreamController<BackgroundSyncTask>.broadcast();
 
   // Push notifications
-  final StreamController<PushNotification> _notificationController = StreamController<PushNotification>.broadcast();
+  final StreamController<PushNotification> _notificationController =
+      StreamController<PushNotification>.broadcast();
 
   // Getters
   bool get isServiceWorkerRegistered => _serviceWorkerRegistered;
@@ -29,13 +33,15 @@ class PWAService {
   bool get isPWAEnabled => EnvironmentConfig.enablePWA;
   bool get isServiceWorkerEnabled => EnvironmentConfig.enableServiceWorker;
   bool get isBackgroundSyncEnabled => EnvironmentConfig.enableBackgroundSync;
-  bool get isPushNotificationsEnabled => EnvironmentConfig.enablePushNotifications;
+  bool get isPushNotificationsEnabled =>
+      EnvironmentConfig.enablePushNotifications;
 
   // Streams
   Stream<bool> get onlineStatusStream => _onlineStatusController.stream;
   Stream<String> get messageStream => _messageController.stream;
   Stream<BackgroundSyncTask> get syncStream => _syncController.stream;
-  Stream<PushNotification> get notificationStream => _notificationController.stream;
+  Stream<PushNotification> get notificationStream =>
+      _notificationController.stream;
 
   /// Initialize PWA functionality
   Future<void> initialize() async {
@@ -118,10 +124,14 @@ class PWAService {
         debugPrint('PWA: Push notifications enabled');
 
         // Listen for push messages
-        html.window.navigator.serviceWorker?.addEventListener('message', (event) {
+        html.window.navigator.serviceWorker?.addEventListener('message', (
+          event,
+        ) {
           final data = event as html.MessageEvent;
           if (data.data is Map && data.data['type'] == 'push') {
-            final notification = PushNotification.fromJson(data.data['payload']);
+            final notification = PushNotification.fromJson(
+              data.data['payload'],
+            );
             _notificationController.add(notification);
           }
         });
@@ -180,7 +190,9 @@ class PWAService {
   /// Show install prompt
   Future<void> showInstallPrompt() async {
     try {
-      final deferredPrompt = html.window.document.querySelector('#deferred-install-prompt');
+      final deferredPrompt = html.window.document.querySelector(
+        '#deferred-install-prompt',
+      );
       if (deferredPrompt != null) {
         (deferredPrompt as html.EventTarget).dispatchEvent(html.Event('click'));
       }
@@ -206,17 +218,29 @@ class PWAService {
   Future<void> _processSyncQueue() async {
     if (_syncQueue.isEmpty) return;
 
+    // Group tasks by type to process independent types concurrently
+    // but maintain ordering for tasks of the same type.
+    final tasksByType = <String, List<BackgroundSyncTask>>{};
     for (final task in List.from(_syncQueue)) {
-      try {
-        await _executeSyncTask(task);
-        _syncQueue.remove(task);
-        await _removeStoredSyncTask(task.id);
-        debugPrint('PWA: Sync task completed: ${task.id}');
-      } catch (e) {
-        debugPrint('PWA: Sync task failed: ${task.id}, error: $e');
-        // Keep failed tasks for retry
-      }
+      tasksByType.putIfAbsent(task.type, () => []).add(task);
     }
+
+    await Future.wait(
+      tasksByType.values.map((tasks) async {
+        for (final task in tasks) {
+          try {
+            await _executeSyncTask(task);
+            _syncQueue.remove(task);
+            await _removeStoredSyncTask(task.id);
+            debugPrint('PWA: Sync task completed: ${task.id}');
+          } catch (e) {
+            debugPrint('PWA: Sync task failed: ${task.id}, error: $e');
+            // Keep failed tasks for retry and stop processing subsequent tasks of the same type
+            break;
+          }
+        }
+      }),
+    );
   }
 
   /// Execute sync task
