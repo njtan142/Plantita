@@ -5,8 +5,11 @@ import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 
 // Lazy load the MediaUploadChart component
 const MediaUploadChart = dynamic(
-  () => import('@/components/dashboard/MediaUploadChart'),
-  { 
+  async () => {
+    const mod = await import('@/components/dashboard/MediaUploadChart');
+    return mod.MediaUploadChart;
+  },
+  {
     ssr: false,
     loading: () => (
       <div className="h-64 flex items-center justify-center">

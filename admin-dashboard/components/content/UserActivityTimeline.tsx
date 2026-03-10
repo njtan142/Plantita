@@ -68,7 +68,7 @@ export function UserActivityTimeline({ userId, activities }: UserActivityTimelin
       case 'login':
         return 'default';
       case 'upload':
-        return 'success';
+        return 'secondary';
       case 'comment':
         return 'secondary';
       case 'like':
