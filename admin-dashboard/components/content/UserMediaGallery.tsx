@@ -40,10 +40,11 @@ export function UserMediaGallery({ media }: UserMediaGalleryProps) {
     
     // Apply search filter
     if (searchTerm) {
+      const lowerSearchTerm = searchTerm.toLowerCase();
       result = result.filter(item => 
-        item.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+        item.filename.toLowerCase().includes(lowerSearchTerm) ||
+        (item.description && item.description.toLowerCase().includes(lowerSearchTerm)) ||
+        (item.tags && item.tags.some(tag => tag.toLowerCase().includes(lowerSearchTerm)))
       );
     }
     
