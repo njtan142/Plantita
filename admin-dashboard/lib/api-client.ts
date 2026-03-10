@@ -117,7 +117,7 @@ axiosInstance.interceptors.response.use(
 );
 
 // Helper functions
-function getAuthToken(): string | null {
+export function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
 
   // Try to get token from localStorage, sessionStorage, or cookies
@@ -126,7 +126,7 @@ function getAuthToken(): string | null {
          getCookie('auth_token');
 }
 
-function getCookie(name: string): string | null {
+export function getCookie(name: string): string | null {
   if (typeof window === 'undefined') return null;
 
   const value = `; ${document.cookie}`;
@@ -135,7 +135,7 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-function getErrorMessage(data: unknown, status: number): string {
+export function getErrorMessage(data: unknown, status: number): string {
   if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string') {
     return data.message;
   }
@@ -159,14 +159,14 @@ function getErrorMessage(data: unknown, status: number): string {
   }
 }
 
-function getErrorCode(data: unknown): string | undefined {
+export function getErrorCode(data: unknown): string | undefined {
   if (data && typeof data === 'object' && 'code' in data && typeof data.code === 'string') {
     return data.code;
   }
   return undefined;
 }
 
-function getErrorDetails(data: unknown): Record<string, string | string[]> | undefined {
+export function getErrorDetails(data: unknown): Record<string, string | string[]> | undefined {
   if (data && typeof data === 'object') {
     if ('details' in data) {
       const details = data.details;
@@ -184,7 +184,7 @@ function getErrorDetails(data: unknown): Record<string, string | string[]> | und
   return undefined;
 }
 
-function handleUnauthorizedError(): void {
+export function handleUnauthorizedError(): void {
   if (typeof window === 'undefined') return;
 
   // Clear auth token
@@ -199,7 +199,7 @@ function handleUnauthorizedError(): void {
   }
 }
 
-function handleForbiddenError(): void {
+export function handleForbiddenError(): void {
   if (typeof window === 'undefined') return;
 
   // Show permission error
@@ -207,7 +207,7 @@ function handleForbiddenError(): void {
   console.warn('Access forbidden - insufficient permissions');
 }
 
-function handleRateLimitError(): void {
+export function handleRateLimitError(): void {
   if (typeof window === 'undefined') return;
 
   // Show rate limit message
