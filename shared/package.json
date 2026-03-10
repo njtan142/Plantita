@@ -20,6 +20,7 @@
     "build:dev": "tsup --watch",
     "watch": "tsup --watch",
     "clean": "rm -rf dist",
+    "test": "node --test --experimental-strip-types src/index.test.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
