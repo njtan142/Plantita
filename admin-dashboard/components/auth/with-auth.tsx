@@ -35,7 +35,6 @@ const withAuth = <P extends object>(WrappedComponent: React.ComponentType<P>) =>
     const { isAuthenticated, loading } = useAuth();
 
     useEffect(() => {
-      console.log('withAuth effect - isAuthenticated:', isAuthenticated, 'loading:', loading);
       if (!loading && !isAuthenticated) {
         console.log('Redirecting to login because not authenticated');
         router.push('/login');
