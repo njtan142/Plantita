@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final ValueChanged<String>? onSearchChanged;
+  final List<Widget>? actions;
 
   const AppBarWithSearch({
     Key? key,
     required this.title,
     this.onSearchChanged,
+    this.actions,
   }) : super(key: key);
 
   @override
@@ -18,11 +20,17 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {
-            // TODO: Implement search functionality
-            showSearch(context: context, delegate: _SearchDelegate());
+          onPressed: () async {
+            final result = await showSearch(
+              context: context,
+              delegate: _SearchDelegate(),
+            );
+            if (result != null && onSearchChanged != null) {
+              onSearchChanged!(result);
+            }
           },
         ),
+        if (actions != null) ...actions!,
       ],
     );
   }
@@ -59,13 +67,29 @@ class _SearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: Implement search results display
-    return Center(child: Text('Search results for: $query'));
+    // Dispatch the search query back to the caller and close the search page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      close(context, query);
+    });
+    return const SizedBox.shrink();
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // TODO: Implement search suggestions
-    return Center(child: Text('Suggestions for: $query'));
+    if (query.isEmpty) {
+      return const Center(child: Text('Type to search for content'));
+    }
+
+    return ListView(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.search),
+          title: Text('Search for "$query"'),
+          onTap: () {
+            close(context, query);
+          },
+        ),
+      ],
+    );
   }
 }
