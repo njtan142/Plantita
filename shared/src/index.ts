@@ -61,7 +61,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 
 // Utility functions
 export const generateId = (): ID => {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  return globalThis.crypto.randomUUID();
 };
 
 export const formatDate = (date: Date): string => {
