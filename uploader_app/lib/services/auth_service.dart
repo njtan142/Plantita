@@ -75,6 +75,33 @@ class AuthService {
     }
   }
 
+  /// Register a new user
+  Future<ApiResponse<void>> register({
+    required String username,
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+  }) async {
+    try {
+      final response = await _httpClient.post<void>(
+        '/auth/register',
+        body: {
+          'username': username,
+          'email': email,
+          'password': password,
+          'firstName': firstName,
+          'lastName': lastName,
+        },
+        retryOnFailure: false, // Don't retry auth requests
+      );
+
+      return response;
+    } catch (e) {
+      return ApiResponse.error(message: 'Registration failed: ${e.toString()}');
+    }
+  }
+
   /// Login with username and password
   Future<ApiResponse<AuthTokenModel>> login(String username, String password) async {
     try {
