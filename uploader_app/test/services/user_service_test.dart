@@ -135,7 +135,7 @@ void main() {
 
       // Assert
       expect(result.success, false);
-      expect(result.message, contains('Network failure'));
+      expect(result.message, contains('Failed to fetch users: Exception: Network failure'));
       expect(userService.isLoading, false);
     });
 
