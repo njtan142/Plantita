@@ -129,7 +129,8 @@ export async function login(req: Request, res: Response): Promise<void> {
  */
 export async function register(req: Request, res: Response): Promise<void> {
   try {
-    const { email, username, password, firstName, lastName } = req.body as RegisterRequestBody;
+    const { email, username, password, firstName, lastName } =
+      req.body as RegisterRequestBody;
 
     // Validate input
     if (!email || !username || !password) {
@@ -167,7 +168,13 @@ export async function register(req: Request, res: Response): Promise<void> {
         email, username, password_hash, first_name, last_name, role, is_active, email_verified, created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, 'user', true, false, NOW(), NOW())`,
       {
-        replacements: [email, username, passwordHash, firstName || '', lastName || ''],
+        replacements: [
+          email,
+          username,
+          passwordHash,
+          firstName || '',
+          lastName || '',
+        ],
         type: QueryTypes.INSERT,
       }
     );
@@ -229,7 +236,10 @@ export async function register(req: Request, res: Response): Promise<void> {
  * Get current user
  * GET /api/v1/auth/me
  */
-export async function getCurrentUser(req: Request, res: Response): Promise<void> {
+export async function getCurrentUser(
+  req: Request,
+  res: Response
+): Promise<void> {
   try {
     // Get user from request (this would be set by auth middleware)
     const user = (req as any).user;
