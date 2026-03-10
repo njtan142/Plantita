@@ -66,7 +66,7 @@ void setupLocator() {
   getIt.registerLazySingleton<UserRepository>(() => UserRepository(getIt<ApiService>(), getIt<ReelRepository>(), getIt<TimelapseRepository>()));
   getIt.registerLazySingleton<ReelRepository>(() => ReelRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<TimelapseRepository>(() => TimelapseRepository(getIt<ApiService>()));
-  getIt.registerLazySingleton<CommentRepository>(() => CommentRepository());
+  getIt.registerLazySingleton<CommentRepository>(() => CommentRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<ContentRepository>(() => ContentRepository(getIt<ApiService>()));
   getIt.registerLazySingleton<CacheService>(() => CacheService());
 
