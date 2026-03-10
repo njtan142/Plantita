@@ -109,16 +109,30 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Register - Note: AuthService doesn't have register method, would need separate service
+  // Register
   Future<bool> register(String username, String email, String password, String firstName, String lastName) async {
     _setLoading(true);
     _clearError();
 
     try {
-      // TODO: Implement registration via a separate service or extend AuthService
-      _setError('Registration not implemented yet');
-      _setLoading(false);
-      return false;
+      final response = await _authService.register(username, email, password, firstName, lastName);
+
+      if (response.success && response.data != null) {
+        _authToken = response.data;
+        // User will be fetched by the AuthService internally
+        _currentUser = _authService.currentUser;
+
+        // Store auth data securely
+        await _storeAuthData();
+
+        _setLoading(false);
+        notifyListeners();
+        return true;
+      } else {
+        _setError(response.message ?? 'Registration failed');
+        _setLoading(false);
+        return false;
+      }
     } catch (e) {
       _setError(e.toString());
       _setLoading(false);

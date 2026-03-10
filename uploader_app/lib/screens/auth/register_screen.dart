@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_field_validator/form_field_validator.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../constants/app_constants.dart';
 import '../../utils/responsive_config.dart';
 import '../../widgets/common/custom_button.dart';
 import '../../widgets/common/custom_text_field.dart';
@@ -85,16 +88,27 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     });
 
     try {
-      // For now, just navigate back to login
-      // In a real app, you would call a registration service
-      if (mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.register(
+        _usernameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
+        _firstNameController.text.trim(),
+        _lastNameController.text.trim(),
+      );
+
+      if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Registration functionality would be implemented here'),
+            content: Text('Registration successful'),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed(AppConstants.homeRoute);
+      } else if (mounted) {
+        setState(() {
+          _errorMessage = authProvider.errorMessage ?? 'Registration failed';
+        });
       }
     } catch (e) {
       setState(() {
