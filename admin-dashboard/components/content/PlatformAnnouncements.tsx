@@ -387,7 +387,7 @@ export function PlatformAnnouncements({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="priority">Priority</Label>
-                  <Select value={priority} onValueChange={(value) => setPriority(value as any)}>
+                  <Select value={priority} onValueChange={(value) => setPriority(value as 'low' | 'medium' | 'high')}>
                     <SelectTrigger id="priority">
                       <SelectValue />
                     </SelectTrigger>
@@ -398,10 +398,10 @@ export function PlatformAnnouncements({
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="target-users">Target Users</Label>
-                  <Select value={targetUsers} onValueChange={(value) => setTargetUsers(value as any)}>
+                  <Select value={targetUsers} onValueChange={(value) => setTargetUsers(value as 'all' | 'active' | 'specific')}>
                     <SelectTrigger id="target-users">
                       <SelectValue />
                     </SelectTrigger>
@@ -491,9 +491,9 @@ export function PlatformAnnouncements({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="edit-priority">Priority</Label>
-                    <Select 
-                      value={editingAnnouncement.priority} 
-                      onValueChange={(value) => setEditingAnnouncement({...editingAnnouncement, priority: value as any})}
+                    <Select
+                      value={editingAnnouncement.priority}
+                      onValueChange={(value) => setEditingAnnouncement({...editingAnnouncement, priority: value as 'low' | 'medium' | 'high'})}
                     >
                       <SelectTrigger id="edit-priority">
                         <SelectValue />
@@ -505,12 +505,12 @@ export function PlatformAnnouncements({
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="edit-target-users">Target Users</Label>
-                    <Select 
-                      value={editingAnnouncement.targetUsers} 
-                      onValueChange={(value) => setEditingAnnouncement({...editingAnnouncement, targetUsers: value as any})}
+                    <Select
+                      value={editingAnnouncement.targetUsers}
+                      onValueChange={(value) => setEditingAnnouncement({...editingAnnouncement, targetUsers: value as 'all' | 'active' | 'specific'})}
                     >
                       <SelectTrigger id="edit-target-users">
                         <SelectValue />

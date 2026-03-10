@@ -98,14 +98,8 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       );
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
         Navigator.of(context).pushReplacementNamed(AppConstants.homeRoute);
-      } else if (mounted) {
+      } else if (!success && mounted) {
         setState(() {
           _errorMessage = authProvider.errorMessage ?? 'Registration failed';
         });
