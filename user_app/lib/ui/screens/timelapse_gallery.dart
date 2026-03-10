@@ -20,7 +20,7 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
 
   String _selectedPlantType = 'All';
   String _selectedDuration = 'All'; // Assuming duration filter
-  List<Timelapse> _selectedTimelapses = [];
+  Set<Timelapse> _selectedTimelapses = {};
 
   final List<String> _plantTypes = ['All', 'Rose', 'Sunflower', 'Tulip'];
   final List<String> _durations = ['All', 'Short', 'Medium', 'Long']; // Example durations
@@ -73,8 +73,8 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
   void _compareSelectedTimelapses() {
     if (_selectedTimelapses.length == 2) {
       context.go('/compare-timelapses', extra: {
-        'timelapse1': _selectedTimelapses[0],
-        'timelapse2': _selectedTimelapses[1],
+        'timelapse1': _selectedTimelapses.elementAt(0),
+        'timelapse2': _selectedTimelapses.elementAt(1),
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -251,29 +251,41 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
             label: 'Timelapse context menu for ${timelapse.title}',
             child: Wrap(
               children: <Widget>[
-                ListTile(
-                  leading: const Icon(Icons.info),
-                  title: const Text('View Details'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    context.push('/timelapses/${timelapse.id}', extra: timelapse);
-                  },
+                Semantics(
+                  button: true,
+                  label: 'View details for ${timelapse.title}',
+                  child: ListTile(
+                    leading: const Icon(Icons.info),
+                    title: const Text('View Details'),
+                    onTap: () {
+                      Navigator.pop(bc);
+                      context.push('/timelapses/${timelapse.id}', extra: timelapse);
+                    },
+                  ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.playlist_add),
-                  title: const Text('Add to Playlist'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    _showAddToPlaylistDialog(timelapse);
-                  },
+                Semantics(
+                  button: true,
+                  label: 'Add ${timelapse.title} to playlist',
+                  child: ListTile(
+                    leading: const Icon(Icons.playlist_add),
+                    title: const Text('Add to Playlist'),
+                    onTap: () {
+                      Navigator.pop(bc);
+                      _showAddToPlaylistDialog(timelapse);
+                    },
+                  ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: const Text('Download'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
-                  },
+                Semantics(
+                  button: true,
+                  label: 'Download ${timelapse.title}',
+                  child: ListTile(
+                    leading: const Icon(Icons.download),
+                    title: const Text('Download'),
+                    onTap: () {
+                      Navigator.pop(bc);
+                      Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
+                    },
+                  ),
                 ),
               ],
             ),

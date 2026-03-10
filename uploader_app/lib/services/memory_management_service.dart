@@ -281,8 +281,8 @@ class MemoryManagementService {
   void dispose() {
     _cleanupTimer?.cancel();
     _memoryCheckTimer?.cancel();
-    _memoryEventController.close();
     clearAll();
+    _memoryEventController.close();
   }
 }
 
