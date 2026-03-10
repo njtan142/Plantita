@@ -251,29 +251,41 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
             label: 'Timelapse context menu for ${timelapse.title}',
             child: Wrap(
               children: <Widget>[
-                ListTile(
-                  leading: const Icon(Icons.info),
-                  title: const Text('View Details'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    context.push('/timelapses/${timelapse.id}', extra: timelapse);
-                  },
+                Semantics(
+                  button: true,
+                  label: 'View details for ${timelapse.title}',
+                  child: ListTile(
+                    leading: const Icon(Icons.info),
+                    title: const Text('View Details'),
+                    onTap: () {
+                      Navigator.pop(bc);
+                      context.push('/timelapses/${timelapse.id}', extra: timelapse);
+                    },
+                  ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.playlist_add),
-                  title: const Text('Add to Playlist'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    _showAddToPlaylistDialog(timelapse);
-                  },
+                Semantics(
+                  button: true,
+                  label: 'Add ${timelapse.title} to playlist',
+                  child: ListTile(
+                    leading: const Icon(Icons.playlist_add),
+                    title: const Text('Add to Playlist'),
+                    onTap: () {
+                      Navigator.pop(bc);
+                      _showAddToPlaylistDialog(timelapse);
+                    },
+                  ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.download),
-                  title: const Text('Download'),
-                  onTap: () {
-                    Navigator.pop(bc);
-                    Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
-                  },
+                Semantics(
+                  button: true,
+                  label: 'Download ${timelapse.title}',
+                  child: ListTile(
+                    leading: const Icon(Icons.download),
+                    title: const Text('Download'),
+                    onTap: () {
+                      Navigator.pop(bc);
+                      Provider.of<TimelapseProvider>(context, listen: false).downloadTimelapse(timelapse.videoUrl);
+                    },
+                  ),
                 ),
               ],
             ),
