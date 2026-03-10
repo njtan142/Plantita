@@ -30,12 +30,6 @@ export function UserDetailModal({ userId, open, onClose }: UserDetailModalProps)
   const [activities, setActivities] = useState<UserActivity[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (userId && open) {
-      fetchUserDetails();
-    }
-  }, [userId, open, fetchUserDetails]);
-
   const fetchUserDetails = async () => {
     if (!userId) return;
 
@@ -84,6 +78,12 @@ export function UserDetailModal({ userId, open, onClose }: UserDetailModalProps)
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (userId && open) {
+      fetchUserDetails();
+    }
+  }, [userId, open]);
 
   const getStatusBadgeVariant = (status: UserStatus) => {
     switch (status) {
