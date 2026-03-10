@@ -35,10 +35,9 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
       Provider.of<ContentProvider>(context, listen: false).fetchPopularContent();
     });
 
-    // TODO: Implement infinite scroll with actual data fetching
     _scrollController.addListener(() {
       if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
-        // Implement pagination here
+        _loadMoreContent();
       }
     });
   }
@@ -48,6 +47,15 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
       query: _searchQuery,
       category: _selectedCategory,
       sortBy: _selectedSortOption,
+    );
+  }
+
+  void _loadMoreContent() {
+    Provider.of<ContentProvider>(context, listen: false).searchContent(
+      query: _searchQuery,
+      category: _selectedCategory,
+      sortBy: _selectedSortOption,
+      isLoadMore: true,
     );
   }
 
