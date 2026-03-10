@@ -14,7 +14,6 @@ const useAuth = () => {
         // Call the API endpoint to check authentication
         const response = await fetch('/api/auth/check');
         const data = await response.json();
-        console.log('Auth check API response:', data);
         setIsAuthenticated(data.authenticated);
         setLoading(false);
       } catch (error) {
