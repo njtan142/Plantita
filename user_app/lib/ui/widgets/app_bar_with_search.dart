@@ -1,76 +1,88 @@
+
 import 'package:flutter/material.dart';
 
-class AppBarWithSearch extends StatefulWidget implements PreferredSizeWidget {
+class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final ValueChanged<String>? onSearchChanged;
-  final List<Widget>? actions;
 
   const AppBarWithSearch({
     super.key,
     required this.title,
     this.onSearchChanged,
-    this.actions,
   });
 
   @override
-  State<AppBarWithSearch> createState() => _AppBarWithSearchState();
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text(title),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () async {
+            final result = await showSearch(context: context, delegate: _SearchDelegate());
+            if (result != null && onSearchChanged != null) {
+              onSearchChanged!(result);
+            }
+          },
+        ),
+      ],
+    );
+  }
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class _AppBarWithSearchState extends State<AppBarWithSearch> {
-  bool _isSearching = false;
-  final TextEditingController _searchController = TextEditingController();
-
+class _SearchDelegate extends SearchDelegate<String?> {
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _startSearch() {
-    setState(() {
-      _isSearching = true;
-    });
-  }
-
-  void _stopSearch() {
-    _searchController.clear();
-    widget.onSearchChanged?.call('');
-    setState(() {
-      _isSearching = false;
-    });
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: _isSearching
-          ? TextField(
-              controller: _searchController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                hintText: 'Search...',
-                border: InputBorder.none,
-              ),
-              style: const TextStyle(color: Colors.white),
-              onChanged: widget.onSearchChanged,
-            )
-          : Text(widget.title),
-      actions: [
-        if (_isSearching)
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: _stopSearch,
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _startSearch,
-          ),
-        if (widget.actions != null) ...widget.actions!,
-      ],
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: transitionAnimation,
+      ),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    if (query.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          close(context, query);
+        }
+      });
+    }
+    return const SizedBox.shrink();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    if (query.isEmpty) {
+      return const Center(child: Text('Enter a search term'));
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.search),
+      title: Text('Search for "$query"'),
+      onTap: () {
+        close(context, query);
+      },
     );
   }
 }
