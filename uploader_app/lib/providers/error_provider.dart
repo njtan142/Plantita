@@ -52,10 +52,9 @@ class ErrorProvider extends BaseProvider {
   }
 
   void addNetworkError(String operation, {dynamic error}) {
-    String message = 'Network error during $operation';
-    if (error != null) {
-      message += ': ${error.toString()}';
-    }
+    final String message = error != null
+        ? 'Network error during $operation: ${error.toString()}'
+        : 'Network error during $operation';
 
     addError(message, code: 'NETWORK_ERROR', severity: ErrorSeverity.high);
   }
@@ -75,10 +74,9 @@ class ErrorProvider extends BaseProvider {
   }
 
   void addUploadError(String fileName, {String? error}) {
-    String message = 'Failed to upload $fileName';
-    if (error != null) {
-      message += ': $error';
-    }
+    final String message = error != null
+        ? 'Failed to upload $fileName: $error'
+        : 'Failed to upload $fileName';
 
     addError(message, code: 'UPLOAD_ERROR', severity: ErrorSeverity.medium);
   }
