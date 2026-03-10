@@ -132,15 +132,15 @@ export class MediaContentService {
 
   // Update media moderation status
   async updateMediaModeration(
-    mediaId: string, 
+    mediaId: string,
     moderationData: Partial<MediaModeration>
   ): Promise<ApiResponse<Media>> {
     // In a real implementation, this would call an API
     // For now, we'll use mock data
     await this.simulateDelay(300);
-    
+
     const mediaIndex = MOCK_MEDIAS.findIndex(m => m.id === mediaId);
-    
+
     if (mediaIndex === -1) {
       return {
         success: false,
@@ -148,13 +148,23 @@ export class MediaContentService {
         message: `Media with ID ${mediaId} not found`
       };
     }
-    
+
     // Update the moderation data
+    const currentModeration = MOCK_MEDIAS[mediaIndex].moderation;
+    if (!currentModeration) {
+      return {
+        success: false,
+        error: 'Invalid media state',
+        message: `Media with ID ${mediaId} has invalid moderation state`
+      };
+    }
     MOCK_MEDIAS[mediaIndex] = {
       ...MOCK_MEDIAS[mediaIndex],
       moderation: {
-        ...MOCK_MEDIAS[mediaIndex].moderation,
-        ...moderationData
+        status: moderationData.status ?? currentModeration.status,
+        flags: moderationData.flags ?? currentModeration.flags,
+        warnings: moderationData.warnings ?? currentModeration.warnings,
+        category: moderationData.category ?? currentModeration.category,
       },
       updatedAt: new Date().toISOString()
     };
@@ -184,23 +194,32 @@ export class MediaContentService {
         message: `Media with ID ${mediaId} not found`
       };
     }
-    
+
     // Add flag to the media item
     const newFlag = {
       type: flagType,
       reason,
       timestamp: new Date().toISOString()
     };
-    
+
+    const currentModeration = MOCK_MEDIAS[mediaIndex].moderation;
+    if (!currentModeration) {
+      return {
+        success: false,
+        error: 'Invalid media state',
+        message: `Media with ID ${mediaId} has invalid moderation state`
+      };
+    }
     MOCK_MEDIAS[mediaIndex] = {
       ...MOCK_MEDIAS[mediaIndex],
       moderation: {
-        ...MOCK_MEDIAS[mediaIndex].moderation,
         status: 'flagged',
         flags: [
-          ...(MOCK_MEDIAS[mediaIndex].moderation?.flags || []),
+          ...currentModeration.flags,
           newFlag
-        ]
+        ],
+        warnings: currentModeration.warnings,
+        category: currentModeration.category,
       },
       updatedAt: new Date().toISOString()
     };
@@ -216,9 +235,9 @@ export class MediaContentService {
     // In a real implementation, this would call an API
     // For now, we'll use mock data
     await this.simulateDelay(300);
-    
+
     const mediaIndex = MOCK_MEDIAS.findIndex(m => m.id === mediaId);
-    
+
     if (mediaIndex === -1) {
       return {
         success: false,
@@ -226,16 +245,26 @@ export class MediaContentService {
         message: `Media with ID ${mediaId} not found`
       };
     }
-    
+
+    const currentModeration = MOCK_MEDIAS[mediaIndex].moderation;
+    if (!currentModeration) {
+      return {
+        success: false,
+        error: 'Invalid media state',
+        message: `Media with ID ${mediaId} has invalid moderation state`
+      };
+    }
     // Add warning to the media item
     MOCK_MEDIAS[mediaIndex] = {
       ...MOCK_MEDIAS[mediaIndex],
       moderation: {
-        ...MOCK_MEDIAS[mediaIndex].moderation,
+        status: currentModeration.status,
+        flags: currentModeration.flags,
         warnings: [
-          ...(MOCK_MEDIAS[mediaIndex].moderation?.warnings || []),
+          ...currentModeration.warnings,
           warning
-        ]
+        ],
+        category: currentModeration.category,
       },
       updatedAt: new Date().toISOString()
     };
@@ -307,18 +336,25 @@ export class MediaContentService {
     
     for (const mediaId of mediaIds) {
       const mediaIndex = MOCK_MEDIAS.findIndex(m => m.id === mediaId);
-      
+
       if (mediaIndex === -1) {
         errors.push(`Media with ID ${mediaId} not found`);
         continue;
       }
-      
+
+      const currentModeration = MOCK_MEDIAS[mediaIndex].moderation;
+      if (!currentModeration) {
+        errors.push(`Media with ID ${mediaId} has invalid moderation state`);
+        continue;
+      }
       // Update the moderation status
       MOCK_MEDIAS[mediaIndex] = {
         ...MOCK_MEDIAS[mediaIndex],
         moderation: {
-          ...MOCK_MEDIAS[mediaIndex].moderation,
-          status: moderationStatus
+          status: moderationStatus,
+          flags: currentModeration.flags,
+          warnings: currentModeration.warnings,
+          category: currentModeration.category,
         },
         updatedAt: new Date().toISOString()
       };
