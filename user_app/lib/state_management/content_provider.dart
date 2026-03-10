@@ -32,6 +32,11 @@ class ContentProvider with ChangeNotifier {
   }) async {
     if (_isLoading || (!_hasMore && isLoadMore)) return; // Prevent multiple loads or loading if no more data
 
+    if (!isLoadMore) {
+      _currentPage = 0;
+      _hasMore = true;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();

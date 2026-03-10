@@ -8,9 +8,11 @@ import '../config/environment_config.dart';
 
 /// Analytics and Monitoring Service for the Plantita Uploader app
 class AnalyticsService {
-  static final AnalyticsService _instance = AnalyticsService._internal();
+  static final AnalyticsService _instance = AnalyticsService.internal();
   factory AnalyticsService() => _instance;
-  AnalyticsService._internal();
+
+  @visibleForTesting
+  AnalyticsService.internal();
 
   // Firebase instances
   FirebaseAnalytics? _analytics;
@@ -29,25 +31,35 @@ class AnalyticsService {
   bool get isEnabled => _isEnabled && EnvironmentConfig.enableAnalytics;
   FirebaseAnalytics? get analytics => _analytics;
 
+  @visibleForTesting
+  bool get shouldInitialize => kIsWeb && EnvironmentConfig.enableAnalytics;
+
+  @visibleForTesting
+  Future<void> initFirebase() async {
+    await _initializeFirebaseAnalytics();
+    await _initializeCrashlytics();
+    await _initializePerformanceMonitoring();
+  }
+
   /// Initialize analytics and monitoring services
-  Future<void> initialize() async {
-    if (!kIsWeb || !EnvironmentConfig.enableAnalytics) {
+  Future<bool> initialize() async {
+    if (!shouldInitialize) {
       debugPrint('Analytics: Disabled or not running on web platform');
-      return;
+      return false;
     }
 
     try {
-      await _initializeFirebaseAnalytics();
-      await _initializeCrashlytics();
-      await _initializePerformanceMonitoring();
+      await initFirebase();
 
       _isInitialized = true;
       _isEnabled = true;
 
       debugPrint('Analytics: Initialized successfully');
+      return true;
     } catch (e) {
       debugPrint('Analytics: Initialization failed: $e');
       _isEnabled = false;
+      return false;
     }
   }
 

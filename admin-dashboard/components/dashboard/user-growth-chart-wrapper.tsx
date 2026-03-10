@@ -5,8 +5,11 @@ import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 
 // Lazy load the UserGrowthChart component
 const UserGrowthChart = dynamic(
-  () => import('@/components/dashboard/UserGrowthChart'),
-  { 
+  async () => {
+    const mod = await import('@/components/dashboard/UserGrowthChart');
+    return mod.UserGrowthChart;
+  },
+  {
     ssr: false,
     loading: () => (
       <div className="h-64 flex items-center justify-center">
