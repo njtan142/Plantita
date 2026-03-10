@@ -15,12 +15,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const isLoginPage = pathname === '/login';
-  
-  console.log('ClientLayout - pathname:', pathname, 'isLoginPage:', isLoginPage);
 
   // If on login page, render only the children without sidebar, header, and breadcrumb
   if (isLoginPage) {
-    console.log('Rendering login page layout');
     return (
       <div className="min-h-screen bg-gray-50">
         {children}
@@ -29,7 +26,6 @@ export function ClientLayout({ children }: ClientLayoutProps) {
     );
   }
 
-  console.log('Rendering dashboard layout');
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
