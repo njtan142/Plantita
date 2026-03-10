@@ -78,7 +78,7 @@ export function SettingsForm({
     onCancel?.();
   };
 
-  const handleFieldChange = (fieldName: keyof SettingsFormValues, value: any) => {
+  const handleFieldChange = (fieldName: keyof SettingsFormValues, value: string | number | boolean | string[]) => {
     form.setValue(fieldName, value, { shouldDirty: true });
     setIsDirty(true);
   };
