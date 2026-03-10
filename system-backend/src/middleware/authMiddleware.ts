@@ -6,7 +6,11 @@ import { env } from '../config/environment';
  * Authentication middleware
  * Verifies JWT token and attaches user information to the request
  */
-export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function authenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
