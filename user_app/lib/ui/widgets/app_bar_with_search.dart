@@ -1,15 +1,10 @@
-
 import 'package:flutter/material.dart';
 
 class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final ValueChanged<String>? onSearchChanged;
 
-  const AppBarWithSearch({
-    super.key,
-    required this.title,
-    this.onSearchChanged,
-  });
+  const AppBarWithSearch({super.key, required this.title, this.onSearchChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +13,9 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () async {
-            final result = await showSearch(context: context, delegate: _SearchDelegate());
-            if (result != null && onSearchChanged != null) {
-              onSearchChanged!(result);
-            }
+          onPressed: () {
+            // TODO: Implement search functionality
+            showSearch(context: context, delegate: _SearchDelegate());
           },
         ),
       ],
@@ -33,7 +26,7 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class _SearchDelegate extends SearchDelegate<String?> {
+class _SearchDelegate extends SearchDelegate<String> {
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -54,35 +47,33 @@ class _SearchDelegate extends SearchDelegate<String?> {
         progress: transitionAnimation,
       ),
       onPressed: () {
-        close(context, null);
+        close(context, '');
       },
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    if (query.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          close(context, query);
-        }
-      });
-    }
-    return const SizedBox.shrink();
+    // TODO: Implement search results display
+    return Center(child: Text('Search results for: $query'));
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.isEmpty) {
-      return const Center(child: Text('Enter a search term'));
+      return const Center(child: Text('Type to start searching'));
     }
 
-    return ListTile(
-      leading: const Icon(Icons.search),
-      title: Text('Search for "$query"'),
-      onTap: () {
-        close(context, query);
-      },
+    return ListView(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.search),
+          title: Text('Search for "$query"'),
+          onTap: () {
+            showResults(context);
+          },
+        ),
+      ],
     );
   }
 }
