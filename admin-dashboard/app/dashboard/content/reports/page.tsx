@@ -28,7 +28,6 @@ export default function ContentReportingPage() {
 
   const handleExportComplete = () => {
     // Callback when export completes
-    console.log('Export completed');
   };
 
   const handleExportError = (error: string) => {
