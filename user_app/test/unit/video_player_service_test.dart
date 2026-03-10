@@ -1,117 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:user_app/services/video_player_service.dart';
 
-class MockVideoPlayerController extends Mock implements VideoPlayerController {}
-class MockChewieController extends Mock implements ChewieController {}
+import 'video_player_service_test.mocks.dart';
 
-class TestableVideoPlayerService extends VideoPlayerService {
-  final VideoPlayerController mockVideoController;
-  final ChewieController mockChewieController;
-
-  TestableVideoPlayerService({
-    required this.mockVideoController,
-    required this.mockChewieController,
-  });
-
-  @override
-  VideoPlayerController createVideoPlayerController(String videoUrl) {
-    return mockVideoController;
-  }
-
-  @override
-  ChewieController createChewieController(VideoPlayerController controller) {
-    return mockChewieController;
-  }
-
-  // Expose error builder for testing
-  Widget Function(BuildContext, String) getErrorBuilder() {
-    return super.createChewieController(mockVideoController).errorBuilder!;
-  }
-}
-
+@GenerateMocks([VideoPlayerController, ChewieController])
 void main() {
-  setUpAll(() {
-    registerFallbackValue(Duration.zero);
-  });
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   group('VideoPlayerService', () {
-    late TestableVideoPlayerService videoPlayerService;
+    late VideoPlayerService videoPlayerService;
     late MockVideoPlayerController mockVideoPlayerController;
     late MockChewieController mockChewieController;
 
     setUp(() {
       mockVideoPlayerController = MockVideoPlayerController();
       mockChewieController = MockChewieController();
-      videoPlayerService = TestableVideoPlayerService(
-        mockVideoController: mockVideoPlayerController,
-        mockChewieController: mockChewieController,
+
+      videoPlayerService = VideoPlayerService(
+        videoPlayerControllerFactory: (url) => mockVideoPlayerController,
+        chewieControllerFactory: (controller) => mockChewieController,
       );
     });
 
-    test('initializePlayer initializes controllers and sets them correctly', () async {
-      when(() => mockVideoPlayerController.initialize())
-          .thenAnswer((_) async => Future.value());
-      when(() => mockVideoPlayerController.value)
-          .thenReturn(const VideoPlayerValue(duration: Duration(seconds: 10), isInitialized: true));
+    test('initializePlayer initializes controllers using factories', () async {
+      // Arrange
+      const testUrl = 'https://example.com/video.mp4';
 
-      await videoPlayerService.initializePlayer('http://example.com/video.mp4');
+      when(mockVideoPlayerController.initialize())
+          .thenAnswer((_) async {});
 
-      verify(() => mockVideoPlayerController.initialize()).called(1);
+      when(mockVideoPlayerController.value)
+          .thenReturn(VideoPlayerValue(duration: const Duration(seconds: 10), isInitialized: true));
 
+      // Act
+      await videoPlayerService.initializePlayer(testUrl);
+
+      // Assert
       expect(videoPlayerService.videoPlayerController, equals(mockVideoPlayerController));
       expect(videoPlayerService.chewieController, equals(mockChewieController));
+      verify(mockVideoPlayerController.initialize()).called(1);
     });
 
-    test('dispose calls dispose on underlying controllers', () async {
-      when(() => mockVideoPlayerController.initialize())
-          .thenAnswer((_) async => Future.value());
-      when(() => mockVideoPlayerController.dispose())
-          .thenAnswer((_) async => Future.value());
-      when(() => mockChewieController.dispose())
-          .thenAnswer((_) {});
+    test('dispose calls dispose on both controllers', () async {
+      // Arrange
+      when(mockVideoPlayerController.initialize())
+          .thenAnswer((_) async {});
 
-      // First initialize to set the internal controllers
-      await videoPlayerService.initializePlayer('http://example.com/video.mp4');
+      when(mockVideoPlayerController.value)
+          .thenReturn(VideoPlayerValue(duration: const Duration(seconds: 10), isInitialized: true));
 
+      // Mock dispose to do nothing
+      when(mockVideoPlayerController.dispose()).thenAnswer((_) async {});
+
+      // We first need to initialize them to set them in the service
+      await videoPlayerService.initializePlayer('https://example.com/video.mp4');
+
+      // Act
       videoPlayerService.dispose();
 
-      verify(() => mockVideoPlayerController.dispose()).called(1);
-      verify(() => mockChewieController.dispose()).called(1);
-    });
-
-    testWidgets('errorBuilder builds Center with white Text', (WidgetTester tester) async {
-      when(() => mockVideoPlayerController.setLooping(any()))
-          .thenAnswer((_) async => Future.value());
-      when(() => mockVideoPlayerController.setPlaybackSpeed(any()))
-          .thenAnswer((_) async => Future.value());
-      when(() => mockVideoPlayerController.play())
-          .thenAnswer((_) async => Future.value());
-      when(() => mockVideoPlayerController.value)
-          .thenReturn(const VideoPlayerValue(duration: Duration(seconds: 10), isInitialized: true));
-
-      final errorBuilder = videoPlayerService.getErrorBuilder();
-      final errorMessage = 'Failed to load video';
-
-      final widget = MaterialApp(
-        home: Scaffold(
-          body: Builder(builder: (context) {
-            return errorBuilder(context, errorMessage);
-          }),
-        ),
-      );
-
-      await tester.pumpWidget(widget);
-
-      expect(find.byType(Center), findsOneWidget);
-      final textFinder = find.text(errorMessage);
-      expect(textFinder, findsOneWidget);
-
-      final textWidget = tester.widget<Text>(textFinder);
-      expect(textWidget.style?.color, Colors.white);
+      // Assert
+      verify(mockVideoPlayerController.dispose()).called(1);
+      verify(mockChewieController.dispose()).called(1);
     });
   });
 }

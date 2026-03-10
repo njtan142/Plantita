@@ -7,32 +7,36 @@ class VideoPlayerService {
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
 
-  @visibleForTesting
-  VideoPlayerController createVideoPlayerController(String videoUrl) {
-    return VideoPlayerController.networkUrl(Uri.parse(videoUrl));
-  }
+  final VideoPlayerController Function(String)? videoPlayerControllerFactory;
+  final ChewieController Function(VideoPlayerController)? chewieControllerFactory;
 
-  @visibleForTesting
-  ChewieController createChewieController(VideoPlayerController controller) {
-    return ChewieController(
-      videoPlayerController: controller,
-      autoPlay: true,
-      looping: false,
-      errorBuilder: (context, errorMessage) {
-        return Center(
-          child: Text(
-            errorMessage,
-            style: const TextStyle(color: Colors.white),
-          ),
-        );
-      },
-    );
-  }
+  VideoPlayerService({
+    this.videoPlayerControllerFactory,
+    this.chewieControllerFactory,
+  });
 
   Future<void> initializePlayer(String videoUrl) async {
-    _videoPlayerController = createVideoPlayerController(videoUrl);
+    _videoPlayerController = videoPlayerControllerFactory != null
+        ? videoPlayerControllerFactory!(videoUrl)
+        : VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+
     await _videoPlayerController!.initialize();
-    _chewieController = createChewieController(_videoPlayerController!);
+
+    _chewieController = chewieControllerFactory != null
+        ? chewieControllerFactory!(_videoPlayerController!)
+        : ChewieController(
+            videoPlayerController: _videoPlayerController!,
+            autoPlay: true,
+            looping: false,
+            errorBuilder: (context, errorMessage) {
+              return Center(
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              );
+            },
+          );
   }
 
   VideoPlayerController? get videoPlayerController => _videoPlayerController;
