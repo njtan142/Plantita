@@ -27,7 +27,6 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const handleLogout = () => {
     // In real app, this would clear auth tokens and redirect to login
-    console.log('Logout clicked');
   };
 
   return (
