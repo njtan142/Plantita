@@ -1,10 +1,10 @@
-
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:user_app/services/video_player_service.dart';
-import 'package:mockito/annotations.dart';
 
 import 'video_player_service_test.mocks.dart';
 
