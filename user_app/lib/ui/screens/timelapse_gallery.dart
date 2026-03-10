@@ -20,7 +20,7 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
 
   String _selectedPlantType = 'All';
   String _selectedDuration = 'All'; // Assuming duration filter
-  List<Timelapse> _selectedTimelapses = [];
+  Set<Timelapse> _selectedTimelapses = {};
 
   final List<String> _plantTypes = ['All', 'Rose', 'Sunflower', 'Tulip'];
   final List<String> _durations = ['All', 'Short', 'Medium', 'Long']; // Example durations
@@ -73,8 +73,8 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
   void _compareSelectedTimelapses() {
     if (_selectedTimelapses.length == 2) {
       context.go('/compare-timelapses', extra: {
-        'timelapse1': _selectedTimelapses[0],
-        'timelapse2': _selectedTimelapses[1],
+        'timelapse1': _selectedTimelapses.elementAt(0),
+        'timelapse2': _selectedTimelapses.elementAt(1),
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -91,7 +91,7 @@ export function CommunicationTemplates({
       setError(null);
 
       const response = await communicationService.getAllTemplates();
-      
+
       if (response.success && response.data) {
         setTemplates(response.data);
       } else {
@@ -282,11 +282,12 @@ export function CommunicationTemplates({
     }
   };
 
+  const lowerSearchTerm = searchTerm.toLowerCase();
   const filteredTemplates = templates.filter(template => {
     const matchesType = typeFilter === 'all' || template.type === typeFilter;
-    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.body.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = template.name.toLowerCase().includes(lowerSearchTerm) ||
+                         template.subject.toLowerCase().includes(lowerSearchTerm) ||
+                         template.body.toLowerCase().includes(lowerSearchTerm);
     return matchesType && matchesSearch;
   });
 
@@ -372,7 +373,7 @@ export function CommunicationTemplates({
             />
           </div>
           <div className="w-full sm:w-48">
-            <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as any)}>
+            <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as 'all' | 'email' | 'notification')}>
               <SelectTrigger>
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
@@ -417,7 +418,7 @@ export function CommunicationTemplates({
               
               <div className="space-y-2">
                 <Label htmlFor="template-type">Template Type</Label>
-                <Select value={type} onValueChange={(value) => setType(value as any)}>
+                <Select value={type} onValueChange={(value) => setType(value as 'email' | 'notification')}>
                   <SelectTrigger id="template-type">
                     <SelectValue />
                   </SelectTrigger>
@@ -515,9 +516,9 @@ export function CommunicationTemplates({
                 
                 <div className="space-y-2">
                   <Label htmlFor="edit-template-type">Template Type</Label>
-                  <Select 
-                    value={editingTemplate.type} 
-                    onValueChange={(value) => setEditingTemplate({...editingTemplate, type: value as any})}
+                  <Select
+                    value={editingTemplate.type}
+                    onValueChange={(value) => setEditingTemplate({...editingTemplate, type: value as 'email' | 'notification'})}
                   >
                     <SelectTrigger id="edit-template-type">
                       <SelectValue />
