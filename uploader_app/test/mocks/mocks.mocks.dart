@@ -17,7 +17,7 @@ import 'package:uploader_app/services/file_selection_service.dart' as _i6;
 import 'package:uploader_app/services/http_client_service.dart' as _i8;
 import 'package:uploader_app/services/upload_service.dart' as _i4;
 import 'package:uploader_app/services/user_service.dart' as _i3;
-import 'package:uploader_app/services/web_camera_service.dart' as _i5;
+import 'package:uploader_app/services/web_camera_service_stub.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -44,56 +44,51 @@ class _FakeUserStats_1 extends _i1.SmartFake implements _i3.UserStats {
     : super(parent, parentInvocation);
 }
 
-class _FakeUpload_2 extends _i1.SmartFake implements _i2.Upload {
-  _FakeUpload_2(Object parent, Invocation parentInvocation)
+class _FakeUploadStats_2 extends _i1.SmartFake implements _i4.UploadStats {
+  _FakeUploadStats_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeUploadStats_3 extends _i1.SmartFake implements _i4.UploadStats {
-  _FakeUploadStats_3(Object parent, Invocation parentInvocation)
+class _FakeCameraCapture_3 extends _i1.SmartFake implements _i5.CameraCapture {
+  _FakeCameraCapture_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCameraCapture_4 extends _i1.SmartFake implements _i5.CameraCapture {
-  _FakeCameraCapture_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeFileSelectionConfig_5 extends _i1.SmartFake
+class _FakeFileSelectionConfig_4 extends _i1.SmartFake
     implements _i6.FileSelectionConfig {
-  _FakeFileSelectionConfig_5(Object parent, Invocation parentInvocation)
+  _FakeFileSelectionConfig_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeIOSOptions_6 extends _i1.SmartFake implements _i7.IOSOptions {
-  _FakeIOSOptions_6(Object parent, Invocation parentInvocation)
+class _FakeIOSOptions_5 extends _i1.SmartFake implements _i7.IOSOptions {
+  _FakeIOSOptions_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeAndroidOptions_7 extends _i1.SmartFake
+class _FakeAndroidOptions_6 extends _i1.SmartFake
     implements _i7.AndroidOptions {
-  _FakeAndroidOptions_7(Object parent, Invocation parentInvocation)
+  _FakeAndroidOptions_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeLinuxOptions_8 extends _i1.SmartFake implements _i7.LinuxOptions {
-  _FakeLinuxOptions_8(Object parent, Invocation parentInvocation)
+class _FakeLinuxOptions_7 extends _i1.SmartFake implements _i7.LinuxOptions {
+  _FakeLinuxOptions_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeWindowsOptions_9 extends _i1.SmartFake
+class _FakeWindowsOptions_8 extends _i1.SmartFake
     implements _i7.WindowsOptions {
-  _FakeWindowsOptions_9(Object parent, Invocation parentInvocation)
+  _FakeWindowsOptions_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeWebOptions_10 extends _i1.SmartFake implements _i7.WebOptions {
-  _FakeWebOptions_10(Object parent, Invocation parentInvocation)
+class _FakeWebOptions_9 extends _i1.SmartFake implements _i7.WebOptions {
+  _FakeWebOptions_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMacOsOptions_11 extends _i1.SmartFake implements _i7.MacOsOptions {
-  _FakeMacOsOptions_11(Object parent, Invocation parentInvocation)
+class _FakeMacOsOptions_10 extends _i1.SmartFake implements _i7.MacOsOptions {
+  _FakeMacOsOptions_10(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -524,6 +519,22 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
           as bool);
 
   @override
+  bool get isCacheValidForTesting =>
+      (super.noSuchMethod(
+            Invocation.getter(#isCacheValidForTesting),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  List<_i2.UserModel> get cachedUsersForTesting =>
+      (super.noSuchMethod(
+            Invocation.getter(#cachedUsersForTesting),
+            returnValue: <_i2.UserModel>[],
+          )
+          as List<_i2.UserModel>);
+
+  @override
   _i10.Future<void> initialize() =>
       (super.noSuchMethod(
             Invocation.method(#initialize, []),
@@ -542,28 +553,32 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
               #forceRefresh: forceRefresh,
               #filters: filters,
             }),
-            returnValue: _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>>.value(
-              _FakeApiResponse_0<List<_i2.UserModel>>(
-                this,
-                Invocation.method(#fetchUsers, [], {
-                  #forceRefresh: forceRefresh,
-                  #filters: filters,
-                }),
-              ),
-            ),
+            returnValue:
+                _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>>.value(
+                  _FakeApiResponse_0<List<_i2.UserModel>>(
+                    this,
+                    Invocation.method(#fetchUsers, [], {
+                      #forceRefresh: forceRefresh,
+                      #filters: filters,
+                    }),
+                  ),
+                ),
           )
           as _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>>);
 
   @override
-  _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>> searchUsers(String? query) =>
+  _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>> searchUsers(
+    String? query,
+  ) =>
       (super.noSuchMethod(
             Invocation.method(#searchUsers, [query]),
-            returnValue: _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>>.value(
-              _FakeApiResponse_0<List<_i2.UserModel>>(
-                this,
-                Invocation.method(#searchUsers, [query]),
-              ),
-            ),
+            returnValue:
+                _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>>.value(
+                  _FakeApiResponse_0<List<_i2.UserModel>>(
+                    this,
+                    Invocation.method(#searchUsers, [query]),
+                  ),
+                ),
           )
           as _i10.Future<_i2.ApiResponse<List<_i2.UserModel>>>);
 
@@ -648,6 +663,32 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
     Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  void setCachedUsersForTesting(List<_i2.UserModel>? users) =>
+      super.noSuchMethod(
+        Invocation.method(#setCachedUsersForTesting, [users]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setLastFetchTimeForTesting(DateTime? time) => super.noSuchMethod(
+    Invocation.method(#setLastFetchTimeForTesting, [time]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addLoadingStateForTesting(bool? isLoading) => super.noSuchMethod(
+    Invocation.method(#addLoadingStateForTesting, [isLoading]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addUsersUpdateForTesting(List<_i2.UserModel>? users) =>
+      super.noSuchMethod(
+        Invocation.method(#addUsersUpdateForTesting, [users]),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [UploadService].
@@ -693,7 +734,7 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
           as int);
 
   @override
-  _i10.Future<_i2.Upload> uploadFile({
+  _i10.Future<_i2.ApiResponse<_i2.Upload>> uploadFile({
     required String? fileName,
     required List<int>? fileBytes,
     required String? mimeType,
@@ -714,8 +755,8 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               #onComplete: onComplete,
               #onError: onError,
             }),
-            returnValue: _i10.Future<_i2.Upload>.value(
-              _FakeUpload_2(
+            returnValue: _i10.Future<_i2.ApiResponse<_i2.Upload>>.value(
+              _FakeApiResponse_0<_i2.Upload>(
                 this,
                 Invocation.method(#uploadFile, [], {
                   #fileName: fileName,
@@ -730,10 +771,10 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               ),
             ),
           )
-          as _i10.Future<_i2.Upload>);
+          as _i10.Future<_i2.ApiResponse<_i2.Upload>>);
 
   @override
-  _i10.Future<_i2.Upload> uploadFileFromPath({
+  _i10.Future<_i2.ApiResponse<_i2.Upload>> uploadFileFromPath({
     required String? filePath,
     required String? fileName,
     required int? fileSize,
@@ -756,8 +797,8 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               #onComplete: onComplete,
               #onError: onError,
             }),
-            returnValue: _i10.Future<_i2.Upload>.value(
-              _FakeUpload_2(
+            returnValue: _i10.Future<_i2.ApiResponse<_i2.Upload>>.value(
+              _FakeApiResponse_0<_i2.Upload>(
                 this,
                 Invocation.method(#uploadFileFromPath, [], {
                   #filePath: filePath,
@@ -773,7 +814,7 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               ),
             ),
           )
-          as _i10.Future<_i2.Upload>);
+          as _i10.Future<_i2.ApiResponse<_i2.Upload>>);
 
   @override
   _i10.Future<bool> cancelUpload(String? uploadId) =>
@@ -801,7 +842,7 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
   _i4.UploadStats getUploadStats() =>
       (super.noSuchMethod(
             Invocation.method(#getUploadStats, []),
-            returnValue: _FakeUploadStats_3(
+            returnValue: _FakeUploadStats_2(
               this,
               Invocation.method(#getUploadStats, []),
             ),
@@ -905,7 +946,7 @@ class MockWebCameraService extends _i1.Mock implements _i5.WebCameraService {
               #maxHeight: maxHeight,
             }),
             returnValue: _i10.Future<_i5.CameraCapture>.value(
-              _FakeCameraCapture_4(
+              _FakeCameraCapture_3(
                 this,
                 Invocation.method(#capturePhoto, [], {
                   #quality: quality,
@@ -991,7 +1032,7 @@ class MockFileSelectionService extends _i1.Mock
   _i6.FileSelectionConfig get config =>
       (super.noSuchMethod(
             Invocation.getter(#config),
-            returnValue: _FakeFileSelectionConfig_5(
+            returnValue: _FakeFileSelectionConfig_4(
               this,
               Invocation.getter(#config),
             ),
@@ -1218,7 +1259,7 @@ class MockFlutterSecureStorage extends _i1.Mock
   _i7.IOSOptions get iOptions =>
       (super.noSuchMethod(
             Invocation.getter(#iOptions),
-            returnValue: _FakeIOSOptions_6(this, Invocation.getter(#iOptions)),
+            returnValue: _FakeIOSOptions_5(this, Invocation.getter(#iOptions)),
           )
           as _i7.IOSOptions);
 
@@ -1226,7 +1267,7 @@ class MockFlutterSecureStorage extends _i1.Mock
   _i7.AndroidOptions get aOptions =>
       (super.noSuchMethod(
             Invocation.getter(#aOptions),
-            returnValue: _FakeAndroidOptions_7(
+            returnValue: _FakeAndroidOptions_6(
               this,
               Invocation.getter(#aOptions),
             ),
@@ -1237,7 +1278,7 @@ class MockFlutterSecureStorage extends _i1.Mock
   _i7.LinuxOptions get lOptions =>
       (super.noSuchMethod(
             Invocation.getter(#lOptions),
-            returnValue: _FakeLinuxOptions_8(
+            returnValue: _FakeLinuxOptions_7(
               this,
               Invocation.getter(#lOptions),
             ),
@@ -1248,7 +1289,7 @@ class MockFlutterSecureStorage extends _i1.Mock
   _i7.WindowsOptions get wOptions =>
       (super.noSuchMethod(
             Invocation.getter(#wOptions),
-            returnValue: _FakeWindowsOptions_9(
+            returnValue: _FakeWindowsOptions_8(
               this,
               Invocation.getter(#wOptions),
             ),
@@ -1259,7 +1300,7 @@ class MockFlutterSecureStorage extends _i1.Mock
   _i7.WebOptions get webOptions =>
       (super.noSuchMethod(
             Invocation.getter(#webOptions),
-            returnValue: _FakeWebOptions_10(
+            returnValue: _FakeWebOptions_9(
               this,
               Invocation.getter(#webOptions),
             ),
@@ -1270,7 +1311,7 @@ class MockFlutterSecureStorage extends _i1.Mock
   _i7.MacOsOptions get mOptions =>
       (super.noSuchMethod(
             Invocation.getter(#mOptions),
-            returnValue: _FakeMacOsOptions_11(
+            returnValue: _FakeMacOsOptions_10(
               this,
               Invocation.getter(#mOptions),
             ),

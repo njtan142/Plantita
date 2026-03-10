@@ -5,6 +5,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import 'http_client_service.dart';
 
+class _CachedSearchUser {
+  final UserModel user;
+  final String usernameLower;
+  final String firstNameLower;
+  final String lastNameLower;
+  final String emailLower;
+
+  _CachedSearchUser(this.user)
+      : usernameLower = user.username.toLowerCase(),
+        firstNameLower = user.firstName.toLowerCase(),
+        lastNameLower = user.lastName.toLowerCase(),
+        emailLower = user.email.toLowerCase();
+}
+
 /// User Management Service for handling user operations and caching
 class UserService {
   static const String _usersCacheKey = 'cached_users';
@@ -16,8 +30,19 @@ class UserService {
 
   // In-memory cache
   List<UserModel> _cachedUsers = [];
+  List<_CachedSearchUser> _searchableUsers = [];
+
+  void _updateCachedUsers(List<UserModel> users) {
+    _cachedUsers = users;
+    _searchableUsers = _cachedUsers.map((u) => _CachedSearchUser(u)).toList();
+    _usersController.add(_cachedUsers);
+  }
+
   DateTime? _lastFetchTime;
   bool _isLoading = false;
+
+  // Cache for user search strings to avoid repeated toLowerCase() calls
+  final Expando<List<String>> _userSearchIndex = Expando<List<String>>();
 
   // Stream controllers for reactive updates
   final StreamController<List<UserModel>> _usersController =
@@ -97,14 +122,11 @@ class UserService {
       );
 
       if (response.success && response.data != null) {
-        _cachedUsers = response.data!.items;
+        _updateCachedUsers(response.data!.items);
         _lastFetchTime = DateTime.now();
 
         // Update cache
         await _saveUsersToCache(_cachedUsers);
-
-        // Notify listeners
-        _usersController.add(_cachedUsers);
       }
 
       _isLoading = false;
@@ -189,9 +211,9 @@ class UserService {
 
       // Add to cache if successful
       if (response.success && response.data != null) {
-        _cachedUsers.add(response.data!);
+        final updatedUsers = List<UserModel>.from(_cachedUsers)..add(response.data!);
+        _updateCachedUsers(updatedUsers);
         await _saveUsersToCache(_cachedUsers);
-        _usersController.add(_cachedUsers);
       }
 
       return response;
@@ -212,54 +234,68 @@ class UserService {
     DateTime? createdAfter,
     DateTime? createdBefore,
   }) {
-    return _cachedUsers.where((user) {
-      if (username != null &&
-          !user.username.toLowerCase().contains(username.toLowerCase())) {
+    final searchUsername = username?.toLowerCase();
+    final searchEmail = email?.toLowerCase();
+    final searchFirstName = firstName?.toLowerCase();
+    final searchLastName = lastName?.toLowerCase();
+
+    return _searchableUsers.where((su) {
+      if (searchUsername != null &&
+          !su.usernameLower.contains(searchUsername)) {
         return false;
       }
-      if (email != null &&
-          !user.email.toLowerCase().contains(email.toLowerCase())) {
+      if (searchEmail != null &&
+          !su.emailLower.contains(searchEmail)) {
         return false;
       }
-      if (firstName != null &&
-          !user.firstName.toLowerCase().contains(firstName.toLowerCase())) {
+      if (searchFirstName != null &&
+          !su.firstNameLower.contains(searchFirstName)) {
         return false;
       }
-      if (lastName != null &&
-          !user.lastName.toLowerCase().contains(lastName.toLowerCase())) {
+      if (searchLastName != null &&
+          !su.lastNameLower.contains(searchLastName)) {
         return false;
       }
-      if (isActive != null && user.isActive != isActive) {
+      if (isActive != null && su.user.isActive != isActive) {
         return false;
       }
-      if (createdAfter != null && user.createdAt.isBefore(createdAfter)) {
+      if (createdAfter != null && su.user.createdAt.isBefore(createdAfter)) {
         return false;
       }
-      if (createdBefore != null && user.createdAt.isAfter(createdBefore)) {
+      if (createdBefore != null && su.user.createdAt.isAfter(createdBefore)) {
         return false;
       }
       return true;
-    }).toList();
+    }).map((su) => su.user).toList();
+  }
+
+  /// Helper to get a cached list of lowercase searchable fields for a user
+  List<String> _getUserSearchFields(UserModel user) {
+    var searchFields = _userSearchIndex[user];
+    if (searchFields == null) {
+      searchFields = [
+        user.username.toLowerCase(),
+        user.firstName.toLowerCase(),
+        user.lastName.toLowerCase(),
+        user.email.toLowerCase(),
+      ];
+      _userSearchIndex[user] = searchFields;
+    }
+    return searchFields;
   }
 
   /// Get users for selection (active users only)
   List<UserModel> getUsersForSelection({String? searchQuery}) {
-    var users = _cachedUsers.where((user) => user.isActive).toList();
+    var suUsers = _searchableUsers.where((su) => su.user.isActive);
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
       final query = searchQuery.toLowerCase();
-      users = users
-          .where(
-            (user) =>
-                user.username.toLowerCase().contains(query) ||
-                user.firstName.toLowerCase().contains(query) ||
-                user.lastName.toLowerCase().contains(query) ||
-                user.email.toLowerCase().contains(query),
-          )
-          .toList();
+      suUsers = suUsers.where(
+        (su) => _getUserSearchFields(su.user).any((field) => field.contains(query)),
+      );
     }
 
-    return users;
+    return suUsers.map((su) => su.user).toList();
   }
 
   /// Refresh user data
@@ -269,11 +305,10 @@ class UserService {
 
   /// Clear cache
   Future<void> clearCache() async {
-    _cachedUsers = [];
+    _updateCachedUsers([]);
     _lastFetchTime = null;
     await _prefs.remove(_usersCacheKey);
     await _prefs.remove(_cacheTimestampKey);
-    _usersController.add([]);
   }
 
   /// Load users from local cache
@@ -286,9 +321,10 @@ class UserService {
         final cachedTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
         if (DateTime.now().difference(cachedTime) < _cacheValidityDuration) {
           final usersList = jsonDecode(usersJson) as List;
-          _cachedUsers = usersList
+          final loadedUsers = usersList
               .map((userJson) => UserModel.fromJson(userJson))
               .toList();
+          _updateCachedUsers(loadedUsers);
           _lastFetchTime = cachedTime;
         }
       }
@@ -339,8 +375,7 @@ class UserService {
   // Testing methods - not for production use
   @visibleForTesting
   void setCachedUsersForTesting(List<UserModel> users) {
-    _cachedUsers = users;
-    _usersController.add(_cachedUsers);
+    _updateCachedUsers(users);
   }
 
   @visibleForTesting

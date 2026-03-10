@@ -15,7 +15,7 @@ import 'package:uploader_app/services/file_selection_service.dart' as _i6;
 import 'package:uploader_app/services/http_client_service.dart' as _i7;
 import 'package:uploader_app/services/upload_service.dart' as _i4;
 import 'package:uploader_app/services/user_service.dart' as _i3;
-import 'package:uploader_app/services/web_camera_service.dart' as _i5;
+import 'package:uploader_app/services/web_camera_service_stub.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -42,24 +42,19 @@ class _FakeUserStats_1 extends _i1.SmartFake implements _i3.UserStats {
     : super(parent, parentInvocation);
 }
 
-class _FakeUpload_2 extends _i1.SmartFake implements _i2.Upload {
-  _FakeUpload_2(Object parent, Invocation parentInvocation)
+class _FakeUploadStats_2 extends _i1.SmartFake implements _i4.UploadStats {
+  _FakeUploadStats_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeUploadStats_3 extends _i1.SmartFake implements _i4.UploadStats {
-  _FakeUploadStats_3(Object parent, Invocation parentInvocation)
+class _FakeCameraCapture_3 extends _i1.SmartFake implements _i5.CameraCapture {
+  _FakeCameraCapture_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCameraCapture_4 extends _i1.SmartFake implements _i5.CameraCapture {
-  _FakeCameraCapture_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeFileSelectionConfig_5 extends _i1.SmartFake
+class _FakeFileSelectionConfig_4 extends _i1.SmartFake
     implements _i6.FileSelectionConfig {
-  _FakeFileSelectionConfig_5(Object parent, Invocation parentInvocation)
+  _FakeFileSelectionConfig_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -490,6 +485,22 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
           as bool);
 
   @override
+  bool get isCacheValidForTesting =>
+      (super.noSuchMethod(
+            Invocation.getter(#isCacheValidForTesting),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  List<_i2.UserModel> get cachedUsersForTesting =>
+      (super.noSuchMethod(
+            Invocation.getter(#cachedUsersForTesting),
+            returnValue: <_i2.UserModel>[],
+          )
+          as List<_i2.UserModel>);
+
+  @override
   _i9.Future<void> initialize() =>
       (super.noSuchMethod(
             Invocation.method(#initialize, []),
@@ -614,6 +625,32 @@ class MockUserService extends _i1.Mock implements _i3.UserService {
     Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  void setCachedUsersForTesting(List<_i2.UserModel>? users) =>
+      super.noSuchMethod(
+        Invocation.method(#setCachedUsersForTesting, [users]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setLastFetchTimeForTesting(DateTime? time) => super.noSuchMethod(
+    Invocation.method(#setLastFetchTimeForTesting, [time]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addLoadingStateForTesting(bool? isLoading) => super.noSuchMethod(
+    Invocation.method(#addLoadingStateForTesting, [isLoading]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addUsersUpdateForTesting(List<_i2.UserModel>? users) =>
+      super.noSuchMethod(
+        Invocation.method(#addUsersUpdateForTesting, [users]),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [UploadService].
@@ -659,7 +696,7 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
           as int);
 
   @override
-  _i9.Future<_i2.Upload> uploadFile({
+  _i9.Future<_i2.ApiResponse<_i2.Upload>> uploadFile({
     required String? fileName,
     required List<int>? fileBytes,
     required String? mimeType,
@@ -680,8 +717,8 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               #onComplete: onComplete,
               #onError: onError,
             }),
-            returnValue: _i9.Future<_i2.Upload>.value(
-              _FakeUpload_2(
+            returnValue: _i9.Future<_i2.ApiResponse<_i2.Upload>>.value(
+              _FakeApiResponse_0<_i2.Upload>(
                 this,
                 Invocation.method(#uploadFile, [], {
                   #fileName: fileName,
@@ -696,10 +733,10 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               ),
             ),
           )
-          as _i9.Future<_i2.Upload>);
+          as _i9.Future<_i2.ApiResponse<_i2.Upload>>);
 
   @override
-  _i9.Future<_i2.Upload> uploadFileFromPath({
+  _i9.Future<_i2.ApiResponse<_i2.Upload>> uploadFileFromPath({
     required String? filePath,
     required String? fileName,
     required int? fileSize,
@@ -722,8 +759,8 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               #onComplete: onComplete,
               #onError: onError,
             }),
-            returnValue: _i9.Future<_i2.Upload>.value(
-              _FakeUpload_2(
+            returnValue: _i9.Future<_i2.ApiResponse<_i2.Upload>>.value(
+              _FakeApiResponse_0<_i2.Upload>(
                 this,
                 Invocation.method(#uploadFileFromPath, [], {
                   #filePath: filePath,
@@ -739,7 +776,7 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
               ),
             ),
           )
-          as _i9.Future<_i2.Upload>);
+          as _i9.Future<_i2.ApiResponse<_i2.Upload>>);
 
   @override
   _i9.Future<bool> cancelUpload(String? uploadId) =>
@@ -767,7 +804,7 @@ class MockUploadService extends _i1.Mock implements _i4.UploadService {
   _i4.UploadStats getUploadStats() =>
       (super.noSuchMethod(
             Invocation.method(#getUploadStats, []),
-            returnValue: _FakeUploadStats_3(
+            returnValue: _FakeUploadStats_2(
               this,
               Invocation.method(#getUploadStats, []),
             ),
@@ -871,7 +908,7 @@ class MockWebCameraService extends _i1.Mock implements _i5.WebCameraService {
               #maxHeight: maxHeight,
             }),
             returnValue: _i9.Future<_i5.CameraCapture>.value(
-              _FakeCameraCapture_4(
+              _FakeCameraCapture_3(
                 this,
                 Invocation.method(#capturePhoto, [], {
                   #quality: quality,
@@ -957,7 +994,7 @@ class MockFileSelectionService extends _i1.Mock
   _i6.FileSelectionConfig get config =>
       (super.noSuchMethod(
             Invocation.getter(#config),
-            returnValue: _FakeFileSelectionConfig_5(
+            returnValue: _FakeFileSelectionConfig_4(
               this,
               Invocation.getter(#config),
             ),
