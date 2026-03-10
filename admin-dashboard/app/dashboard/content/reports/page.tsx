@@ -24,7 +24,6 @@ export default function ContentReportingPage() {
 
   const handleExportStart = () => {
     // Callback when export starts
-    console.log('Export started');
   };
 
   const handleExportComplete = () => {

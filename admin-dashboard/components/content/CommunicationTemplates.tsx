@@ -91,7 +91,7 @@ export function CommunicationTemplates({
       setError(null);
 
       const response = await communicationService.getAllTemplates();
-      
+
       if (response.success && response.data) {
         setTemplates(response.data);
       } else {
@@ -372,7 +372,7 @@ export function CommunicationTemplates({
             />
           </div>
           <div className="w-full sm:w-48">
-            <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as any)}>
+            <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as 'all' | 'email' | 'notification')}>
               <SelectTrigger>
                 <SelectValue placeholder="Filter by type" />
               </SelectTrigger>
@@ -417,7 +417,7 @@ export function CommunicationTemplates({
               
               <div className="space-y-2">
                 <Label htmlFor="template-type">Template Type</Label>
-                <Select value={type} onValueChange={(value) => setType(value as any)}>
+                <Select value={type} onValueChange={(value) => setType(value as 'email' | 'notification')}>
                   <SelectTrigger id="template-type">
                     <SelectValue />
                   </SelectTrigger>
@@ -515,9 +515,9 @@ export function CommunicationTemplates({
                 
                 <div className="space-y-2">
                   <Label htmlFor="edit-template-type">Template Type</Label>
-                  <Select 
-                    value={editingTemplate.type} 
-                    onValueChange={(value) => setEditingTemplate({...editingTemplate, type: value as any})}
+                  <Select
+                    value={editingTemplate.type}
+                    onValueChange={(value) => setEditingTemplate({...editingTemplate, type: value as 'email' | 'notification'})}
                   >
                     <SelectTrigger id="edit-template-type">
                       <SelectValue />

@@ -10,11 +10,13 @@ import 'package:go_router/go_router.dart';
 class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final ValueChanged<String>? onSearchChanged;
+  final List<Widget>? actions;
 
   const AppBarWithSearch({
     Key? key,
     required this.title,
     this.onSearchChanged,
+    this.actions,
   }) : super(key: key);
 
   @override
@@ -24,11 +26,17 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {
-            // TODO: Implement search functionality
-            showSearch(context: context, delegate: _SearchDelegate());
+          onPressed: () async {
+            final result = await showSearch(
+              context: context,
+              delegate: _SearchDelegate(),
+            );
+            if (result != null && onSearchChanged != null) {
+              onSearchChanged!(result);
+            }
           },
         ),
+        if (actions != null) ...actions!,
       ],
     );
   }
