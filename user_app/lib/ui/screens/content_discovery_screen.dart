@@ -8,6 +8,7 @@ import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/reel.dart';
 import 'package:user_app/data/models/timelapse.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:go_router/go_router.dart';
 
 class ContentDiscoveryScreen extends StatefulWidget {
   const ContentDiscoveryScreen({Key? key}) : super(key: key);
@@ -271,11 +272,10 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                 title: const Text('View Details'),
                 onTap: () {
                   Navigator.pop(bc);
-                  // TODO: Navigate to content detail screen based on type
                   if (contentItem is Reel) {
-                    print('View details for Reel: ${contentItem.title}');
+                    context.push('/reels/${contentItem.id}', extra: contentItem);
                   } else if (contentItem is Timelapse) {
-                    print('View details for Timelapse: ${contentItem.title}');
+                    context.push('/timelapses/${contentItem.id}', extra: contentItem);
                   }
                 },
               ),
