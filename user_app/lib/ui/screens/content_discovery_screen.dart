@@ -35,19 +35,19 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
       Provider.of<ContentProvider>(context, listen: false).fetchPopularContent();
     });
 
-    // TODO: Implement infinite scroll with actual data fetching
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
-        // Implement pagination here
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
+        _searchContent(isLoadMore: true);
       }
     });
   }
 
-  void _searchContent() {
+  void _searchContent({bool isLoadMore = false}) {
     Provider.of<ContentProvider>(context, listen: false).searchContent(
       query: _searchQuery,
       category: _selectedCategory,
       sortBy: _selectedSortOption,
+      isLoadMore: isLoadMore,
     );
   }
 
@@ -105,7 +105,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
       ),
       body: Consumer<ContentProvider>(
         builder: (context, contentProvider, child) {
-          if (contentProvider.isLoading) {
+          if (contentProvider.isLoading && contentProvider.content.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           } else if (contentProvider.errorMessage != null) {
             return ErrorStateWidget(
@@ -116,6 +116,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             return RefreshIndicator(
               onRefresh: _handleRefresh,
               child: SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -244,6 +245,11 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                             ),
                           );
                         }).toList(),
+                    if (contentProvider.isLoading && contentProvider.content.isNotEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
                   ],
                 ),
               ),
