@@ -282,11 +282,12 @@ export function CommunicationTemplates({
     }
   };
 
+  const lowerSearchTerm = searchTerm.toLowerCase();
   const filteredTemplates = templates.filter(template => {
     const matchesType = typeFilter === 'all' || template.type === typeFilter;
-    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         template.body.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = template.name.toLowerCase().includes(lowerSearchTerm) ||
+                         template.subject.toLowerCase().includes(lowerSearchTerm) ||
+                         template.body.toLowerCase().includes(lowerSearchTerm);
     return matchesType && matchesSearch;
   });
 
