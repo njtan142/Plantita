@@ -34,7 +34,7 @@ const createUserSchema = z.object({
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  role: z.nativeEnum(UserRole).default(UserRole.USER),
+  role: z.nativeEnum(UserRole),
 });
 
 type CreateUserFormValues = z.infer<typeof createUserSchema>;

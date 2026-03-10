@@ -6,10 +6,10 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   final ValueChanged<String>? onSearchChanged;
 
   const AppBarWithSearch({
-    Key? key,
+    super.key,
     required this.title,
     this.onSearchChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +18,11 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {
-            // TODO: Implement search functionality
-            showSearch(context: context, delegate: _SearchDelegate());
+          onPressed: () async {
+            final result = await showSearch(context: context, delegate: _SearchDelegate());
+            if (result != null && onSearchChanged != null) {
+              onSearchChanged!(result);
+            }
           },
         ),
       ],
@@ -31,7 +33,7 @@ class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class _SearchDelegate extends SearchDelegate<String> {
+class _SearchDelegate extends SearchDelegate<String?> {
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -52,20 +54,35 @@ class _SearchDelegate extends SearchDelegate<String> {
         progress: transitionAnimation,
       ),
       onPressed: () {
-        close(context, '');
+        close(context, null);
       },
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: Implement search results display
-    return Center(child: Text('Search results for: $query'));
+    if (query.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          close(context, query);
+        }
+      });
+    }
+    return const SizedBox.shrink();
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // TODO: Implement search suggestions
-    return Center(child: Text('Suggestions for: $query'));
+    if (query.isEmpty) {
+      return const Center(child: Text('Enter a search term'));
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.search),
+      title: Text('Search for "$query"'),
+      onTap: () {
+        close(context, query);
+      },
+    );
   }
 }

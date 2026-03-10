@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/ui/widgets/app_bar_with_search.dart';
-import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
 import 'package:user_app/state_management/content_provider.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/reel.dart';
@@ -11,7 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 
 class ContentDiscoveryScreen extends StatefulWidget {
-  const ContentDiscoveryScreen({Key? key}) : super(key: key);
+  const ContentDiscoveryScreen({super.key});
 
   @override
   State<ContentDiscoveryScreen> createState() => _ContentDiscoveryScreenState();
@@ -36,18 +35,26 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
     });
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
-        _searchContent(isLoadMore: true);
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
+        _loadMoreContent();
       }
     });
   }
 
-  void _searchContent({bool isLoadMore = false}) {
+  void _searchContent() {
     Provider.of<ContentProvider>(context, listen: false).searchContent(
       query: _searchQuery,
       category: _selectedCategory,
       sortBy: _selectedSortOption,
-      isLoadMore: isLoadMore,
+    );
+  }
+
+  void _loadMoreContent() {
+    Provider.of<ContentProvider>(context, listen: false).searchContent(
+      query: _searchQuery,
+      category: _selectedCategory,
+      sortBy: _selectedSortOption,
+      isLoadMore: true,
     );
   }
 
@@ -80,7 +87,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             items: _categories.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: const Text(value),
+                child: Text(value),
               );
             }).toList(),
           ),
@@ -96,7 +103,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             items: _sortOptions.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: const Text(value),
+                child: Text(value),
               );
             }).toList(),
           ),
@@ -105,7 +112,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
       ),
       body: Consumer<ContentProvider>(
         builder: (context, contentProvider, child) {
-          if (contentProvider.isLoading && contentProvider.content.isEmpty) {
+          if (contentProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (contentProvider.errorMessage != null) {
             return ErrorStateWidget(
@@ -116,7 +123,6 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             return RefreshIndicator(
               onRefresh: _handleRefresh,
               child: SingleChildScrollView(
-                controller: _scrollController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -220,13 +226,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                     if (contentProvider.content.isEmpty)
                       const Center(child: Text('No content found.'))
                     else
-                                              ...contentProvider.content.map((item) {
-                          String title = '';
-                          if (item is Reel) {
-                            title = item.title;
-                          } else if (item is Timelapse) {
-                            title = item.title;
-                          }
+                      ...contentProvider.content.map((item) {
                           return GestureDetector(
                             onLongPress: () {
                               _showContentContextMenu(context, item);
@@ -244,12 +244,7 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                               ),
                             ),
                           );
-                        }).toList(),
-                    if (contentProvider.isLoading && contentProvider.content.isNotEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
+                        }),
                   ],
                 ),
               ),

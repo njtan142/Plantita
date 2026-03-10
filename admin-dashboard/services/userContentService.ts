@@ -1,10 +1,11 @@
 import apiClient from '@/lib/api-client';
-import { 
-  User, 
-  UserActivity, 
-  UserStatistics, 
-  Media, 
-  ApiResponse 
+import {
+  User,
+  UserActivity,
+  UserStatistics,
+  Media,
+  ApiResponse,
+  UserStatus
 } from '@/types/api';
 import { MOCK_USERS, MOCK_USER_ACTIVITIES, MOCK_USER_STATISTICS, MOCK_MEDIAS } from '@/types/api';
 
@@ -115,34 +116,34 @@ export class UserContentService {
     
     // Get user activity
     const activityResponse = await this.getUserActivityHistory(userId);
-    if (!activityResponse.success) {
+    if (!activityResponse.success || !activityResponse.data) {
       return {
         success: false,
         error: 'Failed to fetch user activity',
         message: activityResponse.message || 'Unable to retrieve user activity history'
       };
     }
-    
+
     // Get user media
     const mediaResponse = await this.getUserMediaContent(userId);
-    if (!mediaResponse.success) {
+    if (!mediaResponse.success || !mediaResponse.data) {
       return {
         success: false,
         error: 'Failed to fetch user media',
         message: mediaResponse.message || 'Unable to retrieve user media content'
       };
     }
-    
+
     // Get user statistics
     const statsResponse = await this.getUserStatistics(userId);
-    if (!statsResponse.success) {
+    if (!statsResponse.success || !statsResponse.data) {
       return {
         success: false,
         error: 'Failed to fetch user statistics',
         message: statsResponse.message || 'Unable to retrieve user statistics'
       };
     }
-    
+
     return {
       success: true,
       data: {
@@ -168,10 +169,10 @@ export class UserContentService {
         message: `User with ID ${id} not found`
       };
     }
-    
-    MOCK_USERS[userIndex].status = 'suspended';
+
+    MOCK_USERS[userIndex].status = UserStatus.SUSPENDED;
     MOCK_USERS[userIndex].updatedAt = new Date().toISOString();
-    
+
     return {
       success: true,
       data: MOCK_USERS[userIndex]
@@ -183,7 +184,7 @@ export class UserContentService {
     // In a real implementation, this would call an API
     // For now, we'll use mock data
     await this.simulateDelay(300);
-    
+
     const userIndex = MOCK_USERS.findIndex(u => u.id === id);
     if (userIndex === -1) {
       return {
@@ -192,10 +193,10 @@ export class UserContentService {
         message: `User with ID ${id} not found`
       };
     }
-    
-    MOCK_USERS[userIndex].status = 'banned';
+
+    MOCK_USERS[userIndex].status = UserStatus.BANNED;
     MOCK_USERS[userIndex].updatedAt = new Date().toISOString();
-    
+
     return {
       success: true,
       data: MOCK_USERS[userIndex]
