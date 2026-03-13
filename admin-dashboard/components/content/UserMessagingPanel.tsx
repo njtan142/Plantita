@@ -3,16 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
 import { 
   Tabs, 
   TabsContent, 
@@ -20,20 +10,15 @@ import {
   TabsTrigger 
 } from '@/components/ui/tabs';
 import { 
-  Skeleton 
-} from '@/components/ui/skeleton';
-import { 
   Alert, 
   AlertTitle, 
   AlertDescription 
 } from '@/components/ui/alert';
 import { 
   Send, 
-  Users, 
-  User, 
-  FileText, 
-  BarChart,
-  RotateCcw
+  RotateCcw,
+  FileText,
+  BarChart
 } from 'lucide-react';
 import { communicationService } from '@/services/communicationService';
 import { 
@@ -41,6 +26,8 @@ import {
   MessageTracking 
 } from '@/types/api';
 import { toast } from 'sonner';
+import { MessageComposeTab } from './user-messaging-panel/MessageComposeTab';
+import { MessageTrackingTab } from './user-messaging-panel/MessageTrackingTab';
 
 interface UserMessagingPanelProps {
   userId?: string;
@@ -258,174 +245,30 @@ export function UserMessagingPanel({ userId, className, onMessageSent }: UserMes
           </TabsList>
           
           <TabsContent value="compose" className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={recipientType === 'individual' ? 'default' : 'outline'}
-                  onClick={() => setRecipientType('individual')}
-                  disabled={!!userId}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Individual
-                </Button>
-                <Button
-                  variant={recipientType === 'bulk' ? 'default' : 'outline'}
-                  onClick={() => setRecipientType('bulk')}
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Bulk Message
-                </Button>
-              </div>
-              
-              {recipientType === 'bulk' && (
-                <div className="space-y-2">
-                  <Label htmlFor="bulk-recipients">Recipient User IDs (comma separated)</Label>
-                  <Textarea
-                    id="bulk-recipients"
-                    placeholder="user1,user2,user3"
-                    value={bulkRecipients}
-                    onChange={(e) => setBulkRecipients(e.target.value)}
-                    rows={3}
-                  />
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="template">Template (Optional)</Label>
-                {isLoading ? (
-                  <Skeleton className="h-10 w-full" />
-                ) : (
-                  <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
-                    <SelectTrigger id="template">
-                      <SelectValue placeholder="Select a template" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {templates.map((template) => (
-                        <SelectItem key={template.id} value={template.id}>
-                          {template.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
-                <Input
-                  id="subject"
-                  placeholder="Message subject"
-                  value={messageSubject}
-                  onChange={(e) => setMessageSubject(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="message-type">Message Type</Label>
-                <Select value={messageType} onValueChange={(value) => setMessageType(value as 'email' | 'notification')}>
-                  <SelectTrigger id="message-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="notification">In-App Notification</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="body">Message Body</Label>
-                <Textarea
-                  id="body"
-                  placeholder="Enter your message here..."
-                  value={messageBody}
-                  onChange={(e) => setMessageBody(e.target.value)}
-                  rows={6}
-                />
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                <Button 
-                  onClick={handleSendMessage} 
-                  disabled={isSending}
-                  className="flex items-center gap-2"
-                >
-                  {isSending ? (
-                    <>
-                      <div className="h-4 w-4 rounded-full border-2 border-t-2 border-t-primary animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Send Message
-                    </>
-                  )}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={handlePreviewMessage}
-                >
-                  Preview
-                </Button>
-              </div>
-            </div>
+            <MessageComposeTab
+              userId={userId}
+              templates={templates}
+              selectedTemplate={selectedTemplate}
+              handleTemplateChange={handleTemplateChange}
+              messageSubject={messageSubject}
+              setMessageSubject={setMessageSubject}
+              messageBody={messageBody}
+              setMessageBody={setMessageBody}
+              messageType={messageType}
+              setMessageType={setMessageType}
+              recipientType={recipientType}
+              setRecipientType={setRecipientType}
+              bulkRecipients={bulkRecipients}
+              setBulkRecipients={setBulkRecipients}
+              isLoading={isLoading}
+              isSending={isSending}
+              handleSendMessage={handleSendMessage}
+              handlePreviewMessage={handlePreviewMessage}
+            />
           </TabsContent>
           
           <TabsContent value="tracking" className="space-y-4">
-            <div className="text-center py-8 text-muted-foreground">
-              <BarChart className="h-12 w-12 mx-auto mb-4" />
-              <p>Message tracking data will appear here after sending messages.</p>
-              <p className="text-sm mt-2">Select a message from the list to view detailed tracking information.</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="rounded-lg border p-4">
-                <h3 className="font-medium mb-2">Recent Messages</h3>
-                <div className="space-y-3">
-                  {isLoading ? (
-                    <>
-                      <Skeleton className="h-16 w-full" />
-                      <Skeleton className="h-16 w-full" />
-                      <Skeleton className="h-16 w-full" />
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                        <div>
-                          <p className="font-medium">Welcome Message</p>
-                          <p className="text-sm text-muted-foreground">Sent to 1,247 users</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">876 opened</p>
-                          <p className="text-xs text-muted-foreground">70.3% open rate</p>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                        <div>
-                          <p className="font-medium">Content Violation Notice</p>
-                          <p className="text-sm text-muted-foreground">Sent to 24 users</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">18 opened</p>
-                          <p className="text-xs text-muted-foreground">75% open rate</p>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
-                        <div>
-                          <p className="font-medium">Platform Update</p>
-                          <p className="text-sm text-muted-foreground">Sent to 876 users</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm">642 opened</p>
-                          <p className="text-xs text-muted-foreground">73.3% open rate</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+            <MessageTrackingTab isLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </CardContent>
