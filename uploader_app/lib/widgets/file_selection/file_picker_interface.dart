@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/user_model.dart';
 import '../../utils/responsive_config.dart';
 import '../common/custom_button.dart';
+import 'components/file_picker_header.dart';
+import 'components/file_picker_empty_state.dart';
+import 'components/file_picker_card.dart';
 
 class FilePickerInterface extends StatefulWidget {
   final UserModel? selectedUser;
@@ -134,12 +137,10 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
       _selectedFiles.addAll(filesToAdd);
     });
 
-    // Notify parent
     if (widget.onFilesSelected != null) {
       widget.onFilesSelected!(_selectedFiles);
     }
 
-    // Show message if some files were skipped
     if (files.length > remainingSlots) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -157,7 +158,6 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
       _selectedFiles.removeAt(index);
     });
 
-    // Notify parent
     if (widget.onFilesSelected != null) {
       widget.onFilesSelected!(_selectedFiles);
     }
@@ -168,7 +168,6 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
       _selectedFiles.clear();
     });
 
-    // Notify parent
     if (widget.onFilesSelected != null) {
       widget.onFilesSelected!(_selectedFiles);
     }
@@ -184,198 +183,29 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
-          // Header with user info and file count
-          _buildHeader(responsive),
+          FilePickerHeader(
+            selectedUser: widget.selectedUser,
+            selectedFilesCount: _selectedFiles.length,
+            maxFiles: widget.maxFiles,
+            responsive: responsive,
+          ),
 
-          // File selection area
           Expanded(
             child: _selectedFiles.isEmpty
-                ? _buildEmptyState(responsive)
+                ? FilePickerEmptyState(
+                    isDragOver: _isDragOver,
+                    dragAnimation: _dragAnimation,
+                    responsive: responsive,
+                    onPickFiles: _pickFiles,
+                    onPickFromGallery: _pickFromGallery,
+                    onFilesDropped: (files) => _addFiles(files),
+                  )
                 : _buildFileGrid(responsive),
           ),
 
-          // Bottom controls
           _buildBottomControls(responsive),
         ],
       ),
-    );
-  }
-
-  Widget _buildHeader(ResponsiveConfig responsive) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).colorScheme.outlineVariant,
-            width: 1,
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          // User info (if available)
-          if (widget.selectedUser != null)
-            Expanded(
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20.r,
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                    child: Text(
-                      widget.selectedUser!.displayName.isNotEmpty
-                          ? widget.selectedUser!.displayName[0].toUpperCase()
-                          : '?',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.selectedUser!.displayName,
-                          style: TextStyle(
-                            fontSize: responsive.bodyFontSize,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        if (widget.selectedUser!.department != null)
-                          Text(
-                            widget.selectedUser!.department!,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // File count
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-            decoration: BoxDecoration(
-              color: _selectedFiles.length >= widget.maxFiles
-                  ? Theme.of(context).colorScheme.errorContainer
-                  : Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-            child: Text(
-              '${_selectedFiles.length}/${widget.maxFiles}',
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
-                color: _selectedFiles.length >= widget.maxFiles
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(ResponsiveConfig responsive) {
-    return DragTarget<PlatformFile>(
-      onWillAcceptWithDetails: (details) {
-        setState(() => _isDragOver = true);
-        _dragAnimationController.forward();
-        return true;
-      },
-      onLeave: (data) {
-        setState(() => _isDragOver = false);
-        _dragAnimationController.reverse();
-      },
-      onAcceptWithDetails: (details) {
-        setState(() => _isDragOver = false);
-        _dragAnimationController.reverse();
-        _addFiles([details.data]);
-      },
-      builder: (context, candidateData, rejectedData) {
-        return AnimatedBuilder(
-          animation: _dragAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _isDragOver ? _dragAnimation.value : 1.0,
-              child: Container(
-                margin: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(
-                  color: _isDragOver
-                      ? Theme.of(context).colorScheme.primaryContainer.withAlpha(76)
-                      : Theme.of(context).colorScheme.surface,
-                  border: Border.all(
-                    color: _isDragOver
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline,
-                    width: _isDragOver ? 3 : 2,
-                    style: _isDragOver ? BorderStyle.solid : BorderStyle.solid,
-                  ),
-                  borderRadius: BorderRadius.circular(16.r),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        _isDragOver ? Icons.file_upload : Icons.cloud_upload,
-                        size: responsive.iconSize * 2,
-                        color: _isDragOver
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      SizedBox(height: 16.h),
-                      Text(
-                        _isDragOver
-                            ? 'Drop files here'
-                            : 'Drag and drop files here\nor use the buttons below',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: responsive.bodyFontSize,
-                          color: _isDragOver
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      SizedBox(height: 24.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CustomButton(
-                            onPressed: _pickFiles,
-                            text: 'Browse Files',
-                            leadingIcon: const Icon(Icons.folder_open),
-                            minimumSize: Size(140.w, 48.h),
-                          ),
-                          SizedBox(width: 16.w),
-                          CustomButton(
-                            onPressed: _pickFromGallery,
-                            text: 'From Gallery',
-                            leadingIcon: const Icon(Icons.photo_library),
-                            minimumSize: Size(140.w, 48.h),
-                            isOutlined: true,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
@@ -397,131 +227,15 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
             columnCount: responsive.isMobile ? 2 : 3,
             child: ScaleAnimation(
               child: FadeInAnimation(
-                child: _buildFileCard(_selectedFiles[index], index, responsive),
+                child: FilePickerCard(
+                  file: _selectedFiles[index],
+                  onRemove: () => _removeFile(index),
+                  responsive: responsive,
+                ),
               ),
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildFileCard(PlatformFile file, int index, ResponsiveConfig responsive) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // File preview
-          if (file.bytes != null && _isImageFile(file.extension))
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
-              child: Image.memory(
-                file.bytes!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildFileIcon(file, responsive);
-                },
-              ),
-            )
-          else
-            _buildFileIcon(file, responsive),
-
-          // File info overlay
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.all(8.w),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withAlpha((255 * 0.7).round()),
-                    Colors.transparent,
-                  ],
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(12.r),
-                  bottomRight: Radius.circular(12.r),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    file.name,
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    _formatFileSize(file.size),
-                    style: TextStyle(
-                      fontSize: 8.sp,
-                      color: Colors.white.withAlpha((255 * 0.8).round()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Remove button
-          Positioned(
-            top: 8.w,
-            right: 8.h,
-            child: GestureDetector(
-              onTap: () => _removeFile(index),
-              child: Container(
-                padding: EdgeInsets.all(4.w),
-                decoration: BoxDecoration(
-                  color: Colors.black.withAlpha((255 * 0.5).round()),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 16.sp,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFileIcon(PlatformFile file, ResponsiveConfig responsive) {
-    return Container(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            _getFileIcon(file.extension),
-            size: 48.sp,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            file.extension?.toUpperCase() ?? 'FILE',
-            style: TextStyle(
-              fontSize: 10.sp,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -578,32 +292,5 @@ class _FilePickerInterfaceState extends State<FilePickerInterface>
         ],
       ),
     );
-  }
-
-  bool _isImageFile(String? extension) {
-    if (extension == null) return false;
-    final ext = extension.toLowerCase();
-    return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].contains(ext);
-  }
-
-  IconData _getFileIcon(String? extension) {
-    if (extension == null) return Icons.insert_drive_file;
-
-    final ext = extension.toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].contains(ext)) {
-      return Icons.image;
-    } else if (['pdf'].contains(ext)) {
-      return Icons.picture_as_pdf;
-    } else if (['doc', 'docx'].contains(ext)) {
-      return Icons.description;
-    } else {
-      return Icons.insert_drive_file;
-    }
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 }
