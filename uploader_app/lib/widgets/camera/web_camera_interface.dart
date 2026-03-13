@@ -6,7 +6,9 @@ import 'package:camera/camera.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../models/user_model.dart';
 import '../../utils/responsive_config.dart';
-import '../common/custom_button.dart';
+import 'components/camera_overlay.dart';
+import 'components/camera_controls.dart';
+import 'components/image_preview_widget.dart';
 
 class WebCameraInterface extends StatefulWidget {
   final UserModel? selectedUser;
@@ -28,11 +30,9 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
   bool _isCapturing = false;
-  final bool _isProcessing = false;
   XFile? _capturedImage;
   Uint8List? _imageBytes;
 
-  // Camera settings
   FlashMode _flashMode = FlashMode.off;
   bool _isFlashSupported = false;
 
@@ -89,8 +89,6 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
       );
 
       await _cameraController!.initialize();
-
-      // Check flash support
       _isFlashSupported = _cameraController!.value.flashMode != null;
 
       if (mounted) {
@@ -117,16 +115,12 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
     });
 
     try {
-      // Animate capture
       _captureAnimationController.forward().then((_) {
         _captureAnimationController.reverse();
       });
 
-      // Capture image
       final XFile image = await _cameraController!.takePicture();
       _capturedImage = image;
-
-      // Convert to bytes
       _imageBytes = await image.readAsBytes();
 
       if (mounted) {
@@ -135,7 +129,6 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
         });
       }
 
-      // Notify parent
       if (widget.onImageCaptured != null && _imageBytes != null) {
         widget.onImageCaptured!(_imageBytes!);
       }
@@ -199,325 +192,6 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final responsive = ResponsiveConfig(context);
-
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: Colors.black,
-      child: _buildCameraContent(responsive),
-    );
-  }
-
-  Widget _buildCameraContent(ResponsiveConfig responsive) {
-    if (_capturedImage != null) {
-      return _buildImagePreview(responsive);
-    }
-
-    if (!_isCameraInitialized) {
-      return _buildLoadingState(responsive);
-    }
-
-    return _buildCameraPreview(responsive);
-  }
-
-  Widget _buildLoadingState(ResponsiveConfig responsive) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SpinKitCircle(
-            color: Colors.white,
-            size: 50.sp,
-          ),
-          SizedBox(height: 20.h),
-          Text(
-            'Initializing camera...',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: responsive.bodyFontSize,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCameraPreview(ResponsiveConfig responsive) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Camera preview
-        if (_cameraController != null)
-          CameraPreview(_cameraController!),
-
-        // Camera overlay
-        _buildCameraOverlay(responsive),
-
-        // Camera controls
-        _buildCameraControls(responsive),
-      ],
-    );
-  }
-
-  Widget _buildCameraOverlay(ResponsiveConfig responsive) {
-    return SafeArea(
-      child: Column(
-        children: [
-          // Top bar
-          Container(
-            padding: EdgeInsets.all(16.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Flash toggle
-                if (_isFlashSupported)
-                  IconButton(
-                    onPressed: _toggleFlash,
-                    icon: Icon(
-                      _flashMode == FlashMode.torch
-                          ? Icons.flash_on
-                          : Icons.flash_off,
-                      color: Colors.white,
-                      size: 28.sp,
-                    ),
-                  )
-                else
-                  const SizedBox(),
-
-                // Close button
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 28.sp,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Selected user info (if available)
-          if (widget.selectedUser != null)
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
-              padding: EdgeInsets.all(12.w),
-              decoration: BoxDecoration(
-                color: Colors.black.withAlpha((255 * 0.7).round()),
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16.r,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: Text(
-                      widget.selectedUser!.displayName.isNotEmpty
-                          ? widget.selectedUser!.displayName[0].toUpperCase()
-                          : '?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Text(
-                      widget.selectedUser!.displayName,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          const Spacer(),
-
-          // Camera frame guide
-          Container(
-            margin: EdgeInsets.all(32.w),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.white.withAlpha((255 * 0.3).round()),
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(16.r),
-            ),
-          ),
-
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCameraControls(ResponsiveConfig responsive) {
-    return SafeArea(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          // Bottom controls
-          Container(
-            padding: EdgeInsets.all(32.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Gallery button
-                IconButton(
-                  onPressed: _pickFromGallery,
-                  icon: Icon(
-                    Icons.photo_library,
-                    color: Colors.white,
-                    size: 28.sp,
-                  ),
-                ),
-
-                // Capture button
-                GestureDetector(
-                  onTap: _isCapturing ? null : _capturePhoto,
-                  child: AnimatedBuilder(
-                    animation: _captureAnimation,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _isCapturing ? 1.2 : _captureAnimation.value,
-                        child: Container(
-                          width: 80.w,
-                          height: 80.h,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all( 
-                              color: Colors.white.withAlpha((255 * 0.3).round()),
-                              width: 4,
-                            ),
-                          ),
-                          child: _isCapturing
-                              ? SpinKitCircle(
-                                  color: Colors.black,
-                                  size: 30.sp,
-                                )
-                              : const SizedBox(),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Switch camera button
-                if (_cameras != null && _cameras!.length > 1)
-                  IconButton(
-                    onPressed: _switchCamera,
-                    icon: Icon(
-                      Icons.cameraswitch,
-                      color: Colors.white,
-                      size: 28.sp,
-                    ),
-                  )
-                else
-                  const SizedBox(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImagePreview(ResponsiveConfig responsive) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Image preview
-        if (_imageBytes != null)
-          Image.memory(
-            _imageBytes!,
-            fit: BoxFit.cover,
-          ),
-
-        // Preview overlay
-        SafeArea(
-          child: Column(
-            children: [
-              // Top bar
-              Container(
-                padding: EdgeInsets.all(16.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton.icon(
-                      onPressed: _retakePhoto,
-                      icon: Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 20.sp,
-                      ),
-                      label: Text(
-                        'Retake',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: responsive.bodyFontSize,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 28.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-
-              // Bottom controls
-              Container(
-                padding: EdgeInsets.all(32.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    CustomButton(
-                      onPressed: _retakePhoto,
-                      text: 'Retake',
-                      backgroundColor: Colors.transparent,
-                      textColor: Colors.white,
-                      borderRadius: 8.r,
-                      isOutlined: true,
-                    ),
-                    CustomButton(
-                      onPressed: () {
-                        if (_imageBytes != null && widget.onImageCaptured != null) {
-                          widget.onImageCaptured!(_imageBytes!);
-                        }
-                        Navigator.of(context).pop();
-                      },
-                      text: 'Use Photo',
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      textColor: Colors.white,
-                      borderRadius: 8.r,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Future<void> _pickFromGallery() async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -534,7 +208,6 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
           setState(() {});
         }
 
-        // Notify parent
         if (widget.onImageCaptured != null && _imageBytes != null) {
           widget.onImageCaptured!(_imageBytes!);
         }
@@ -543,5 +216,81 @@ class _WebCameraInterfaceState extends State<WebCameraInterface>
       debugPrint('Error picking from gallery: $e');
       _showError('Failed to pick image from gallery');
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = ResponsiveConfig(context);
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Colors.black,
+      child: _buildCameraContent(responsive),
+    );
+  }
+
+  Widget _buildCameraContent(ResponsiveConfig responsive) {
+    if (_capturedImage != null && _imageBytes != null) {
+      return ImagePreviewWidget(
+        imageBytes: _imageBytes!,
+        onRetake: _retakePhoto,
+        onUsePhoto: () {
+          if (_imageBytes != null && widget.onImageCaptured != null) {
+            widget.onImageCaptured!(_imageBytes!);
+          }
+          Navigator.of(context).pop();
+        },
+        onClose: () => Navigator.of(context).pop(),
+        responsive: responsive,
+      );
+    }
+
+    if (!_isCameraInitialized) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitCircle(
+              color: Colors.white,
+              size: 50.sp,
+            ),
+            SizedBox(height: 20.h),
+            Text(
+              'Initializing camera...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: responsive.bodyFontSize,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (_cameraController != null)
+          CameraPreview(_cameraController!),
+
+        CameraOverlay(
+          selectedUser: widget.selectedUser,
+          isFlashSupported: _isFlashSupported,
+          flashMode: _flashMode,
+          onToggleFlash: _toggleFlash,
+          onClose: () => Navigator.of(context).pop(),
+        ),
+
+        CameraControls(
+          isCapturing: _isCapturing,
+          hasMultipleCameras: _cameras != null && _cameras!.length > 1,
+          captureAnimation: _captureAnimation,
+          onPickFromGallery: _pickFromGallery,
+          onCapture: _capturePhoto,
+          onSwitchCamera: _switchCamera,
+        ),
+      ],
+    );
   }
 }
