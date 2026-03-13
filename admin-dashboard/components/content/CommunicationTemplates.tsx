@@ -50,6 +50,7 @@ import {
 import { toast } from 'sonner';
 import { TemplateListItem } from './communication-templates/TemplateListItem';
 import { TemplatePreview } from './communication-templates/TemplatePreview';
+import { TemplateForm } from './communication-templates/TemplateForm';
 
 interface CommunicationTemplatesProps {
   className?: string;
@@ -367,82 +368,21 @@ export function CommunicationTemplates({
                 Create a new communication template for messages and notifications.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-              <div className="space-y-2">
-                <Label htmlFor="template-name">Template Name</Label>
-                <Input
-                  id="template-name"
-                  placeholder="Enter template name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="template-subject">Subject</Label>
-                <Input
-                  id="template-subject"
-                  placeholder="Enter subject line"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="template-type">Template Type</Label>
-                <Select value={type} onValueChange={(value) => setType(value as 'email' | 'notification')}>
-                  <SelectTrigger id="template-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="notification">In-App Notification</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="template-body">Body</Label>
-                <Textarea
-                  id="template-body"
-                  placeholder="Enter template body. Use {{variable}} to insert variables."
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  rows={6}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label>Variables</Label>
-                  <Button variant="outline" size="sm" onClick={handleAddVariable}>
-                    Add Variable
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {variables.map((variable, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        placeholder="Variable name (e.g., username)"
-                        value={variable}
-                        onChange={(e) => handleVariableChange(index, e.target.value)}
-                      />
-                      <Button 
-                        variant="outline" 
-                        size="icon"
-                        onClick={() => handleRemoveVariable(index)}
-                        disabled={variables.length === 1}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  {variables.length === 0 && (
-                    <p className="text-sm text-muted-foreground">No variables added</p>
-                  )}
-                </div>
-              </div>
-            </div>
+            <TemplateForm
+              name={name}
+              setName={setName}
+              subject={subject}
+              setSubject={setSubject}
+              body={body}
+              setBody={setBody}
+              type={type}
+              setType={setType}
+              variables={variables}
+              onAddVariable={handleAddVariable}
+              onRemoveVariable={handleRemoveVariable}
+              onVariableChange={handleVariableChange}
+              idPrefix="create-template"
+            />
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction 
@@ -465,85 +405,21 @@ export function CommunicationTemplates({
               </AlertDialogDescription>
             </AlertDialogHeader>
             {editingTemplate && (
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-template-name">Template Name</Label>
-                  <Input
-                    id="edit-template-name"
-                    placeholder="Enter template name"
-                    value={editingTemplate.name}
-                    onChange={(e) => setEditingTemplate({...editingTemplate, name: e.target.value})}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-template-subject">Subject</Label>
-                  <Input
-                    id="edit-template-subject"
-                    placeholder="Enter subject line"
-                    value={editingTemplate.subject}
-                    onChange={(e) => setEditingTemplate({...editingTemplate, subject: e.target.value})}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-template-type">Template Type</Label>
-                  <Select
-                    value={editingTemplate.type}
-                    onValueChange={(value) => setEditingTemplate({...editingTemplate, type: value as 'email' | 'notification'})}
-                  >
-                    <SelectTrigger id="edit-template-type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="notification">In-App Notification</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-template-body">Body</Label>
-                  <Textarea
-                    id="edit-template-body"
-                    placeholder="Enter template body. Use {{variable}} to insert variables."
-                    value={editingTemplate.body}
-                    onChange={(e) => setEditingTemplate({...editingTemplate, body: e.target.value})}
-                    rows={6}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label>Variables</Label>
-                    <Button variant="outline" size="sm" onClick={handleAddVariableToEditing}>
-                      Add Variable
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    {editingTemplate.variables.map((variable, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          placeholder="Variable name (e.g., username)"
-                          value={variable}
-                          onChange={(e) => handleVariableChangeInEditing(index, e.target.value)}
-                        />
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          onClick={() => handleRemoveVariableFromEditing(index)}
-                          disabled={editingTemplate.variables.length === 1}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {editingTemplate.variables.length === 0 && (
-                      <p className="text-sm text-muted-foreground">No variables added</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <TemplateForm
+                name={editingTemplate.name}
+                setName={(name) => setEditingTemplate({...editingTemplate, name})}
+                subject={editingTemplate.subject}
+                setSubject={(subject) => setEditingTemplate({...editingTemplate, subject})}
+                body={editingTemplate.body}
+                setBody={(body) => setEditingTemplate({...editingTemplate, body})}
+                type={editingTemplate.type}
+                setType={(type) => setEditingTemplate({...editingTemplate, type})}
+                variables={editingTemplate.variables}
+                onAddVariable={handleAddVariableToEditing}
+                onRemoveVariable={handleRemoveVariableFromEditing}
+                onVariableChange={handleVariableChangeInEditing}
+                idPrefix="edit-template"
+              />
             )}
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
