@@ -49,6 +49,7 @@ import {
 } from '@/types/api';
 import { toast } from 'sonner';
 import { TemplateListItem } from './communication-templates/TemplateListItem';
+import { TemplatePreview } from './communication-templates/TemplatePreview';
 
 interface CommunicationTemplatesProps {
   className?: string;
@@ -291,36 +292,6 @@ export function CommunicationTemplates({
                          template.body.toLowerCase().includes(lowerSearchTerm);
     return matchesType && matchesSearch;
   });
-
-  const renderTemplatePreview = (template: CommunicationTemplate) => {
-    return (
-      <div className="space-y-4">
-        <div>
-          <h4 className="font-semibold">Subject</h4>
-          <p className="text-sm">{template.subject}</p>
-        </div>
-        <div>
-          <h4 className="font-semibold">Body</h4>
-          <div className="text-sm whitespace-pre-wrap border rounded p-3 bg-muted">
-            {template.body}
-          </div>
-        </div>
-        {template.variables.length > 0 && (
-          <div>
-            <h4 className="font-semibold">Variables</h4>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {template.variables.map((variable, index) => (
-                <Badge key={index} variant="secondary" className="flex items-center gap-1">
-                  <Tag className="h-3 w-3" />
-                  {variable}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   if (error) {
     return (
@@ -625,7 +596,7 @@ export function CommunicationTemplates({
             </AlertDialogHeader>
             {previewTemplate && (
               <div className="max-h-[60vh] overflow-y-auto pr-2">
-                {renderTemplatePreview(previewTemplate)}
+                <TemplatePreview template={previewTemplate} />
               </div>
             )}
             <AlertDialogFooter>
