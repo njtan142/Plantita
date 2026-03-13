@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:form_field_validator/form_field_validator.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../constants/app_constants.dart';
 import '../../utils/responsive_config.dart';
 import '../../widgets/common/custom_button.dart';
-import '../../widgets/common/custom_text_field.dart';
+import 'components/register_header.dart';
+import 'components/register_form_fields.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -157,35 +157,8 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 40.h),
+                    RegisterHeader(responsive: responsive),
 
-                    // Logo and Title
-                    Icon(
-                      Icons.person_add,
-                      size: responsive.iconSize * 2,
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 16.h),
-                    Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: responsive.titleFontSize * 0.8,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Join Plantita Media Management',
-                      style: TextStyle(
-                        fontSize: responsive.subtitleFontSize,
-                        color: Colors.white.withAlpha((255 * 0.9).round()),
-                      ),
-                    ),
-
-                    SizedBox(height: 40.h),
-
-                    // Registration Card
                     Container(
                       width: double.infinity,
                       constraints: BoxConstraints(
@@ -227,10 +200,10 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
 
                             SizedBox(height: 32.h),
 
-                            // Error Message
                             if (_errorMessage != null)
                               Container(
                                 padding: EdgeInsets.all(16.w),
+                                margin: EdgeInsets.only(bottom: 24.h),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.errorContainer,
                                   borderRadius: BorderRadius.circular(12.r),
@@ -256,134 +229,21 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                 ),
                               ),
 
-                            if (_errorMessage != null) SizedBox(height: 24.h),
-
-                            // Name Fields
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: _firstNameController,
-                                    label: 'First Name',
-                                    hint: 'Enter first name',
-                                    prefixIcon: Icons.person,
-                                    validator: RequiredValidator(
-                                      errorText: 'First name is required',
-                                    ).call,
-                                  ),
-                                ),
-                                SizedBox(width: 16.w),
-                                Expanded(
-                                  child: CustomTextField(
-                                    controller: _lastNameController,
-                                    label: 'Last Name',
-                                    hint: 'Enter last name',
-                                    prefixIcon: Icons.person,
-                                    validator: RequiredValidator(
-                                      errorText: 'Last name is required',
-                                    ).call,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 24.h),
-
-                            // Username Field
-                            CustomTextField(
-                              controller: _usernameController,
-                              label: 'Username',
-                              hint: 'Choose a username',
-                              prefixIcon: Icons.account_circle,
-                              validator: MultiValidator([
-                                RequiredValidator(errorText: 'Username is required'),
-                                MinLengthValidator(3, errorText: 'Username must be at least 3 characters'),
-                              ]).call,
-                            ),
-
-                            SizedBox(height: 24.h),
-
-                            // Email Field
-                            CustomTextField(
-                              controller: _emailController,
-                              label: 'Email',
-                              hint: 'Enter your email address',
-                              prefixIcon: Icons.email,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: MultiValidator([
-                                RequiredValidator(errorText: 'Email is required'),
-                                EmailValidator(errorText: 'Enter a valid email address'),
-                              ]).call,
-                            ),
-
-                            SizedBox(height: 24.h),
-
-                            // Password Field
-                            CustomTextField(
-                              controller: _passwordController,
-                              label: 'Password',
-                              hint: 'Create a strong password',
-                              prefixIcon: Icons.lock,
-                              obscureText: _obscurePassword,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  size: 20.sp,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                              validator: MultiValidator([
-                                RequiredValidator(errorText: 'Password is required'),
-                                MinLengthValidator(8, errorText: 'Password must be at least 8 characters'),
-                                PatternValidator(
-                                  r'(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
-                                  errorText: 'Password must contain uppercase, lowercase, and number',
-                                ),
-                              ]).call,
-                            ),
-
-                            SizedBox(height: 24.h),
-
-                            // Confirm Password Field
-                            CustomTextField(
-                              controller: _confirmPasswordController,
-                              label: 'Confirm Password',
-                              hint: 'Re-enter your password',
-                              prefixIcon: Icons.lock_outline,
-                              obscureText: _obscureConfirmPassword,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscureConfirmPassword
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                  size: 20.sp,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscureConfirmPassword = !_obscureConfirmPassword;
-                                  });
-                                },
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please confirm your password';
-                                }
-                                if (value != _passwordController.text) {
-                                  return 'Passwords do not match';
-                                }
-                                return null;
-                              },
+                            RegisterFormFields(
+                              firstNameController: _firstNameController,
+                              lastNameController: _lastNameController,
+                              usernameController: _usernameController,
+                              emailController: _emailController,
+                              passwordController: _passwordController,
+                              confirmPasswordController: _confirmPasswordController,
+                              obscurePassword: _obscurePassword,
+                              obscureConfirmPassword: _obscureConfirmPassword,
+                              onTogglePassword: () => setState(() => _obscurePassword = !_obscurePassword),
+                              onToggleConfirmPassword: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                             ),
 
                             SizedBox(height: 32.h),
 
-                            // Register Button
                             CustomButton(
                               onPressed: _isLoading ? null : _register,
                               text: _isLoading
@@ -395,7 +255,6 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
 
                             SizedBox(height: 24.h),
 
-                            // Login Link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -407,9 +266,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
+                                  onPressed: () => Navigator.of(context).pop(),
                                   style: TextButton.styleFrom(
                                     minimumSize: Size(44.w, 44.h),
                                   ),
