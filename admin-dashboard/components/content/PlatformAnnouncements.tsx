@@ -50,6 +50,10 @@ import {
 } from '@/types/api';
 import { toast } from 'sonner';
 import { format, parseISO } from 'date-fns';
+import { AnnouncementListItem } from './platform-announcements/AnnouncementListItem';
+import { AnnouncementPreview } from './platform-announcements/AnnouncementPreview';
+import { AnnouncementForm } from './platform-announcements/AnnouncementForm';
+import { getPriorityVariant, getStatus, getStatusVariant } from './platform-announcements/utils';
 
 interface PlatformAnnouncementsProps {
   className?: string;
@@ -261,34 +265,6 @@ export function PlatformAnnouncements({
     fetchAnnouncements();
   };
 
-  const getPriorityVariant = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'secondary';
-    }
-  };
-
-  const getStatus = (announcement: PlatformAnnouncement) => {
-    const now = new Date();
-    const start = new Date(announcement.startDate);
-    const end = new Date(announcement.endDate);
-    
-    if (now < start) return 'Scheduled';
-    if (now > end) return 'Expired';
-    return 'Active';
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'Active': return 'default';
-      case 'Scheduled': return 'secondary';
-      case 'Expired': return 'outline';
-      default: return 'secondary';
-    }
-  };
-
   if (error) {
     return (
       <Card className={className}>
@@ -340,80 +316,21 @@ export function PlatformAnnouncements({
                 Create a new platform announcement that will be visible to users.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  placeholder="Enter announcement title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  placeholder="Enter announcement content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={4}
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="start-date">Start Date</Label>
-                  <Input
-                    id="start-date"
-                    type="datetime-local"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="end-date">End Date</Label>
-                  <Input
-                    id="end-date"
-                    type="datetime-local"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select value={priority} onValueChange={(value) => setPriority(value as 'low' | 'medium' | 'high')}>
-                    <SelectTrigger id="priority">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="target-users">Target Users</Label>
-                  <Select value={targetUsers} onValueChange={(value) => setTargetUsers(value as 'all' | 'active' | 'specific')}>
-                    <SelectTrigger id="target-users">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Users</SelectItem>
-                      <SelectItem value="active">Active Users Only</SelectItem>
-                      <SelectItem value="specific">Specific Users</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
+            <AnnouncementForm
+              title={title}
+              setTitle={setTitle}
+              content={content}
+              setContent={setContent}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              endDate={endDate}
+              setEndDate={setEndDate}
+              priority={priority}
+              setPriority={setPriority}
+              targetUsers={targetUsers}
+              setTargetUsers={setTargetUsers}
+              idPrefix="create-announcement"
+            />
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction 
@@ -444,86 +361,21 @@ export function PlatformAnnouncements({
               </AlertDialogDescription>
             </AlertDialogHeader>
             {editingAnnouncement && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-title">Title</Label>
-                  <Input
-                    id="edit-title"
-                    placeholder="Enter announcement title"
-                    value={editingAnnouncement.title}
-                    onChange={(e) => setEditingAnnouncement({...editingAnnouncement, title: e.target.value})}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="edit-content">Content</Label>
-                  <Textarea
-                    id="edit-content"
-                    placeholder="Enter announcement content"
-                    value={editingAnnouncement.content}
-                    onChange={(e) => setEditingAnnouncement({...editingAnnouncement, content: e.target.value})}
-                    rows={4}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-start-date">Start Date</Label>
-                    <Input
-                      id="edit-start-date"
-                      type="datetime-local"
-                      value={editingAnnouncement.startDate}
-                      onChange={(e) => setEditingAnnouncement({...editingAnnouncement, startDate: e.target.value})}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-end-date">End Date</Label>
-                    <Input
-                      id="edit-end-date"
-                      type="datetime-local"
-                      value={editingAnnouncement.endDate}
-                      onChange={(e) => setEditingAnnouncement({...editingAnnouncement, endDate: e.target.value})}
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-priority">Priority</Label>
-                    <Select
-                      value={editingAnnouncement.priority}
-                      onValueChange={(value) => setEditingAnnouncement({...editingAnnouncement, priority: value as 'low' | 'medium' | 'high'})}
-                    >
-                      <SelectTrigger id="edit-priority">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-target-users">Target Users</Label>
-                    <Select
-                      value={editingAnnouncement.targetUsers}
-                      onValueChange={(value) => setEditingAnnouncement({...editingAnnouncement, targetUsers: value as 'all' | 'active' | 'specific'})}
-                    >
-                      <SelectTrigger id="edit-target-users">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Users</SelectItem>
-                        <SelectItem value="active">Active Users Only</SelectItem>
-                        <SelectItem value="specific">Specific Users</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+              <AnnouncementForm
+                title={editingAnnouncement.title}
+                setTitle={(title) => setEditingAnnouncement({...editingAnnouncement, title})}
+                content={editingAnnouncement.content}
+                setContent={(content) => setEditingAnnouncement({...editingAnnouncement, content})}
+                startDate={editingAnnouncement.startDate}
+                setStartDate={(startDate) => setEditingAnnouncement({...editingAnnouncement, startDate})}
+                endDate={editingAnnouncement.endDate}
+                setEndDate={(endDate) => setEditingAnnouncement({...editingAnnouncement, endDate})}
+                priority={editingAnnouncement.priority}
+                setPriority={(priority) => setEditingAnnouncement({...editingAnnouncement, priority})}
+                targetUsers={editingAnnouncement.targetUsers}
+                setTargetUsers={(targetUsers) => setEditingAnnouncement({...editingAnnouncement, targetUsers})}
+                idPrefix="edit-announcement"
+              />
             )}
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -578,21 +430,7 @@ export function PlatformAnnouncements({
               )}
             </AlertDialogHeader>
             {previewAnnouncement && (
-              <div className="space-y-4">
-                <div className="prose max-w-none">
-                  <p className="whitespace-pre-wrap">{previewAnnouncement.content}</p>
-                </div>
-                <div className="text-sm text-muted-foreground flex flex-wrap gap-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>Start: {format(parseISO(previewAnnouncement.startDate), 'MMM d, yyyy h:mm a')}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>End: {format(parseISO(previewAnnouncement.endDate), 'MMM d, yyyy h:mm a')}</span>
-                  </div>
-                </div>
-              </div>
+              <AnnouncementPreview announcement={previewAnnouncement} />
             )}
             <AlertDialogFooter>
               <AlertDialogAction onClick={() => setPreviewAnnouncement(null)}>
@@ -620,64 +458,15 @@ export function PlatformAnnouncements({
             </div>
           ) : (
             <div className="space-y-3">
-              {announcements.map((announcement) => {
-                const status = getStatus(announcement);
-                return (
-                  <Card key={announcement.id} className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between">
-                          <h4 className="font-semibold">{announcement.title}</h4>
-                          <div className="flex flex-wrap gap-1 ml-2">
-                            <Badge variant={getPriorityVariant(announcement.priority)}>
-                              {announcement.priority}
-                            </Badge>
-                            <Badge variant={getStatusVariant(status)}>
-                              {status}
-                            </Badge>
-                          </div>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                          {announcement.content}
-                        </p>
-                        <div className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-4">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>{format(parseISO(announcement.startDate), 'MMM d, yyyy')}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            <span>{format(parseISO(announcement.endDate), 'MMM d, yyyy')}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1 ml-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setPreviewAnnouncement(announcement)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingAnnouncement(announcement)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeletingAnnouncement(announcement)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
+              {announcements.map((announcement) => (
+                <AnnouncementListItem
+                  key={announcement.id}
+                  announcement={announcement}
+                  onPreview={setPreviewAnnouncement}
+                  onEdit={setEditingAnnouncement}
+                  onDelete={setDeletingAnnouncement}
+                />
+              ))}
             </div>
           )}
         </div>
