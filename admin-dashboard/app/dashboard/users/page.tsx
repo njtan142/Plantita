@@ -2,55 +2,23 @@
 
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Download, Trash2, MoreHorizontal } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { Card, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { userService } from '@/services/userService';
 import { User, UserRole, UserStatus, UserQueryParams } from '@/types/api';
 import { toast } from 'sonner';
 import { CreateUserForm } from '@/components/users/CreateUserForm';
 import { UserForm } from '@/components/users/UserForm';
-
-interface UserFilters {
-  search: string;
-  role: UserRole | '';
-  status: UserStatus | '';
-  emailVerified: boolean | '';
-}
+import { UserFilters, UserFiltersData } from '@/components/users/management/UserFilters';
+import { BulkActions } from '@/components/users/management/BulkActions';
+import { UserTable } from '@/components/users/management/UserTable';
+import { DeleteUserDialog } from '@/components/users/management/DeleteUserDialog';
 
 export default function UsersPage() {
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<UserFilters>({
+  const [filters, setFilters] = useState<UserFiltersData>({
     search: '',
     role: '',
     status: '',
@@ -103,16 +71,10 @@ export default function UsersPage() {
       }
     },
     onMutate: async (action: 'activate' | 'deactivate' | 'delete') => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['users'] });
-
-      // Snapshot the previous value
       const previousUsers = queryClient.getQueryData<{ data: User[] }>(['users', queryParams]);
-
-      // Create a Set for efficient lookup
       const selectedUsersLookupSet = new Set(selectedUsers);
 
-      // Optimistically update to the new value
       if (action === 'delete') {
         queryClient.setQueryData<{ data: User[] }>(['users', queryParams], (old) => {
           if (!old) return old;
@@ -138,12 +100,9 @@ export default function UsersPage() {
           };
         });
       }
-
-      // Return a context object with the snapshotted value
       return { previousUsers };
     },
     onError: (err, action, context) => {
-      // Rollback to the previous value
       queryClient.setQueryData(['users', queryParams], context?.previousUsers);
       toast.error('Bulk action failed');
     },
@@ -152,7 +111,6 @@ export default function UsersPage() {
       toast.success('Bulk action successful');
     },
     onSettled: () => {
-      // Refetch anyway to sync with server
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
@@ -161,13 +119,9 @@ export default function UsersPage() {
   const deleteUserMutation = useMutation({
     mutationFn: (userId: string) => userService.deleteUser(userId),
     onMutate: async (userId: string) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['users'] });
-
-      // Snapshot the previous value
       const previousUsers = queryClient.getQueryData<{ data: User[] }>(['users', queryParams]);
 
-      // Optimistically update to the new value
       queryClient.setQueryData<{ data: User[] }>(['users', queryParams], (old) => {
         if (!old) return old;
         return {
@@ -175,12 +129,9 @@ export default function UsersPage() {
           data: old.data.filter((user: User) => user.id !== userId)
         };
       });
-
-      // Return a context object with the snapshotted value
       return { previousUsers };
     },
     onError: (err, userId, context) => {
-      // Rollback to the previous value
       queryClient.setQueryData(['users', queryParams], context?.previousUsers);
       toast.error('Failed to delete user');
     },
@@ -191,7 +142,7 @@ export default function UsersPage() {
     },
   });
 
-  const handleFilterChange = (key: keyof UserFilters, value: string | boolean) => {
+  const handleFilterChange = (key: keyof UserFiltersData, value: string | boolean) => {
     setFilters(prev => ({ ...prev, [key]: value }));
     setPagination(prev => ({ ...prev, page: 1 }));
   };
@@ -268,49 +219,6 @@ export default function UsersPage() {
     setEditingUser(user);
   };
 
-  const getStatusBadgeVariant = (status: UserStatus) => {
-    switch (status) {
-      case UserStatus.ACTIVE:
-        return 'default';
-      case UserStatus.INACTIVE:
-        return 'secondary';
-      case UserStatus.SUSPENDED:
-        return 'destructive';
-      case UserStatus.BANNED:
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
-
-  const getRoleBadgeVariant = (role: UserRole) => {
-    switch (role) {
-      case UserRole.ADMIN:
-        return 'destructive';
-      case UserRole.MODERATOR:
-        return 'default';
-      case UserRole.USER:
-        return 'secondary';
-      default:
-        return 'secondary';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const getUserDisplayName = (user: User) => {
-    if (user.firstName && user.lastName) {
-      return `${user.firstName} ${user.lastName}`;
-    }
-    return user.username;
-  };
-
   const selectedUsersLookupSet = useMemo(() => new Set(selectedUsers), [selectedUsers]);
 
   if (isLoading) {
@@ -324,7 +232,7 @@ export default function UsersPage() {
   if (isError) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-600 mb-4">{error.message}</p>
+        <p className="text-red-600 mb-4">{error instanceof Error ? error.message : 'Failed to fetch users'}</p>
         <Button onClick={() => queryClient.invalidateQueries({ queryKey: ['users'] })}>Retry</Button>
       </div>
     );
@@ -332,7 +240,6 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
@@ -350,7 +257,6 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Create User Form */}
       {showCreateUserForm && (
         <Card>
           <CardContent className="pt-6">
@@ -365,7 +271,6 @@ export default function UsersPage() {
         </Card>
       )}
 
-      {/* Edit User Form */}
       <UserForm
         user={editingUser}
         open={!!editingUser}
@@ -376,242 +281,32 @@ export default function UsersPage() {
         }}
       />
 
-      {/* Filters */}
+      <UserFilters 
+        filters={filters} 
+        onFilterChange={handleFilterChange} 
+      />
+
+      <BulkActions 
+        selectedCount={selectedUsers.length} 
+        isPending={mutation.isPending} 
+        onBulkAction={handleBulkAction} 
+      />
+
       <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Input
-                placeholder="Search users..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
-              />
-            </div>
-            <div>
-              <Select
-                value={filters.role}
-                onValueChange={(value) => handleFilterChange('role', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Roles</SelectItem>
-                  <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
-                  <SelectItem value={UserRole.MODERATOR}>Moderator</SelectItem>
-                  <SelectItem value={UserRole.USER}>User</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Select
-                value={filters.status}
-                onValueChange={(value) => handleFilterChange('status', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All Status</SelectItem>
-                  <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
-                  <SelectItem value={UserStatus.INACTIVE}>Inactive</SelectItem>
-                  <SelectItem value={UserStatus.SUSPENDED}>Suspended</SelectItem>
-                  <SelectItem value={UserStatus.BANNED}>Banned</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Select
-                value={filters.emailVerified === '' ? '' : filters.emailVerified.toString()}
-                onValueChange={(value) => handleFilterChange('emailVerified', value === '' ? '' : value === 'true')}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Email verification" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All</SelectItem>
-                  <SelectItem value="true">Verified</SelectItem>
-                  <SelectItem value="false">Unverified</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <CardContent className="pt-6">
+          <UserTable
+            users={users}
+            isLoading={isLoading}
+            selectedUsers={selectedUsersLookupSet}
+            onSelectUser={handleSelectUser}
+            onSelectAll={handleSelectAll}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSort={handleSort}
+            onEditUser={handleEditUser}
+            onDeleteUser={handleDeleteUser}
+          />
 
-      {/* Bulk Actions */}
-      {selectedUsers.length > 0 && (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">
-                {selectedUsers.length} user(s) selected
-              </span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkAction('activate')}
-                  disabled={mutation.isPending}
-                >
-                  Activate
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkAction('deactivate')}
-                  disabled={mutation.isPending}
-                >
-                  Deactivate
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleBulkAction('delete')}
-                  disabled={mutation.isPending}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Users Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Users ({users.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={selectedUsers.length === users.length && users.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead
-                    className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleSort('username')}
-                  >
-                    User {sortBy === 'username' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead
-                    className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleSort('createdAt')}
-                  >
-                    Registration Date {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead
-                    className="cursor-pointer hover:bg-gray-50"
-                    onClick={() => handleSort('lastLoginAt')}
-                  >
-                    Last Active {sortBy === 'lastLoginAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead className="w-12">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      <LoadingSpinner />
-                    </TableCell>
-                  </TableRow>
-                ) : users.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                      No users found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  users.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedUsersLookupSet.has(user.id)}
-                          onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar} alt={getUserDisplayName(user)} />
-                            <AvatarFallback>
-                              {user.firstName?.[0] || user.username[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{getUserDisplayName(user)}</div>
-                            <div className="text-sm text-gray-500">@{user.username}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {user.email}
-                          {user.emailVerified && (
-                            <Badge variant="outline" className="text-xs">
-                              ✓
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatDate(user.createdAt)}</TableCell>
-                      <TableCell>
-                        {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusBadgeVariant(user.status)}>
-                          {user.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getRoleBadgeVariant(user.role)}>
-                          {user.role}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditUser(user)}>Edit User</DropdownMenuItem>
-                            <DropdownMenuItem>Reset Password</DropdownMenuItem>
-                            {user.status === UserStatus.ACTIVE ? (
-                              <DropdownMenuItem>Suspend User</DropdownMenuItem>
-                            ) : (
-                              <DropdownMenuItem>Activate User</DropdownMenuItem>
-                            )}
-                            <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteUser(user)}>
-                              Delete User
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination */}
           {users.length > 0 && (
             <div className="flex items-center justify-between px-2 py-4">
               <div className="flex-1 text-sm text-gray-700">
@@ -657,33 +352,13 @@ export default function UsersPage() {
         </CardContent>
       </Card>
       
-      {/* Delete User Confirmation Dialog */}
-      <AlertDialog open={deleteUserDialogOpen} onOpenChange={setDeleteUserDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this user?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the user account and all associated data.
-              {userToDelete && (
-                <div className="mt-2 p-2 bg-gray-100 rounded">
-                  <p className="font-medium">{getUserDisplayName(userToDelete)}</p>
-                  <p className="text-sm text-gray-600">{userToDelete.email}</p>
-                </div>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteUser}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={deleteUserMutation.isPending}
-            >
-              {deleteUserMutation.isPending ? 'Deleting...' : 'Delete User'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteUserDialog
+        open={deleteUserDialogOpen}
+        onOpenChange={setDeleteUserDialogOpen}
+        user={userToDelete}
+        onConfirm={confirmDeleteUser}
+        isPending={deleteUserMutation.isPending}
+      />
     </div>
   );
 }
