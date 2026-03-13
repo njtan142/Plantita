@@ -4,9 +4,9 @@ import 'dart:html' as html;
 import 'dart:js' as js;
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as web_html;
 import 'package:uploader_app/services/performance_monitor_service.dart';
+import 'package:uploader_app/models/web_performance_models.dart';
 
 /// Web-specific performance optimization service
 class WebPerformanceService {
@@ -268,11 +268,7 @@ class WebPerformanceService {
 
     try {
       final cache = await _cacheStorage!.open(cacheName ?? 'flutter-app-cache');
-      // Create a simple response for caching
-      // Note: Response constructor not available in universal_html
-      // This would need to be implemented differently or the functionality simplified
       debugPrint('Caching resource: $url (implementation needs Response constructor)');
-      // await cache.put(url, response);
 
       _eventController.add(WebPerformanceEvent(
         type: WebPerformanceEventType.resourceCached,
@@ -338,8 +334,6 @@ class WebPerformanceService {
         final requests = await cache.keys();
 
         for (final request in requests) {
-          // Check if cache entry is expired (simplified)
-          // In a real app, you'd check response headers for expiration
           final response = await cache.match(request);
           if (response != null) {
             final date = response.headers['date'];
@@ -429,16 +423,13 @@ class WebPerformanceService {
     try {
       final completer = Completer<Uint8List?>();
 
-      // Create canvas for image processing
       final canvas = web_html.CanvasElement();
       final ctx = canvas.getContext('2d') as web_html.CanvasRenderingContext2D;
 
-      // Create image element
       final img = web_html.ImageElement();
       img.src = 'data:image;base64,${base64Encode(imageBytes)}';
 
       img.onLoad.listen((_) {
-        // Calculate new dimensions
         double scale = 1.0;
         if (img.width! > maxWidth || img.height! > maxHeight) {
           final widthScale = maxWidth / img.width!;
@@ -449,66 +440,45 @@ class WebPerformanceService {
         final newWidth = (img.width! * scale).round();
         final newHeight = (img.height! * scale).round();
 
-        // Set canvas size
         canvas.width = newWidth;
         canvas.height = newHeight;
 
-        // Draw and compress image
         ctx.drawImageScaled(img, 0, 0, newWidth, newHeight);
 
-        debugPrint('About to call toBlob with quality: $quality');
-        debugPrint('Canvas dimensions: ${canvas.width}x${canvas.height}');
-        debugPrint('Image dimensions: ${img.width}x${img.height}');
-
         try {
-          // Use JavaScript interop for canvas.toBlob
           final canvasJS = js.JsObject.fromBrowserObject(canvas);
 
-          // Create callback function
           final callback = js.JsFunction.withThis((_, dynamic blobJS) {
-            debugPrint('JavaScript toBlob callback triggered, blob is: ${blobJS != null ? 'not null' : 'null'}');
             if (blobJS != null) {
-              debugPrint('Blob size: ${blobJS['size']} bytes');
-
-              // Convert JS blob to Dart bytes using FileReader
               final reader = web_html.FileReader();
-              // Create a proper blob from the JS object
               final blob = html.Blob([], blobJS['type']);
               reader.readAsArrayBuffer(blob);
 
               reader.onLoadEnd.listen((_) {
-                debugPrint('FileReader onLoadEnd triggered, result type: ${reader.result.runtimeType}');
                 try {
                   final result = reader.result;
                   if (result is Uint8List) {
-                    debugPrint('Converting result to Uint8List, length: ${result.length}');
                     completer.complete(result);
                   } else if (result is ByteBuffer) {
-                    debugPrint('Converting ByteBuffer to Uint8List');
                     completer.complete(Uint8List.view(result));
                   } else {
-                    debugPrint('Unexpected result type: ${result.runtimeType}');
                     completer.complete(null);
                   }
                 } catch (e) {
-                  debugPrint('Error processing FileReader result: $e');
                   completer.complete(null);
                 }
               });
 
               reader.onError.listen((_) {
-                debugPrint('FileReader error occurred');
                 completer.complete(null);
               });
             } else {
-              debugPrint('Blob is null, completing with null');
               completer.complete(null);
             }
           });
 
           canvasJS.callMethod('toBlob', [callback, 'image/jpeg', quality]);
         } catch (e) {
-          debugPrint('Error calling toBlob: $e');
           completer.complete(null);
         }
       });
@@ -520,7 +490,6 @@ class WebPerformanceService {
       return completer.future;
 
     } catch (e) {
-      debugPrint('Error optimizing image on web: $e');
       return null;
     }
   }
@@ -531,7 +500,7 @@ class WebPerformanceService {
       final link = web_html.LinkElement()
         ..rel = 'preload'
         ..href = url
-        ..setAttribute('as', 'image'); // or other resource type
+        ..setAttribute('as', 'image');
 
       web_html.document.head!.append(link);
 
@@ -546,12 +515,8 @@ class WebPerformanceService {
   void enablePassiveScroll() {
     try {
       js.context['window'].addEventListener('scroll', js.allowInterop((event) {
-        // Handle scroll with passive listener
       }), js.JsObject.jsify({'passive': true}));
-
-      debugPrint('Passive scroll listeners enabled');
     } catch (e) {
-      debugPrint('Error enabling passive scroll: $e');
     }
   }
 
@@ -563,55 +528,4 @@ class WebPerformanceService {
     _webWorker?.terminate();
     _eventController.close();
   }
-}
-
-/// Web-specific memory information
-class WebMemoryInfo {
-  final int usedJSHeapSize;
-  final int totalJSHeapSize;
-  final int jsHeapSizeLimit;
-
-  const WebMemoryInfo({
-    required this.usedJSHeapSize,
-    required this.totalJSHeapSize,
-    required this.jsHeapSizeLimit,
-  });
-
-  double get memoryUsagePercentage => usedJSHeapSize / jsHeapSizeLimit;
-  double get availableMemory => (jsHeapSizeLimit - usedJSHeapSize).toDouble();
-
-  @override
-  String toString() {
-    return 'WebMemoryInfo(used: ${usedJSHeapSize ~/ 1024}KB, total: ${totalJSHeapSize ~/ 1024}KB, limit: ${jsHeapSizeLimit ~/ 1024}KB)';
-  }
-}
-
-/// Web performance event types
-enum WebPerformanceEventType {
-  initialized,
-  serviceWorkerRegistered,
-  serviceWorkerUpdated,
-  webWorkerMessage,
-  webWorkerError,
-  performanceMeasured,
-  performanceDataCleared,
-  garbageCollectionForced,
-  cacheStorageReady,
-  resourceCached,
-  cacheHit,
-  cacheMiss,
-  connectionOptimized,
-  resourcePreloaded,
-  error,
-}
-
-/// Web performance event data
-class WebPerformanceEvent {
-  final WebPerformanceEventType type;
-  final Map<String, dynamic>? metadata;
-
-  const WebPerformanceEvent({
-    required this.type,
-    this.metadata,
-  });
 }
