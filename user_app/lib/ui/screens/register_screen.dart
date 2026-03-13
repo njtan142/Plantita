@@ -79,7 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 24.0),
               TouchFriendlyButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final authService = getIt<AuthService>();
                     final success = await authService.register(

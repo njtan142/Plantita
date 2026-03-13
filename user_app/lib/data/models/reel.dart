@@ -67,4 +67,30 @@ class Reel {
       'userId': userId,
     };
   }
+
+  Reel copyWith({
+    String? id,
+    String? videoUrl,
+    String? thumbnailUrl,
+    String? title,
+    String? description,
+    DateTime? uploadDate,
+    int? likesCount,
+    int? commentsCount,
+    int? sharesCount,
+    String? userId,
+  }) {
+    return Reel(
+      id: id ?? this.id,
+      videoUrl: videoUrl ?? this.videoUrl,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      uploadDate: uploadDate ?? this.uploadDate,
+      likesCount: likesCount ?? this.likesCount,
+      commentsCount: commentsCount ?? this.commentsCount,
+      sharesCount: sharesCount ?? this.sharesCount,
+      userId: userId ?? this.userId,
+    );
+  }
 }

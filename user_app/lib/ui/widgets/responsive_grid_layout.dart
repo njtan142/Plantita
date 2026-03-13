@@ -5,17 +5,20 @@ class ResponsiveGridLayout extends StatelessWidget {
   final List<Widget> children;
   final int crossAxisCount;
   final double childAspectRatio;
+  final ScrollController? controller;
 
   const ResponsiveGridLayout({
     Key? key,
     required this.children,
     this.crossAxisCount = 2,
     this.childAspectRatio = 1.0,
+    this.controller,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      controller: controller,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         childAspectRatio: childAspectRatio,

@@ -6,8 +6,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 
-// Web-specific imports with conditional compilation
-import 'dart:html' as html show File, InputElement, FileReader, FileList;
+// Web-compatible imports using universal_html
+import 'package:universal_html/html.dart' as html;
 
 /// Selected file information
 class SelectedFile {

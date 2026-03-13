@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:user_app/state_management/auth_provider.dart';
 import 'package:user_app/ui/widgets/touch_friendly_button.dart';
 
@@ -77,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                    await authProvider.login(_usernameController.text, _passwordController.text, _rememberMe);
+                    await authProvider.login(_usernameController.text, _passwordController.text);
                     if (authProvider.isAuthenticated) {
                       // Navigate to home screen or dashboard
                       // Using go_router for navigation

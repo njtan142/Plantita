@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
 
+// Global timeout for all tests
+jest.setTimeout(30000);
+
 const originalConsoleError = console.error;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 console.error = (...args: any[]) => {

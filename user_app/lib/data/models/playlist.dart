@@ -1,8 +1,3 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'playlist.g.dart';
-
-@JsonSerializable()
 class Playlist {
   final String id;
   final String name;
@@ -18,8 +13,25 @@ class Playlist {
     required this.userId,
   });
 
-  factory Playlist.fromJson(Map<String, dynamic> json) => _\$PlaylistFromJson(json);
-  Map<String, dynamic> toJson() => _\$PlaylistToJson(this);
+  factory Playlist.fromJson(Map<String, dynamic> json) {
+    return Playlist(
+      id: json['id'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      description: json['description'] as String? ?? '',
+      timelapseIds: (json['timelapseIds'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+      userId: json['userId'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'timelapseIds': timelapseIds,
+      'userId': userId,
+    };
+  }
 
   Playlist copyWith({
     String? id,

@@ -13,7 +13,12 @@ describe('AnalyticsService', () => {
 
   describe('getAnalyticsData', () => {
     it('should return mock analytics data', async () => {
-      const result = await analyticsService.getAnalyticsData();
+      const promise = analyticsService.getAnalyticsData();
+      
+      // Advance timers to allow the simulation delay to complete
+      jest.advanceTimersByTime(800);
+      
+      const result = await promise;
       
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
@@ -52,7 +57,12 @@ describe('AnalyticsService', () => {
 
   describe('getAnalyticsDataWithError', () => {
     it('should return error response', async () => {
-      const result = await analyticsService.getAnalyticsDataWithError();
+      const promise = analyticsService.getAnalyticsDataWithError();
+      
+      // Advance timers
+      jest.advanceTimersByTime(800);
+      
+      const result = await promise;
       
       expect(result.success).toBe(false);
       expect(result.error).toBe('Failed to fetch analytics data');

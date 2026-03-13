@@ -3,18 +3,24 @@ import 'package:flutter/material.dart';
 class AppBarWithSearch extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final ValueChanged<String>? onSearchChanged;
+  final List<Widget>? actions;
 
-  const AppBarWithSearch({super.key, required this.title, this.onSearchChanged});
+  const AppBarWithSearch({
+    super.key,
+    required this.title,
+    this.onSearchChanged,
+    this.actions,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       title: Text(title),
       actions: [
+        if (actions != null) ...actions!,
         IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
-            // TODO: Implement search functionality
             showSearch(context: context, delegate: _SearchDelegate());
           },
         ),
@@ -54,7 +60,6 @@ class _SearchDelegate extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: Implement search results display
     return Center(child: Text('Search results for: $query'));
   }
 

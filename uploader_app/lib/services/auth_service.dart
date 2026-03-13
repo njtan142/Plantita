@@ -163,50 +163,6 @@ class AuthService {
     }
   }
 
-  /// Register new employee
-  Future<ApiResponse<AuthTokenModel>> register(
-    String username,
-    String email,
-    String password,
-    String firstName,
-    String lastName,
-  ) async {
-    try {
-      final response = await _httpClient.post<AuthTokenModel>(
-        '/auth/register',
-        body: {
-          'username': username,
-          'email': email,
-          'password': password,
-          'firstName': firstName,
-          'lastName': lastName,
-        },
-        fromJson: (json) => AuthTokenModel.fromMap(json),
-        retryOnFailure: false, // Don't retry auth requests
-      );
-
-      if (response.success && response.data != null) {
-        _currentToken = response.data;
-
-        // Store token securely
-        await _secureStorage.write(
-          key: _tokenKey,
-          value: jsonEncode(_currentToken!.toJson()),
-        );
-
-        // Set token in HTTP client
-        _httpClient.setToken(_currentToken!);
-
-        // Fetch user profile
-        await _fetchUserProfile();
-      }
-
-      return response;
-    } catch (e) {
-      return ApiResponse.error(message: 'Registration failed: ${e.toString()}');
-    }
-  }
-
   /// Refresh authentication token
   Future<ApiResponse<AuthTokenModel>> refreshToken() async {
     if (_currentToken?.refreshToken == null) {

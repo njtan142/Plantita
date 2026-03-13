@@ -21,6 +21,13 @@ class TimelapseProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get hasMore => _hasMore;
 
+  void reset() {
+    _timelapses = [];
+    _currentPage = 0;
+    _hasMore = true;
+    _errorMessage = null;
+  }
+
   Future<void> fetchTimelapses({String? plantType, String? duration, bool isLoadMore = false}) async {
     if (_isLoading || (!_hasMore && isLoadMore)) return; // Prevent multiple loads or loading if no more data
 
@@ -114,8 +121,9 @@ class TimelapseProvider with ChangeNotifier {
 
   Future<void> fetchPlaylistDetails(String playlistId) async {
     try {
-      return await _timelapseRepository.fetchPlaylistDetails(playlistId);
+      await _timelapseRepository.fetchPlaylistDetails(playlistId);
     } catch (e) {
+
       logger.e('Error fetching playlist details: $e');
       _errorMessage = e.toString();
       return null;

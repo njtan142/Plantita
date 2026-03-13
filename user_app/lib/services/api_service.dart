@@ -1,11 +1,10 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'dart:async'; // Import for TimeoutException
-import 'package:user_app/utils/logger.dart'; // Import the logger
-import 'package:user_app/main.dart'; // Import getIt
+import 'dart:async';
+import 'package:user_app/utils/logger.dart';
+import 'package:user_app/main.dart';
 import 'package:user_app/config/environment_config.dart';
-import 'package:user_app/services/auth_service.dart'; // Import AuthService
+import 'package:user_app/services/auth_service.dart';
 
 class ApiService {
   final String _baseUrl;
@@ -20,7 +19,6 @@ class ApiService {
   final int _maxRetries = 3;
   final Duration _timeout = const Duration(seconds: 10);
 
-  // Request Interceptor
   Future<http.BaseRequest> _requestInterceptor(http.BaseRequest request) async {
     logger.d('Intercepting Request: ${request.method} ${request.url}');
     String? token = _authService.getToken();
@@ -30,14 +28,8 @@ class ApiService {
     return request;
   }
 
-  // Response Interceptor
   Future<http.Response> _responseInterceptor(http.Response response) async {
     logger.d('Intercepting Response: ${response.statusCode} ${response.request?.url}');
-    // Example: Handle token refresh or global error codes
-    // if (response.statusCode == 401 && _authService.canRefreshToken()) {
-    //   await _authService.refreshToken();
-    //   // Re-send the original request with new token
-    // }
     return response;
   }
 
@@ -59,17 +51,20 @@ class ApiService {
         if (i == _maxRetries - 1) {
           throw Exception('Request timed out after $_maxRetries retries.');
         }
-        await Future.delayed(const Duration(seconds: 2)); // Wait before retrying
+        await Future.delayed(const Duration(seconds: 2));
       } catch (e) {
         logger.e('API Request Error: $e');
-        rethrow; // Re-throw other exceptions immediately
+        rethrow;
       }
     }
-    throw Exception('Failed to send request after $_maxRetries retries.'); // Should not be reached
+    throw Exception('Failed to send request after $_maxRetries retries.');
   }
 
-  Future<Map<String, dynamic>> get(String endpoint) async {
-    final uri = Uri.parse('$_baseUrl/$endpoint');
+  Future<Map<String, dynamic>> get(String endpoint, {Map<String, dynamic>? queryParams}) async {
+    Uri uri = Uri.parse('$_baseUrl/$endpoint');
+    if (queryParams != null && queryParams.isNotEmpty) {
+      uri = uri.replace(queryParameters: queryParams.map((key, value) => MapEntry(key, value.toString())));
+    }
     final request = http.Request('GET', uri);
     return _sendRequestWithInterceptor(request);
   }
@@ -98,6 +93,7 @@ class ApiService {
 
   Map<String, dynamic> _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) return {};
       return json.decode(response.body);
     } else if (response.statusCode == 400) {
       logger.e('Bad Request: ${response.body}');
@@ -120,4 +116,3 @@ class ApiService {
     }
   }
 }
-

@@ -1,33 +1,32 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/state_management/reel_provider.dart';
 import 'package:user_app/ui/widgets/custom_video_player.dart';
-import 'package:user_app/ui/widgets/comment_dialog.dart'; // Import CommentDialog
+import 'package:user_app/ui/widgets/comment_dialog.dart';
 import 'package:video_player/video_player.dart';
-import 'package:user_app/ui/widgets/error_state_widget.dart'; // Import ErrorStateWidget
+import 'package:user_app/ui/widgets/error_state_widget.dart';
 
 class ReelsView extends StatefulWidget {
-  const ReelsView({Key? key}) : super(key: key);
+  const ReelsView({super.key});
 
   @override
   State<ReelsView> createState() => _ReelsViewState();
 }
 
 class _ReelsViewState extends State<ReelsView> {
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   final Map<String, VideoPlayerController> _videoControllers = {};
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    // Fetch reels when the view is initialized
     Provider.of<ReelProvider>(context, listen: false).fetchReels().then((_) {
       _initializeVideoControllers();
     });
 
     _pageController.addListener(() {
+      if (_pageController.page == null) return;
       int nextPageIndex = _pageController.page!.round();
       if (_currentPage != nextPageIndex) {
         _currentPage = nextPageIndex;
@@ -45,7 +44,6 @@ class _ReelsViewState extends State<ReelsView> {
     final reelProvider = Provider.of<ReelProvider>(context, listen: false);
     final reels = reelProvider.reels;
 
-    // Initialize current, previous, and next video controllers
     for (int i = -1; i <= 1; i++) {
       int indexToLoad = _currentPage + i;
       if (indexToLoad >= 0 && indexToLoad < reels.length) {
@@ -53,7 +51,7 @@ class _ReelsViewState extends State<ReelsView> {
         if (!_videoControllers.containsKey(reel.id)) {
           final controller = VideoPlayerController.networkUrl(Uri.parse(reel.videoUrl));
           controller.initialize().then((_) {
-            setState(() {}); // Rebuild to show video once initialized
+            if (mounted) setState(() {});
           });
           _videoControllers[reel.id] = controller;
         }
@@ -66,7 +64,6 @@ class _ReelsViewState extends State<ReelsView> {
     final reels = reelProvider.reels;
     Set<String> activeReelIds = {};
 
-    // Determine which reels should be active (current, prev, next)
     for (int i = -1; i <= 1; i++) {
       int index = _currentPage + i;
       if (index >= 0 && index < reels.length) {
@@ -74,7 +71,6 @@ class _ReelsViewState extends State<ReelsView> {
       }
     }
 
-    // Dispose controllers that are no longer active
     _videoControllers.removeWhere((reelId, controller) {
       if (!activeReelIds.contains(reelId)) {
         controller.dispose();
@@ -87,7 +83,9 @@ class _ReelsViewState extends State<ReelsView> {
   @override
   void dispose() {
     _pageController.dispose();
-    _videoControllers.forEach((key, value) => value.dispose());
+    for (var controller in _videoControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -95,46 +93,29 @@ class _ReelsViewState extends State<ReelsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Semantics(
-          label: 'Reels screen title',
-          child: Text('Reels'),
-        ),
+        title: const Text('Reels'),
       ),
       body: Consumer<ReelProvider>(
         builder: (context, reelProvider, child) {
           if (reelProvider.isLoading) {
-            return const Semantics(
-              label: 'Loading reels',
-              child: Center(child: CircularProgressIndicator()),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else if (reelProvider.errorMessage != null) {
-            return Semantics(
-              label: 'Error loading reels',
-              child: ErrorStateWidget(
-                message: reelProvider.errorMessage!,
-                onRetry: () => reelProvider.fetchReels(),
-              ),
+            return ErrorStateWidget(
+              message: reelProvider.errorMessage!,
+              onRetry: () => reelProvider.fetchReels(),
             );
           } else if (reelProvider.reels.isEmpty) {
-            return const Semantics(
-              label: 'No reels available',
-              child: Center(child: Text('No reels available.')),
-            );
+            return const Center(child: Text('No reels available.'));
           } else {
-            return Semantics(
-              label: 'Pull down to refresh reels',
-              child: RefreshIndicator(
-                onRefresh: () => reelProvider.fetchReels(),
-                child: FocusTraversalGroup(
-                  child: Semantics(
-                    label: 'Swipe up or down to view next or previous reel',
-                    child: PageView.builder(
-                      controller: _pageController,
-                      scrollDirection: Axis.vertical,
-                      itemCount: reelProvider.reels.length,
-                      itemBuilder: (context, index) {
-                    final reel = reelProvider.reels[index];
-                    final videoController = _videoControllers[reel.id];
+            return RefreshIndicator(
+              onRefresh: () => reelProvider.fetchReels(),
+              child: PageView.builder(
+                controller: _pageController,
+                scrollDirection: Axis.vertical,
+                itemCount: reelProvider.reels.length,
+                itemBuilder: (context, index) {
+                  final reel = reelProvider.reels[index];
+                  final videoController = _videoControllers[reel.id];
 
                   if (videoController == null || !videoController.value.isInitialized) {
                     return const Center(child: CircularProgressIndicator());
@@ -142,19 +123,17 @@ class _ReelsViewState extends State<ReelsView> {
 
                   final Map<String, String> videoQualities = {
                     'Auto': reel.videoUrl,
-                    '720p': reel.videoUrl.replaceFirst('.mp4', '_720p.mp4'), // Dummy URL
-                    '480p': reel.videoUrl.replaceFirst('.mp4', '_480p.mp4'), // Dummy URL
+                    '720p': reel.videoUrl.replaceFirst('.mp4', '_720p.mp4'),
+                    '480p': reel.videoUrl.replaceFirst('.mp4', '_480p.mp4'),
                   };
+
                   return Stack(
                     children: [
-                      Semantics(
-                        label: 'Video player for reel titled ${reel.title}',
-                        child: CustomVideoPlayer(
-                          videoPlayerController: videoController,
-                          videoQualities: videoQualities,
-                          autoplay: true,
-                          looping: true,
-                        ),
+                      CustomVideoPlayer(
+                        videoPlayerController: videoController,
+                        videoQualities: videoQualities,
+                        autoplay: true,
+                        looping: true,
                       ),
                       Positioned(
                         bottom: 20,
@@ -162,83 +141,60 @@ class _ReelsViewState extends State<ReelsView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Semantics(
-                              label: 'Reel title: ${reel.title}',
-                              child: Text(
-                                reel.title,
-                                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
+                            Text(
+                              reel.title,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
                             ),
-                            Semantics(
-                              label: 'Reel description: ${reel.description}',
-                              child: Text(
-                                reel.description,
-                                style: const TextStyle(color: Colors.white, fontSize: 16),
-                              ),
+                            Text(
+                              reel.description,
+                              style: const TextStyle(color: Colors.white, fontSize: 16),
                             ),
                             const SizedBox(height: 10),
                             Row(
                               children: [
-                                Semantics(
-                                  button: true,
-                                  label: 'Like button. Currently ${reel.likesCount} likes.',
-                                  child: IconButton(
-                                    icon: const Icon(Icons.favorite, color: Colors.white),
-                                    onPressed: () => reelProvider.likeReel(reel.id),
-                                  ),
+                                IconButton(
+                                  icon: const Icon(Icons.favorite, color: Colors.white),
+                                  onPressed: () => reelProvider.likeReel(reel.id),
                                 ),
-                                Semantics(
-                                  label: '${reel.likesCount} likes',
-                                  child: Text(
-                                    '${reel.likesCount}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
+                                Text(
+                                  '${reel.likesCount}',
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                                 const SizedBox(width: 20),
-                                Semantics(
-                                  button: true,
-                                  label: 'Comment button. Currently ${reel.commentsCount} comments.',
-                                  child: IconButton(
-                                    icon: const Icon(Icons.comment, color: Colors.white),
-                                    onPressed: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          isScrollControlled: true,
-                                          backgroundColor: Colors.transparent,
-                                          builder: (context) => Container(
-                                            height: MediaQuery.of(context).size.height * 0.7,
-                                            decoration: const BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                                            ),
-                                            child: CommentDialog(reelId: reel.id),
-                                          ),
-                                        );
-                                    },
-                                  ),
+                                IconButton(
+                                  icon: const Icon(Icons.comment, color: Colors.white),
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (context) => Container(
+                                        height: MediaQuery.of(context).size.height * 0.7,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.vertical(top: Radius.circular(20)),
+                                        ),
+                                        child: CommentDialog(reelId: reel.id),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                Semantics(
-                                  label: '${reel.commentsCount} comments',
-                                  child: Text(
-                                    '${reel.commentsCount}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
+                                Text(
+                                  '${reel.commentsCount}',
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                                 const SizedBox(width: 20),
-                                Semantics(
-                                  button: true,
-                                  label: 'Share button. Currently ${reel.sharesCount} shares.',
-                                  child: IconButton(
-                                    icon: const Icon(Icons.share, color: Colors.white),
-                                    onPressed: () => reelProvider.shareReel(reel.id),
-                                  ),
+                                IconButton(
+                                  icon: const Icon(Icons.share, color: Colors.white),
+                                  onPressed: () => reelProvider.shareReel(reel.id),
                                 ),
-                                Semantics(
-                                  label: '${reel.sharesCount} shares',
-                                  child: Text(
-                                    '${reel.sharesCount}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
+                                Text(
+                                  '${reel.sharesCount}',
+                                  style: const TextStyle(color: Colors.white),
                                 ),
                               ],
                             ),
@@ -255,3 +211,4 @@ class _ReelsViewState extends State<ReelsView> {
       ),
     );
   }
+}

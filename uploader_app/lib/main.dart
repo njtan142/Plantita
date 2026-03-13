@@ -25,15 +25,12 @@ class PlantitaUploaderApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
-        builder: (context, child) => ResponsiveWrapper.builder(
-          child,
-          maxWidth: 1200,
-          minWidth: 480,
-          defaultScale: true,
+        builder: (context, child) => ResponsiveBreakpoints.builder(
+          child: child!,
           breakpoints: [
-            const ResponsiveBreakpoint.resize(480, name: MOBILE),
-            const ResponsiveBreakpoint.autoScale(800, name: TABLET),
-            const ResponsiveBreakpoint.resize(1000, name: DESKTOP),
+            const Breakpoint(start: 0, end: 480, name: MOBILE),
+            const Breakpoint(start: 481, end: 800, name: TABLET),
+            const Breakpoint(start: 801, end: 1200, name: DESKTOP),
           ],
         ),
         title: AppConstants.appName,
