@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uploader_app/models/api_response_model.dart';
+import 'package:uploader_app/models/network_models.dart';
 import 'http_client_service.dart';
 
 /// Network optimization service with connection pooling and intelligent caching
@@ -64,7 +64,11 @@ class NetworkOptimizationService {
   /// Initialize the service
   void _initializeService() {
     // Set up connectivity monitoring
-    _connectivity.onConnectivityChanged.listen(_onConnectivityChanged as void Function(List<ConnectivityResult> event)?);
+    _connectivity.onConnectivityChanged.listen((event) {
+      if (event.isNotEmpty) {
+        _onConnectivityChanged(event.first);
+      }
+    });
 
     // Load cache durations for different endpoints
     _setupCacheDurations();
@@ -116,8 +120,8 @@ class NetworkOptimizationService {
   Future<void> _performConnectivityCheck() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      if (result != _currentConnectivity) {
-        _onConnectivityChanged(result as ConnectivityResult);
+      if (result.isNotEmpty && result.first != _currentConnectivity) {
+        _onConnectivityChanged(result.first);
       }
     } catch (e) {
       debugPrint('Error checking connectivity: $e');
@@ -161,7 +165,7 @@ class NetworkOptimizationService {
 
     try {
       // Get connection from pool
-      final connection = await _getConnection(url);
+      await _getConnection(url);
 
       // Make request
       final response = await _httpClient.get(
@@ -309,11 +313,15 @@ class NetworkOptimizationService {
   Future<OptimizedResponse> _waitForPendingRequest(String cacheKey) {
     final completer = _pendingRequests[cacheKey];
     if (completer != null) {
-      return completer.future.then((response) => OptimizedResponse.fromApiResponse(
-        ApiResponse.success(response, message: 'Request completed'),
-        false,
-        Duration.zero,
-      ));
+      return completer.future.then((response) {
+        if (response is OptimizedResponse) return response;
+        
+        return OptimizedResponse.fromApiResponse(
+          ApiResponse.success(response, message: 'Request completed'),
+          false,
+          Duration.zero,
+        );
+      });
     }
     throw NetworkOptimizationException('No pending request found');
   }
@@ -454,176 +462,4 @@ class NetworkOptimizationService {
     _pendingRequests.clear();
     _requestTimestamps.clear();
   }
-}
-
-/// Connection pool for managing HTTP connections
-class ConnectionPool {
-  final String host;
-  final int maxConnections;
-  int activeConnections = 0;
-  final Queue<Completer<void>> _waitingConnections = Queue();
-
-  ConnectionPool(this.host, this.maxConnections);
-
-  Future<ConnectionPool> getConnection(Duration timeout) async {
-    if (activeConnections < maxConnections) {
-      activeConnections++;
-      return this;
-    }
-
-    // Wait for available connection
-    final completer = Completer<void>();
-    _waitingConnections.add(completer);
-
-    try {
-      await completer.future.timeout(timeout);
-      activeConnections++;
-      return this;
-    } catch (e) {
-      _waitingConnections.remove(completer);
-      throw NetworkOptimizationException('Connection timeout');
-    }
-  }
-
-  void releaseConnection() {
-    activeConnections = activeConnections.clamp(0, maxConnections);
-
-    if (_waitingConnections.isNotEmpty) {
-      final waiting = _waitingConnections.removeFirst();
-      waiting.complete();
-    }
-  }
-}
-
-/// Cached response wrapper
-class CachedResponse {
-  final dynamic response;
-  final DateTime cachedAt;
-  final DateTime expiresAt;
-
-  const CachedResponse({
-    required this.response,
-    required this.cachedAt,
-    required this.expiresAt,
-  });
-
-  bool get isExpired => DateTime.now().isAfter(expiresAt);
-
-  Duration get remainingTime => expiresAt.difference(DateTime.now());
-
-  factory CachedResponse.fromJson(Map<String, dynamic> json) {
-    return CachedResponse(
-      response: json['response'],
-      cachedAt: DateTime.parse(json['cachedAt']),
-      expiresAt: DateTime.parse(json['expiresAt']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'response': response,
-      'cachedAt': cachedAt.toIso8601String(),
-      'expiresAt': expiresAt.toIso8601String(),
-    };
-  }
-}
-
-/// Optimized response with metadata
-class OptimizedResponse {
-  final dynamic data;
-  final bool fromCache;
-  final Duration responseTime;
-  final DateTime? cachedAt;
-  final int? statusCode;
-  final String? error;
-
-  const OptimizedResponse({
-    required this.data,
-    required this.fromCache,
-    required this.responseTime,
-    this.cachedAt,
-    this.statusCode,
-    this.error,
-  });
-
-  factory OptimizedResponse.fromApiResponse(ApiResponse response, bool fromCache, Duration responseTime) {
-    return OptimizedResponse(
-      data: response.data,
-      fromCache: fromCache,
-      responseTime: responseTime,
-      statusCode: response.statusCode,
-      error: response.message,
-    );
-  }
-
-  factory OptimizedResponse.fromCached(dynamic data, bool fromCache, DateTime cachedAt) {
-    return OptimizedResponse(
-      data: data,
-      fromCache: fromCache,
-      responseTime: Duration.zero,
-      cachedAt: cachedAt,
-    );
-  }
-
-  bool get isSuccess => error == null;
-}
-
-/// Network event types
-enum NetworkEventType {
-  connectivityChanged,
-  requestCompleted,
-  cacheHit,
-  cacheMiss,
-  cacheCleared,
-  error,
-}
-
-/// Network event data
-class NetworkEvent {
-  final NetworkEventType type;
-  final String? url;
-  final Duration? duration;
-  final ConnectivityResult? connectivity;
-  final Map<String, dynamic>? metadata;
-
-  const NetworkEvent({
-    required this.type,
-    this.url,
-    this.duration,
-    this.connectivity,
-    this.metadata,
-  });
-}
-
-/// Network statistics
-class NetworkStats {
-  final int activeConnections;
-  final int pendingRequests;
-  final int memoryCacheSize;
-  final int persistentCacheSize;
-  final ConnectivityResult connectivityStatus;
-
-  const NetworkStats({
-    required this.activeConnections,
-    required this.pendingRequests,
-    required this.memoryCacheSize,
-    required this.persistentCacheSize,
-    required this.connectivityStatus,
-  });
-
-  @override
-  String toString() {
-    return 'NetworkStats(connections: $activeConnections, pending: $pendingRequests, '
-        'memoryCache: $memoryCacheSize, persistentCache: $persistentCacheSize, '
-        'connectivity: ${connectivityStatus.name})';
-  }
-}
-
-/// Custom exception for network optimization errors
-class NetworkOptimizationException implements Exception {
-  final String message;
-  const NetworkOptimizationException(this.message);
-
-  @override
-  String toString() => message;
 }
