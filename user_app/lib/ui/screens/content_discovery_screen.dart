@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:user_app/ui/widgets/app_bar_with_search.dart';
@@ -6,7 +5,8 @@ import 'package:user_app/state_management/content_provider.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/reel.dart';
 import 'package:user_app/data/models/timelapse.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'components/horizontal_content_list.dart';
+import 'components/main_content_grid.dart';
 
 class ContentDiscoveryScreen extends StatefulWidget {
   const ContentDiscoveryScreen({super.key});
@@ -34,7 +34,8 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
     });
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !Provider.of<ContentProvider>(context, listen: false).isLoading) {
+      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && 
+          !Provider.of<ContentProvider>(context, listen: false).isLoading) {
         _loadMoreContent();
       }
     });
@@ -111,9 +112,9 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
       ),
       body: Consumer<ContentProvider>(
         builder: (context, contentProvider, child) {
-          if (contentProvider.isLoading) {
+          if (contentProvider.isLoading && contentProvider.content.isEmpty) {
             return const Center(child: CircularProgressIndicator());
-          } else if (contentProvider.errorMessage != null) {
+          } else if (contentProvider.errorMessage != null && contentProvider.content.isEmpty) {
             return ErrorStateWidget(
               message: contentProvider.errorMessage!,
               onRetry: () => _searchContent(),
@@ -122,128 +123,26 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
             return RefreshIndicator(
               onRefresh: _handleRefresh,
               child: SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Trending Content',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
+                    HorizontalContentList(
+                      title: 'Trending Content',
+                      items: contentProvider.trendingContent,
                     ),
-                    SizedBox(
-                      height: 200, // Adjust height as needed
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: contentProvider.trendingContent.length,
-                        itemBuilder: (context, index) {
-                          final item = contentProvider.trendingContent[index];
-                          String title = '';
-                          if (item is Reel) {
-                            title = item.title;
-                          } else if (item is Timelapse) {
-                            title = item.title;
-                          }
-                          return Card(
-                            margin: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: 150, // Adjust width as needed
-                              child: Center(child: Text(title)),
-                            ),
-                          );
-                        },
-                      ),
+                    HorizontalContentList(
+                      title: 'Popular Content',
+                      items: contentProvider.popularContent,
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Popular Content',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
+                    HorizontalContentList(
+                      title: 'Recommended Content',
+                      items: contentProvider.recommendedContent,
                     ),
-                    SizedBox(
-                      height: 200, // Adjust height as needed
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: contentProvider.popularContent.length,
-                        itemBuilder: (context, index) {
-                          final item = contentProvider.popularContent[index];
-                          String title = '';
-                          if (item is Reel) {
-                            title = item.title;
-                          } else if (item is Timelapse) {
-                            title = item.title;
-                          }
-                          return Card(
-                            margin: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: 150, // Adjust width as needed
-                              child: Center(child: Text(title)),
-                            ),
-                          );
-                        },
-                      ),
+                    MainContentGrid(
+                      items: contentProvider.content,
+                      onLongPress: (item) => _showContentContextMenu(context, item),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Recommended Content',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 200, // Adjust height as needed
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: contentProvider.recommendedContent.length,
-                        itemBuilder: (context, index) {
-                          final item = contentProvider.recommendedContent[index];
-                          String title = '';
-                          if (item is Reel) {
-                            title = item.title;
-                          } else if (item is Timelapse) {
-                            title = item.title;
-                          }
-                          return Card(
-                            margin: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: 150, // Adjust width as needed
-                              child: Center(child: Text(title)),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'All Content',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    if (contentProvider.content.isEmpty)
-                      const Center(child: Text('No content found.'))
-                    else
-                      ...contentProvider.content.map((item) {
-                          return GestureDetector(
-                            onLongPress: () {
-                              _showContentContextMenu(context, item);
-                            },
-                            child: Card(
-                              child: InteractiveViewer(
-                                child: item.thumbnailUrl.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        imageUrl: item.thumbnailUrl,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                                      )
-                                    : const Center(child: Text('No Thumbnail')),
-                              ),
-                            ),
-                          );
-                        }),
                   ],
                 ),
               ),
@@ -272,16 +171,13 @@ class _ContentDiscoveryScreenState extends State<ContentDiscoveryScreen> {
                 title: const Text('View Details'),
                 onTap: () {
                   Navigator.pop(bc);
-                  // TODO: Navigate to content detail screen based on type
                   if (contentItem is Reel) {
-                    print('View details for Reel: ${contentItem.title}');
+                    debugPrint('View details for Reel: ${contentItem.title}');
                   } else if (contentItem is Timelapse) {
-                    print('View details for Timelapse: ${contentItem.title}');
+                    debugPrint('View details for Timelapse: ${contentItem.title}');
                   }
                 },
               ),
-              // Add other relevant actions like share, add to playlist, etc.
-              // These would need to be implemented based on content type
             ],
           ),
         );
