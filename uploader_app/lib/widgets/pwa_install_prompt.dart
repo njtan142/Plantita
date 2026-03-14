@@ -3,6 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../services/pwa_service.dart';
 import '../services/analytics_service.dart';
+import 'pwa/components/pwa_status_widget.dart';
+import 'pwa/components/pwa_background_sync_indicator.dart';
+import 'pwa/components/pwa_install_button.dart';
+
+export 'pwa/components/pwa_status_widget.dart';
+export 'pwa/components/pwa_background_sync_indicator.dart';
+export 'pwa/components/pwa_install_button.dart';
 
 /// PWA Install Prompt Widget
 class PWAInstallPrompt extends StatefulWidget {
@@ -204,11 +211,11 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
                         ),
                       ),
                       const SizedBox(height: 4),
- Text('Install as an app for a better experience',
- style: Theme.of(context).textTheme.bodyMedium!.copyWith(
- color: Colors.white.withAlpha((255 * 0.9).round()),
- ),
- ),
+                      Text('Install as an app for a better experience',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Colors.white.withAlpha((255 * 0.9).round()),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -260,160 +267,6 @@ class _PWAInstallPromptState extends State<PWAInstallPrompt>
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// PWA Status Widget
-class PWAStatusWidget extends StatelessWidget {
-  final PWAService pwaService;
-
-  const PWAStatusWidget({
-    super.key,
-    required this.pwaService,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<bool>(
-      stream: pwaService.onlineStatusStream,
-      initialData: pwaService.isOnline,
-      builder: (context, snapshot) {
-        final isOnline = snapshot.data ?? true;
-
-        if (isOnline && pwaService.isInstalled) {
-          return const SizedBox.shrink();
-        }
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: isOnline ? Colors.green : Colors.orange,
-          child: Row(
-            children: [
-              Icon(
-                isOnline ? Icons.wifi : Icons.wifi_off,
-                color: Colors.white,
-                size: 16,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                isOnline
-                    ? 'Online - PWA Ready'
-                    : 'Offline - Limited functionality',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              if (!isOnline) ...[
-                const SizedBox(width: 8),
-                Text(
-                  '(${pwaService.syncStream.length} pending)',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// PWA Background Sync Indicator
-class PWABackgroundSyncIndicator extends StatelessWidget {
-  final PWAService pwaService;
-
-  const PWABackgroundSyncIndicator({
-    super.key,
-    required this.pwaService,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<BackgroundSyncTask>(
-      stream: pwaService.syncStream,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox.shrink();
-        }
-
-        final task = snapshot.data!;
-        return Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blue.withAlpha((255 * 0.1).round()),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Syncing: ${task.type}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// PWA Install Button
-class PWAInstallButton extends StatelessWidget {
-  final PWAService pwaService;
-  final VoidCallback? onInstallStarted;
-
-  const PWAInstallButton({
-    super.key,
-    required this.pwaService,
-    this.onInstallStarted,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (!kIsWeb || pwaService.isInstalled) {
-      return const SizedBox.shrink();
-    }
-
-    return ElevatedButton.icon(
-      onPressed: () async {
-        try {
-          await pwaService.showInstallPrompt();
-          onInstallStarted?.call();
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Installation failed: $e'),
-              action: SnackBarAction(
-                label: 'Retry',
-                onPressed: () => pwaService.showInstallPrompt(),
-              ),
-            ),
-          );
-        }
-      },
-      icon: const Icon(Icons.download),
-      label: const Text('Install App'),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
