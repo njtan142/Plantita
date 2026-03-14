@@ -5,7 +5,8 @@ import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
 import 'package:user_app/state_management/timelapse_provider.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/timelapse.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'components/timelapse_card.dart';
+import 'components/gallery_filters.dart';
 
 class TimelapseGallery extends StatefulWidget {
   const TimelapseGallery({super.key});
@@ -90,45 +91,26 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
       appBar: AppBar(
         title: const Text('Timelapse Gallery'),
         actions: [
-          DropdownButton<String>(
-            value: _selectedPlantType,
-            onChanged: (String? newValue) {
+          GalleryFilters(
+            selectedPlantType: _selectedPlantType,
+            selectedDuration: _selectedDuration,
+            plantTypes: _plantTypes,
+            durations: _durations,
+            onPlantTypeChanged: (newValue) {
               setState(() {
                 _selectedPlantType = newValue!;
               });
               _handleRefresh();
             },
-            items: _plantTypes.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-          const SizedBox(width: 10),
-          DropdownButton<String>(
-            value: _selectedDuration,
-            onChanged: (String? newValue) {
+            onDurationChanged: (newValue) {
               setState(() {
                 _selectedDuration = newValue!;
               });
               _handleRefresh();
             },
-            items: _durations.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
+            selectedCount: _selectedTimelapses.length,
+            onCompare: _compareSelectedTimelapses,
           ),
-          const SizedBox(width: 10),
-          if (_selectedTimelapses.length == 2)
-            IconButton(
-              icon: const Icon(Icons.compare),
-              onPressed: _compareSelectedTimelapses,
-              tooltip: 'Compare Selected',
-            ),
-          const SizedBox(width: 10),
         ],
       ),
       body: Consumer<TimelapseProvider>(
@@ -152,58 +134,13 @@ class _TimelapseGalleryState extends State<TimelapseGallery> {
               child: ResponsiveGridLayout(
                 controller: _scrollController,
                 children: timelapseProvider.timelapses.map((timelapse) {
-                  return GestureDetector(
-                    onLongPress: () {
-                      _showTimelapseContextMenu(context, timelapse);
-                    },
-                    child: Card(
-                      color: _selectedTimelapses.contains(timelapse)
-                          ? Colors.blue.withOpacity(0.5)
-                          : null,
-                      child: InkWell(
-                        onTap: () => _toggleTimelapseSelection(timelapse),
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: timelapse.thumbnailUrl.isNotEmpty
-                                  ? CachedNetworkImage(
-                                      imageUrl: timelapse.thumbnailUrl,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const Center(child: CircularProgressIndicator()),
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.error),
-                                    )
-                                  : const Center(child: Text('No Thumbnail')),
-                            ),
-                            Center(
-                              child: Text(timelapse.title,
-                                  style: const TextStyle(
-                                      color: Colors.white, backgroundColor: Colors.black54)),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.playlist_add),
-                                    onPressed: () => _showAddToPlaylistDialog(timelapse),
-                                    tooltip: 'Add to Playlist',
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.download),
-                                    onPressed: () =>
-                                        timelapseProvider.downloadTimelapse(timelapse.videoUrl),
-                                    tooltip: 'Download Timelapse',
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  return TimelapseCard(
+                    timelapse: timelapse,
+                    isSelected: _selectedTimelapses.contains(timelapse),
+                    onTap: () => _toggleTimelapseSelection(timelapse),
+                    onLongPress: () => _showTimelapseContextMenu(context, timelapse),
+                    onAddToPlaylist: () => _showAddToPlaylistDialog(timelapse),
+                    onDownload: () => timelapseProvider.downloadTimelapse(timelapse.videoUrl),
                   );
                 }).toList(),
               ),
