@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
+import '../models/image_models.dart';
 
 /// Image optimization service for processing and compressing images
 class ImageOptimizationService {
@@ -43,7 +44,7 @@ class ImageOptimizationService {
       if (_imageCache.containsKey(cacheKey)) {
         final cached = _imageCache[cacheKey]?.target;
         if (cached != null) {
-          return Future.value(OptimizedImage(
+          return OptimizedImage(
             originalBytes: imageBytes,
             optimizedBytes: cached,
             originalSize: imageBytes.length,
@@ -52,7 +53,7 @@ class ImageOptimizationService {
             height: 0,
             format: format,
             processingTime: DateTime.now().difference(startTime),
-          ));
+          );
         }
       }
 
@@ -68,7 +69,7 @@ class ImageOptimizationService {
       // Cache result
       _imageCache[cacheKey] = WeakReference(result.optimizedBytes);
 
-      return Future.value(result);
+      return result;
     } catch (e) {
       throw ImageOptimizationException('Failed to optimize image: $e');
     }
@@ -138,21 +139,12 @@ class ImageOptimizationService {
       }
 
       late img.Image resizedImage;
-      if (maintainAspectRatio) {
-        resizedImage = img.copyResize(
-          originalImage,
-          width: width,
-          height: height,
-          interpolation: img.Interpolation.cubic,
-        );
-      } else {
-        resizedImage = img.copyResize(
-          originalImage,
-          width: width,
-          height: height,
-          interpolation: img.Interpolation.cubic,
-        );
-      }
+      resizedImage = img.copyResize(
+        originalImage,
+        width: width,
+        height: height,
+        interpolation: img.Interpolation.cubic,
+      );
 
       return Uint8List.fromList(img.encodeJpg(resizedImage, quality: _quality));
     } catch (e) {
@@ -447,74 +439,4 @@ class ImageOptimizationService {
       'maxFileSize': _maxFileSize,
     };
   }
-}
-
-/// Image quality settings
-enum ImageQuality {
-  low,
-  medium,
-  high,
-  original,
-}
-
-/// Image format options
-enum ImageFormat {
-  auto,
-  jpeg,
-  png,
-  webp,
-}
-
-/// Optimized image result
-class OptimizedImage {
-  final Uint8List originalBytes;
-  final Uint8List optimizedBytes;
-  final int originalSize;
-  final int optimizedSize;
-  final int width;
-  final int height;
-  final ImageFormat format;
-  final Duration processingTime;
-
-  const OptimizedImage({
-    required this.originalBytes,
-    required this.optimizedBytes,
-    required this.originalSize,
-    required this.optimizedSize,
-    required this.width,
-    required this.height,
-    required this.format,
-    required this.processingTime,
-  });
-
-  double get compressionRatio => originalSize > 0 ? optimizedSize / originalSize : 0;
-  double get sizeReduction => (originalSize - optimizedSize).toDouble();
-  double get processingSpeed => originalSize / processingTime.inMilliseconds; // bytes per ms
-
-  @override
-  String toString() {
-    return 'OptimizedImage(size: ${optimizedSize ~/ 1024}KB, ratio: ${(compressionRatio * 100).toStringAsFixed(1)}%, time: ${processingTime.inMilliseconds}ms)';
-  }
-}
-
-/// Image dimensions
-class ImageDimensions {
-  final int width;
-  final int height;
-  final double aspectRatio;
-
-  const ImageDimensions({
-    required this.width,
-    required this.height,
-    required this.aspectRatio,
-  });
-}
-
-/// Custom exception for image optimization errors
-class ImageOptimizationException implements Exception {
-  final String message;
-  const ImageOptimizationException(this.message);
-
-  @override
-  String toString() => message;
 }
