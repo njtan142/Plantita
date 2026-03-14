@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:form_field_validator/form_field_validator.dart';
 import '../../utils/responsive_config.dart';
-import '../../widgets/common/custom_button.dart';
-import '../../widgets/common/custom_text_field.dart';
+import 'components/forgot_password_header.dart';
+import 'components/forgot_password_form.dart';
+import 'components/forgot_password_success.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -76,13 +76,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Ticker
       // Simulate API call
       await Future.delayed(const Duration(seconds: 2));
 
-      setState(() {
-        _emailSent = true;
-      });
+      if (mounted) {
+        setState(() {
+          _emailSent = true;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString().replaceAll('Exception: ', '');
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
+        });
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -132,42 +136,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Ticker
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: 60.h),
-
-                    // Icon
-                    Icon(
-                      _emailSent ? Icons.check_circle : Icons.lock_reset,
-                      size: responsive.iconSize * 3,
-                      color: Colors.white,
-                    ),
-                    SizedBox(height: 20.h),
-
-                    // Title
-                    Text(
-                      _emailSent ? 'Check Your Email' : 'Reset Password',
-                      style: TextStyle(
-                        fontSize: responsive.titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-
-                    // Subtitle
-                    Text(
-                      _emailSent
-                          ? 'We\'ve sent a password reset link to\n${_emailController.text}'
-                          : 'Enter your email address and we\'ll send you\na link to reset your password',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: responsive.subtitleFontSize,
-                        color: Colors.white.withAlpha((255 * 0.9).round()),
-                      ),
+                    ForgotPasswordHeader(
+                      emailSent: _emailSent,
+                      email: _emailController.text,
+                      responsive: responsive,
                     ),
 
-                    SizedBox(height: 60.h),
-
-                    // Card
                     Container(
                       width: double.infinity,
                       constraints: BoxConstraints(
@@ -185,7 +159,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Ticker
                           ),
                         ],
                       ),
-                      child: _emailSent ? _buildSuccessContent() : _buildFormContent(),
+                      child: _emailSent 
+                        ? ForgotPasswordSuccess(
+                            onBackToSignIn: () => Navigator.of(context).pop(),
+                            onResend: _resetPassword,
+                            responsive: responsive,
+                          ) 
+                        : ForgotPasswordForm(
+                            formKey: _formKey,
+                            emailController: _emailController,
+                            isLoading: _isLoading,
+                            errorMessage: _errorMessage,
+                            onReset: _resetPassword,
+                            onBackToSignIn: () => Navigator.of(context).pop(),
+                            responsive: responsive,
+                          ),
                     ),
                   ],
                 ),
@@ -194,162 +182,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> with Ticker
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildFormContent() {
-    final responsive = ResponsiveConfig(context);
-
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Forgot Password?',
-            style: TextStyle(
-              fontSize: responsive.headerFontSize,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'No worries! Enter your email and we\'ll help you reset it.',
-            style: TextStyle(
-              fontSize: responsive.bodyFontSize,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-
-          SizedBox(height: 32.h),
-
-          // Error Message
-          if (_errorMessage != null)
-            Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: Theme.of(context).colorScheme.error,
-                    size: 20.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  Expanded(
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: responsive.bodyFontSize,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          if (_errorMessage != null) SizedBox(height: 24.h),
-
-          // Email Field
-          CustomTextField(
-            controller: _emailController,
-            label: 'Email Address',
-            hint: 'Enter your registered email',
-            prefixIcon: Icons.email,
-            keyboardType: TextInputType.emailAddress,
-            validator: MultiValidator([
-              RequiredValidator(errorText: 'Email is required'),
-              EmailValidator(errorText: 'Enter a valid email address'),
-            ]).call,
-          ),
-
-          SizedBox(height: 32.h),
-
-          // Reset Button
-          CustomButton(
-            onPressed: _isLoading ? null : _resetPassword,
-            text: _isLoading ? 'Sending...' : 'Send Reset Link',
-            isLoading: _isLoading,
-            minimumSize: Size(double.infinity, 56.h),
-          ),
-
-          SizedBox(height: 24.h),
-
-          // Back to Login
-          Center(
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: TextButton.styleFrom(
-                minimumSize: Size(44.w, 44.h),
-              ),
-              child: Text(
-                'Back to Sign In',
-                style: TextStyle(
-                  fontSize: responsive.bodyFontSize,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuccessContent() {
-    final responsive = ResponsiveConfig(context);
-
-    return Column(
-      children: [
-        Icon(
-          Icons.mark_email_read,
-          size: 64.sp,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        SizedBox(height: 24.h),
-        Text(
-          'Email Sent!',
-          style: TextStyle(
-            fontSize: responsive.headerFontSize,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-        ),
-        SizedBox(height: 16.h),
-        Text(
-          'Please check your inbox and follow the instructions to reset your password.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: responsive.bodyFontSize,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        SizedBox(height: 32.h),
-        CustomButton(
-          onPressed: () => Navigator.of(context).pop(),
-          text: 'Back to Sign In',
-          minimumSize: Size(double.infinity, 56.h),
-        ),
-        SizedBox(height: 16.h),
-        TextButton(
-          onPressed: _resetPassword,
-          style: TextButton.styleFrom(
-            minimumSize: Size(44.w, 44.h),
-          ),
-          child: Text(
-            'Resend Email',
-            style: TextStyle(
-              fontSize: responsive.bodyFontSize,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
