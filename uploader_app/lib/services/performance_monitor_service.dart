@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import '../models/performance_monitor_models.dart';
+
+export '../models/performance_monitor_models.dart' show PerformanceEventType;
 
 /// Performance monitoring service for tracking app metrics
 class PerformanceMonitorService {
@@ -164,7 +167,6 @@ class PerformanceMonitorService {
   PerformanceStats getStats() {
     final events = _eventHistory.toList();
 
-    // Calculate averages
     final networkEvents = events.where((e) => e.type == PerformanceEventType.metric && e.name.startsWith('network_'));
     final imageEvents = events.where((e) => e.type == PerformanceEventType.metric && e.name.startsWith('image_'));
     final memoryEvents = events.where((e) => e.type == PerformanceEventType.memory);
@@ -211,7 +213,6 @@ class PerformanceMonitorService {
 
   /// Internal method to record events
   void _recordEvent(PerformanceEvent event) {
-    // Add timestamp if not present
     final eventWithTimestamp = event.copyWith(
       metadata: {
         ...?event.metadata,
@@ -219,16 +220,13 @@ class PerformanceMonitorService {
       },
     );
 
-    // Add to history
     _eventHistory.add(eventWithTimestamp);
     if (_eventHistory.length > _maxEventHistory) {
       _eventHistory.removeFirst();
     }
 
-    // Emit event
     _eventController.add(eventWithTimestamp);
 
-    // Log warnings for performance issues
     _checkPerformanceThresholds(eventWithTimestamp);
   }
 
@@ -253,97 +251,5 @@ class PerformanceMonitorService {
     _eventController.close();
     _trackers.clear();
     _eventHistory.clear();
-  }
-}
-
-/// Metric tracker for timing operations
-class MetricTracker {
-  final String name;
-  final DateTime startTime;
-  final Map<String, dynamic>? metadata;
-
-  const MetricTracker({
-    required this.name,
-    required this.startTime,
-    this.metadata,
-  });
-}
-
-/// Performance event types
-enum PerformanceEventType {
-  metric,
-  memory,
-  battery,
-  connectivity,
-  error,
-}
-
-/// Performance event data
-class PerformanceEvent {
-  final PerformanceEventType type;
-  final String name;
-  final Duration? duration;
-  final Map<String, dynamic>? metadata;
-
-  const PerformanceEvent({
-    required this.type,
-    required this.name,
-    this.duration,
-    this.metadata,
-  });
-
-  PerformanceEvent copyWith({
-    PerformanceEventType? type,
-    String? name,
-    Duration? duration,
-    Map<String, dynamic>? metadata,
-  }) {
-    return PerformanceEvent(
-      type: type ?? this.type,
-      name: name ?? this.name,
-      duration: duration ?? this.duration,
-      metadata: metadata ?? this.metadata,
-    );
-  }
-}
-
-/// Performance statistics
-class PerformanceStats {
-  final int totalEvents;
-  final int networkRequests;
-  final int imageOperations;
-  final Duration averageNetworkTime;
-  final Duration averageImageProcessingTime;
-  final double averageMemoryUsage;
-  final int errorCount;
-  final int slowNetworkRequests;
-  final int slowImageOperations;
-
-  const PerformanceStats({
-    required this.totalEvents,
-    required this.networkRequests,
-    required this.imageOperations,
-    required this.averageNetworkTime,
-    required this.averageImageProcessingTime,
-    required this.averageMemoryUsage,
-    required this.errorCount,
-    required this.slowNetworkRequests,
-    required this.slowImageOperations,
-  });
-
-  double get errorRate => networkRequests > 0 ? errorCount / networkRequests : 0;
-  double get slowNetworkRate => networkRequests > 0 ? slowNetworkRequests / networkRequests : 0;
-  double get slowImageRate => imageOperations > 0 ? slowImageOperations / imageOperations : 0;
-
-  @override
-  String toString() {
-    return 'PerformanceStats('
-        'events: $totalEvents, '
-        'network: $networkRequests (${averageNetworkTime.inMilliseconds}ms avg), '
-        'images: $imageOperations (${averageImageProcessingTime.inMilliseconds}ms avg), '
-        'memory: ${averageMemoryUsage.toStringAsFixed(1)}MB, '
-        'errors: $errorCount (${(errorRate * 100).toStringAsFixed(1)}%), '
-        'slowNetwork: $slowNetworkRequests (${(slowNetworkRate * 100).toStringAsFixed(1)}%), '
-        'slowImages: $slowImageOperations (${(slowImageRate * 100).toStringAsFixed(1)}%))';
   }
 }
