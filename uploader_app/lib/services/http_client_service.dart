@@ -5,6 +5,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:retry/retry.dart';
 import '../models/models.dart';
+import '../models/http_models.dart';
 
 /// HTTP client service for handling all API requests with authentication and error handling
 class HttpClientService {
@@ -58,15 +59,12 @@ class HttpClientService {
   Map<String, String> _buildHeaders({bool includeAuth = true, Map<String, String>? additionalHeaders}) {
     final headers = Map<String, String>.from(_defaultHeaders);
 
-    // Add content type if not specified
     headers.putIfAbsent('Content-Type', () => 'application/json');
 
-    // Add authentication if available and requested
     if (includeAuth && _currentToken != null && !_currentToken!.isExpired) {
       headers['Authorization'] = '${_currentToken!.tokenType} ${_currentToken!.accessToken}';
     }
 
-    // Add additional headers
     if (additionalHeaders != null) {
       headers.addAll(additionalHeaders);
     }
@@ -78,9 +76,9 @@ class HttpClientService {
   Future<bool> _hasConnectivity() async {
     try {
       final result = await _connectivity.checkConnectivity();
-      return result != ConnectivityResult.none;
+      return result.isNotEmpty && result.first != ConnectivityResult.none;
     } catch (e) {
-      return true; // Assume connected if we can't check
+      return true;
     }
   }
 
@@ -90,7 +88,6 @@ class HttpClientService {
     bool retryOnFailure = true,
     int maxRetries = 3,
   }) async {
-    // Check connectivity first
     if (!await _hasConnectivity()) {
       throw NetworkException('No internet connection');
     }
@@ -101,9 +98,7 @@ class HttpClientService {
           () async {
             final response = await request().timeout(_timeout);
             if (response.statusCode == 401 && _currentToken != null) {
-              // Token might be expired, try to refresh
               await _handleUnauthorized();
-              // Retry with new token
               return await request().timeout(_timeout);
             }
             return response;
@@ -125,19 +120,9 @@ class HttpClientService {
     }
   }
 
-  /// Handle unauthorized access (token refresh)
+  /// Handle unauthorized access
   Future<void> _handleUnauthorized() async {
-    if (_currentToken?.refreshToken != null) {
-      try {
-        // This would typically call a refresh endpoint
-        // For now, we'll just clear the token
-        clearAuth();
-      } catch (e) {
-        clearAuth();
-      }
-    } else {
-      clearAuth();
-    }
+    clearAuth();
   }
 
   /// GET request
@@ -149,7 +134,6 @@ class HttpClientService {
     bool retryOnFailure = true,
   }) async {
     try {
-      // Build URL with query parameters
       final uri = Uri.parse('$baseUrl$path').replace(
         queryParameters: queryParams?.map((key, value) => MapEntry(key, value.toString())),
       );
@@ -262,10 +246,8 @@ class HttpClientService {
       final uri = Uri.parse('$baseUrl$path');
       final request = http.MultipartRequest('POST', uri);
 
-      // Add headers
       request.headers.addAll(_buildHeaders(includeAuth: true, additionalHeaders: headers));
 
-      // Add file
       request.files.add(http.MultipartFile.fromBytes(
         fieldName,
         fileBytes,
@@ -273,14 +255,12 @@ class HttpClientService {
         contentType: MediaType.parse(mimeType),
       ));
 
-      // Add additional fields
       if (fields != null) {
         fields.forEach((key, value) {
           request.fields[key] = value;
         });
       }
 
-      // Send request with progress tracking
       final streamedResponse = await _client.send(request);
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -290,14 +270,13 @@ class HttpClientService {
     }
   }
 
-  /// Handle HTTP response and convert to ApiResponse
+  /// Handle HTTP response
   ApiResponse<T> _handleResponse<T>(http.Response response, T Function(Map<String, dynamic>)? fromJson) {
     try {
       final statusCode = response.statusCode;
       final responseBody = response.body.isNotEmpty ? jsonDecode(response.body) : {};
 
       if (statusCode >= 200 && statusCode < 300) {
-        // Success response
         if (fromJson != null && responseBody is Map<String, dynamic>) {
           return ApiResponse.success(
             fromJson(responseBody),
@@ -312,7 +291,6 @@ class HttpClientService {
           );
         }
       } else {
-        // Error response
         String? message;
         Map<String, dynamic>? errors;
 
@@ -339,7 +317,7 @@ class HttpClientService {
     }
   }
 
-  /// Get default error message for status code
+  /// Get default error message
   String _getDefaultErrorMessage(int statusCode) {
     switch (statusCode) {
       case 400:
@@ -365,17 +343,8 @@ class HttpClientService {
     }
   }
 
-  /// Close the HTTP client
+  /// Dispose client
   void dispose() {
     _client.close();
   }
-}
-
-/// Custom exception for network-related errors
-class NetworkException implements Exception {
-  final String message;
-  const NetworkException(this.message);
-
-  @override
-  String toString() => message;
 }
