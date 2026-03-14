@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uploader_app/services/memory_management_service.dart';
+import 'package:uploader_app/models/memory_models.dart';
 
 class TestMemoryManagementService extends MemoryManagementService {
   MemoryInfo? mockMemoryInfo;

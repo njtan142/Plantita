@@ -7,13 +7,13 @@ class AuthTokenModel {
   final String tokenType;
   final String scope;
 
-  const AuthTokenModel({
+  AuthTokenModel({
     required this.accessToken,
     required this.refreshToken,
-    required this.expiresAt,
+    required DateTime expiresAt,
     this.tokenType = 'Bearer',
     this.scope = 'read write',
-  });
+  }) : expiresAt = DateTime.parse(expiresAt.toIso8601String());
 
   // Check if token is expired
   bool get isExpired => DateTime.now().isAfter(expiresAt);
@@ -115,9 +115,11 @@ class AuthTokenModel {
     // Handle expiresAt - either from expires_at or calculated from expires_in
     DateTime expiresAt;
     if (map.containsKey('expires_at')) {
-      expiresAt = DateTime.parse(map['expires_at'] as String);
+      final val = map['expires_at'];
+      expiresAt = val is DateTime ? val : DateTime.parse(val as String);
     } else if (map.containsKey('expiresAt')) {
-      expiresAt = DateTime.parse(map['expiresAt'] as String);
+      final val = map['expiresAt'];
+      expiresAt = val is DateTime ? val : DateTime.parse(val as String);
     } else if (map.containsKey('expires_in')) {
       final expiresInSeconds = map['expires_in'] as int;
       expiresAt = DateTime.now().add(Duration(seconds: expiresInSeconds));
@@ -174,7 +176,7 @@ class AuthTokenModel {
     return other is AuthTokenModel &&
         other.accessToken == accessToken &&
         other.refreshToken == refreshToken &&
-        other.expiresAt == expiresAt &&
+        other.expiresAt.millisecondsSinceEpoch == expiresAt.millisecondsSinceEpoch &&
         other.tokenType == tokenType &&
         other.scope == scope;
   }
@@ -183,7 +185,7 @@ class AuthTokenModel {
   int get hashCode {
     return accessToken.hashCode ^
         refreshToken.hashCode ^
-        expiresAt.hashCode ^
+        expiresAt.millisecondsSinceEpoch.hashCode ^
         tokenType.hashCode ^
         scope.hashCode;
   }

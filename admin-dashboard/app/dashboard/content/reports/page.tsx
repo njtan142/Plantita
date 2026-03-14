@@ -9,7 +9,7 @@ import { ReportExportToolbar } from '@/components/content/ReportExportToolbar';
 import { toast } from 'sonner';
 
 export default function ContentReportingPage() {
-  const [dateRange, setDateRange] = useState<{
+  const [dateRange] = useState<{
     start: string;
     end: string;
   } | null>(null);

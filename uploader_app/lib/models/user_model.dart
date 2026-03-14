@@ -41,16 +41,18 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] as int,
-      username: map['username'] as String,
-      email: map['email'] as String,
-      firstName: map['first_name'] as String,
-      lastName: map['last_name'] as String,
-      profileImageUrl: map['profile_image_url'] as String?,
+      id: (map['id'] as num?)?.toInt() ?? 0,
+      username: map['username'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      firstName: map['first_name'] as String? ?? map['firstName'] as String? ?? '',
+      lastName: map['last_name'] as String? ?? map['lastName'] as String? ?? '',
+      profileImageUrl: map['profile_image_url'] as String? ?? map['avatar'] as String?,
       department: map['department'] as String?,
       employeeId: map['employee_id'] as String?,
-      isActive: map['is_active'] as bool? ?? true,
-      createdAt: DateTime.parse(map['created_at'] as String),
+      isActive: map['is_active'] as bool? ?? map['isActive'] as bool? ?? true,
+      createdAt: map['created_at'] != null 
+          ? DateTime.parse(map['created_at'] as String) 
+          : DateTime.now(),
       lastLoginAt: map['last_login_at'] != null
           ? DateTime.parse(map['last_login_at'] as String)
           : null,

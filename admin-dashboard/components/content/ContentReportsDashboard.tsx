@@ -1,16 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { 
-  TrendingUp, 
-  Users, 
-  Image as ImageIcon,
-  Flag,
   Download
 } from 'lucide-react';
 import { reportingService } from '@/services/reportingService';
@@ -39,7 +33,8 @@ export function ContentReportsDashboard({ dateRange }: ContentReportsDashboardPr
 
   useEffect(() => {
     fetchAllReports();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange]);
 
   const fetchAllReports = async () => {
     try {

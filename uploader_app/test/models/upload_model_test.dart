@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:uploader_app/models/upload_model.dart';
+import 'package:uploader_app/models/upload_model.dart' show Upload, UploadStatus;
+import 'package:uploader_app/models/upload_service_models.dart';
 
 void main() {
   group('Upload Model Tests', () {
@@ -537,8 +538,6 @@ void main() {
       final queuedAt = DateTime.now();
       final queueItem = UploadQueueItem(
         upload: upload,
-        multipartFile: null,
-        webFile: null,
         onProgress: (progress) {},
         onComplete: (upload) {},
         onError: (error) {},
@@ -546,8 +545,6 @@ void main() {
       );
 
       expect(queueItem.upload, upload);
-      expect(queueItem.multipartFile, null);
-      expect(queueItem.webFile, null);
       expect(queueItem.onProgress, isNotNull);
       expect(queueItem.onComplete, isNotNull);
       expect(queueItem.onError, isNotNull);

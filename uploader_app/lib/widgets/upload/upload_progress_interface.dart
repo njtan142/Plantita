@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../models/user_model.dart';
-import '../../models/upload_model.dart';
+import '../../models/upload_model.dart' hide UploadStatus;
 import '../../services/upload_service.dart';
 import '../../utils/responsive_config.dart';
 import '../common/custom_button.dart';

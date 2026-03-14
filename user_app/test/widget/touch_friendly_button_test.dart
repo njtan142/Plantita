@@ -26,7 +26,7 @@ void main() {
 
     testWidgets('button displays its child widget', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
           home: Scaffold(
             body: TouchFriendlyButton(
               onPressed: () {},

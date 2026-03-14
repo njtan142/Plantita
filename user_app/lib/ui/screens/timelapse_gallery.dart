@@ -5,8 +5,8 @@ import 'package:user_app/ui/widgets/responsive_grid_layout.dart';
 import 'package:user_app/state_management/timelapse_provider.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/timelapse.dart';
-import 'components/timelapse_card.dart';
-import 'components/gallery_filters.dart';
+import 'timelapse_gallery/components/timelapse_card.dart';
+import 'timelapse_gallery/components/gallery_filters.dart';
 
 class TimelapseGallery extends StatefulWidget {
   const TimelapseGallery({super.key});

@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { 
   Select, 
   SelectContent, 
@@ -37,11 +35,7 @@ import {
 import { 
   FileText, 
   Plus, 
-  Edit, 
-  Trash2, 
-  Eye,
-  RotateCcw,
-  Tag
+  RotateCcw
 } from 'lucide-react';
 import { communicationService } from '@/services/communicationService';
 import { 

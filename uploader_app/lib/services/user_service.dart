@@ -100,7 +100,7 @@ class UserService {
         queryParams: queryParams,
         fromJson: (json) => PaginatedResponse<UserModel>.fromJson(
           json,
-          (userJson) => UserModel.fromJson(userJson as String),
+          (userJson) => UserModel.fromMap(userJson as Map<String, dynamic>),
         ),
       );
 
@@ -145,7 +145,7 @@ class UserService {
             return json
                 .map<UserModel>(
                   (userJson) =>
-                      UserModel.fromJson(userJson as String),
+                      UserModel.fromMap(userJson as Map<String, dynamic>),
                 )
                 .toList();
           }
@@ -173,7 +173,7 @@ class UserService {
     try {
       final response = await _httpClient.get<UserModel>(
         '/users/$userId',
-        fromJson: (json) => UserModel.fromJson(json as String),
+        fromJson: (json) => UserModel.fromMap(json as Map<String, dynamic>),
       );
 
       if (response.success && response.data != null) {
@@ -287,7 +287,7 @@ class UserService {
         if (DateTime.now().difference(cachedTime) < _cacheValidityDuration) {
           final usersList = jsonDecode(usersJson) as List;
           final loadedUsers = usersList
-              .map((userJson) => UserModel.fromJson(userJson))
+              .map((userJson) => UserModel.fromMap(userJson as Map<String, dynamic>))
               .toList();
           _updateCachedUsers(loadedUsers);
           _lastFetchTime = cachedTime;

@@ -8,7 +8,6 @@ export '../models/performance_monitor_models.dart' show PerformanceEventType;
 
 /// Performance monitoring service for tracking app metrics
 class PerformanceMonitorService {
-  final Connectivity _connectivity;
   final Map<String, MetricTracker> _trackers = {};
   final StreamController<PerformanceEvent> _eventController = StreamController.broadcast();
 
@@ -23,14 +22,12 @@ class PerformanceMonitorService {
   final int _maxEventHistory;
 
   PerformanceMonitorService({
-    Connectivity? connectivity,
     Duration slowRequestThreshold = const Duration(seconds: 2),
     Duration slowImageProcessingThreshold = const Duration(seconds: 5),
     int highMemoryUsageThreshold = 100, // MB
     double lowBatteryThreshold = 0.2, // 20%
     int maxEventHistory = 1000,
-  })  : _connectivity = connectivity ?? Connectivity(),
-        _slowRequestThreshold = slowRequestThreshold,
+  })  : _slowRequestThreshold = slowRequestThreshold,
         _slowImageProcessingThreshold = slowImageProcessingThreshold,
         _highMemoryUsageThreshold = highMemoryUsageThreshold,
         _lowBatteryThreshold = lowBatteryThreshold,
@@ -164,7 +161,7 @@ class PerformanceMonitorService {
   }
 
   /// Get performance statistics
-  PerformanceStats getStats() {
+  PerformanceMonitorStats getStats() {
     final events = _eventHistory.toList();
 
     final networkEvents = events.where((e) => e.type == PerformanceEventType.metric && e.name.startsWith('network_'));
@@ -188,7 +185,7 @@ class PerformanceMonitorService {
         ? 0.0
         : memoryEvents.map((e) => e.metadata?['mbUsed'] as double? ?? 0.0).reduce((a, b) => a + b) / memoryEvents.length;
 
-    return PerformanceStats(
+    return PerformanceMonitorStats(
       totalEvents: events.length,
       networkRequests: networkEvents.length,
       imageOperations: imageEvents.length,

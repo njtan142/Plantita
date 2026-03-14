@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../upload_types.dart';
-import '../../models/user_model.dart';
-import '../../utils/responsive_config.dart';
+import '../../../models/user_model.dart';
+import '../../../utils/responsive_config.dart';
 
 class OverallProgressHeader extends StatelessWidget {
   final List<UploadItem> uploadQueue;
@@ -154,6 +154,7 @@ class OverallProgressHeader extends StatelessWidget {
               _buildStatusIndicator(
                 context,
                 'Completed',
+                completedFiles,
                 Colors.green,
               ),
               _buildStatusIndicator(

@@ -1,5 +1,3 @@
-import 'dart:io' if (dart.library.html) 'dart:html' as html;
-import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'user_model.dart';
 
@@ -247,6 +245,7 @@ class Upload {
       userId: userId ?? this.userId,
       uploadedBy: uploadedBy ?? this.uploadedBy,
       status: status ?? this.status,
+      progress: progress ?? this.progress,
       errorMessage: errorMessage ?? this.errorMessage,
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
@@ -327,46 +326,5 @@ class UploadModel {
   @override
   String toString() {
     return 'UploadModel(id: $id, fileName: ${file.name}, status: ${status.name}, progress: $progress%)';
-  }
-}
-
-/// Upload queue item for managing concurrent uploads
-class UploadQueueItem {
-  final Upload upload;
-  final http.MultipartFile? multipartFile;
-  final html.File? webFile;
-  final Function(double)? onProgress;
-  final Function(Upload)? onComplete;
-  final Function(String)? onError;
-  final DateTime queuedAt;
-
-  const UploadQueueItem({
-    required this.upload,
-    this.multipartFile,
-    this.webFile,
-    this.onProgress,
-    this.onComplete,
-    this.onError,
-    required this.queuedAt,
-  });
-
-  UploadQueueItem copyWith({
-    Upload? upload,
-    http.MultipartFile? multipartFile,
-    html.File? webFile,
-    Function(double)? onProgress,
-    Function(Upload)? onComplete,
-    Function(String)? onError,
-    DateTime? queuedAt,
-  }) {
-    return UploadQueueItem(
-      upload: upload ?? this.upload,
-      multipartFile: multipartFile ?? this.multipartFile,
-      webFile: webFile ?? this.webFile,
-      onProgress: onProgress ?? this.onProgress,
-      onComplete: onComplete ?? this.onComplete,
-      onError: onError ?? this.onError,
-      queuedAt: queuedAt ?? this.queuedAt,
-    );
   }
 }

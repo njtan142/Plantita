@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 class BundleOptimizationUtils {
   static final BundleOptimizationUtils _instance = BundleOptimizationUtils._internal();
   factory BundleOptimizationUtils() => _instance;
+  static BundleOptimizationUtils get instance => _instance;
 
   BundleOptimizationUtils._internal();
 

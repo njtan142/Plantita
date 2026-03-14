@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:retry/retry.dart';
-import '../models/models.dart';
+import '../models/api_response_model.dart';
+import '../models/upload_model.dart' show Upload, UploadStatus;
 import '../models/upload_service_models.dart';
 import 'http_client_service.dart';
 
@@ -149,8 +150,8 @@ class UploadService {
   Future<void> _processUpload(UploadQueueItem queueItem) async {
     try {
       // Check connectivity
-      final connectivity = await _connectivity.checkConnectivity();
-      if (connectivity == ConnectivityResult.none) {
+      final connectivityResult = await _connectivity.checkConnectivity();
+      if (connectivityResult.isEmpty || connectivityResult.first == ConnectivityResult.none) {
         throw UploadException('No internet connection');
       }
 

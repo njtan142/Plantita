@@ -10,7 +10,6 @@ import { MediaEngagementMetrics } from '@/components/content/MediaEngagementMetr
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -23,15 +22,8 @@ import { toast } from 'sonner';
 import { 
   ArrowLeft,
   Tag,
-  Folder,
-  MoreHorizontal
+  Folder
 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,

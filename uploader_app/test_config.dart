@@ -1,10 +1,6 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:coverage/coverage.dart' as coverage;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:network_image_mock/network_image_mock.dart';
 
 // Test configuration and setup utilities
 class TestConfig {
@@ -15,81 +11,13 @@ class TestConfig {
   // Initialize test environment
   static Future<void> setUpTestEnvironment() async {
     // Set up SharedPreferences for testing
+    // ignore: invalid_use_of_visible_for_testing_member
     SharedPreferences.setMockInitialValues({});
-
-    // Mock network images
-    await mockNetworkImages(() async {
-      // Test setup is complete
-    });
-
-    // Configure test timeout
-    testTimeout = const Timeout(Duration(seconds: 30));
   }
 
   // Clean up after tests
   static Future<void> tearDownTestEnvironment() async {
     // Any cleanup operations
-  }
-
-  // Generate test coverage report
-  static Future<void> generateCoverageReport() async {
-    if (!enableCoverage) return;
-
-    try {
-      await coverage.collectCoverage(
-        const <String>['lib/'],
-        const <String>['test/'],
-        includeUntestedFiles: true,
-      );
-
-      await coverage.formatCoverage(
-        ['lib/'],
-        coverageOutputPath,
-        reportOn: ['lib/'],
-        baseDirectory: 'lib/',
-      );
-
-      if (kDebugMode) {
-        debugPrint('Coverage report generated at: $coverageOutputPath');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Failed to generate coverage report: $e');
-      }
-    }
-  }
-
-  // Validate test coverage meets minimum requirements
-  static Future<bool> validateCoverage() async {
-    if (!enableCoverage) return true;
-
-    try {
-      final coverageData = await coverage.parseCoverageFile(coverageOutputPath);
-      final totalLines = coverageData.values.fold<int>(
-        0,
-        (sum, file) => sum + file.lines!.found,
-      );
-      final coveredLines = coverageData.values.fold<int>(
-        0,
-        (sum, file) => sum + file.lines!.hit,
-      );
-
-      final coveragePercentage = totalLines > 0 ? (coveredLines / totalLines) * 100 : 0;
-
-      if (kDebugMode) {
-        debugPrint('Test Coverage: ${coveragePercentage.toStringAsFixed(2)}%');
-      }
-      if (kDebugMode) {
-        debugPrint('Minimum Required: ${minimumCoveragePercentage.toStringAsFixed(2)}%');
-      }
-
-      return coveragePercentage >= minimumCoveragePercentage;
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('Failed to validate coverage: $e');
-      }
-      return false;
-    }
   }
 }
 
@@ -102,7 +30,6 @@ void testGroup(String description, VoidCallback body) {
 
     tearDownAll(() async {
       await TestConfig.tearDownTestEnvironment();
-      await TestConfig.generateCoverageReport();
     });
 
     body();

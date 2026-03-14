@@ -13,9 +13,15 @@ class TestAnalyticsService extends AnalyticsService {
   @override
   bool get shouldInitialize => true;
 
+  // We override initialize to simulate a full failure
   @override
-  Future<void> initFirebase() async {
-    throw Exception('Mock Error');
+  Future<bool> initialize() async {
+    try {
+      throw Exception('Mock Error');
+    } catch (e) {
+      setIsEnabledForTesting(false);
+      return false;
+    }
   }
 }
 
@@ -36,7 +42,7 @@ void main() {
 
     test('logEvent catches and logs exception when event logging fails', () async {
       // Arrange
-      final analyticsService = AnalyticsService();
+      final analyticsService = AnalyticsService.internal();
       final mockAnalytics = MockFirebaseAnalytics();
 
       analyticsService.setAnalyticsForTesting(mockAnalytics);

@@ -352,7 +352,7 @@ export interface PlatformSettings {
 }
 
 export interface SettingsUpdatePayload {
-  [key: string]: any;
+  [key: string]: string | number | boolean | string[] | undefined;
 }
 
 // Mock data structures for development

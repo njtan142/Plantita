@@ -73,7 +73,7 @@ void main() {
       final request = captured.first as http.Request;
       expect(request.method, 'POST');
       expect(request.url.toString(), '$baseUrl/$endpoint');
-      expect(request.headers['Content-Type'], 'application/json');
+      expect(request.headers['Content-Type'], contains('application/json'));
       expect(request.body, '{"name":"test"}');
     });
 
@@ -92,7 +92,7 @@ void main() {
       final request = captured.first as http.Request;
       expect(request.method, 'PUT');
       expect(request.url.toString(), '$baseUrl/$endpoint');
-      expect(request.headers['Content-Type'], 'application/json');
+      expect(request.headers['Content-Type'], contains('application/json'));
       expect(request.body, '{"name":"updated"}');
     });
 

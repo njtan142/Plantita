@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:user_app/data/models/reel.dart';
-import 'package:user_app/data/models/timelapse.dart';
+import '../../../../data/models/reel.dart';
+import '../../../../data/models/timelapse.dart';
 
 class ContentCard extends StatelessWidget {
   final dynamic item;

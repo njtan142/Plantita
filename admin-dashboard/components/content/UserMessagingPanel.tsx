@@ -22,8 +22,7 @@ import {
 } from 'lucide-react';
 import { communicationService } from '@/services/communicationService';
 import { 
-  CommunicationTemplate, 
-  MessageTracking 
+  CommunicationTemplate
 } from '@/types/api';
 import { toast } from 'sonner';
 import { MessageComposeTab } from './user-messaging-panel/MessageComposeTab';
@@ -46,7 +45,6 @@ export function UserMessagingPanel({ userId, className, onMessageSent }: UserMes
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [trackingData, setTrackingData] = useState<MessageTracking | null>(null);
 
   useEffect(() => {
     fetchTemplates();

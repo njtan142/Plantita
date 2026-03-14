@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../models/models.dart';
-import '../models/upload_events.dart';
 import 'http_client_service.dart';
 import 'performance_monitor_service.dart';
 import 'memory_management_service.dart';
@@ -15,7 +15,6 @@ class EnhancedUploadService {
   final SharedPreferences _prefs;
   final Connectivity _connectivity;
   final PerformanceMonitorService _performanceMonitor;
-  final MemoryManagementService _memoryManager;
 
   // Upload queues
   final List<EnhancedUploadQueueItem> _activeUploads = [];
@@ -38,6 +37,7 @@ class EnhancedUploadService {
   int _activeUploadCount = 0;
   Timer? _queuePersistenceTimer;
   Timer? _backgroundTaskTimer;
+  // ignore: unused_field
   bool _isBackgroundTaskRegistered = false;
 
   EnhancedUploadService({
@@ -55,14 +55,13 @@ class EnhancedUploadService {
   })  : _httpClient = httpClient,
         _prefs = prefs,
         _performanceMonitor = performanceMonitor,
-        _memoryManager = memoryManager,
         _connectivity = connectivity ?? Connectivity(),
         _maxConcurrentUploads = maxConcurrentUploads,
-        _maxRetries = maxRetries,
         _retryDelay = retryDelay,
         _queuePersistenceInterval = queuePersistenceInterval,
         _maxOfflineQueueSize = maxOfflineQueueSize,
-        _backgroundTaskInterval = backgroundTaskInterval {
+        _backgroundTaskInterval = backgroundTaskInterval,
+        _maxRetries = maxRetries {
     _initializeService();
   }
 
@@ -147,8 +146,6 @@ class EnhancedUploadService {
     Function(Upload)? onComplete,
     Function(String)? onError,
   }) async {
-    final startTime = DateTime.now();
-
     // Track performance
     _performanceMonitor.startTracking('enhanced_upload');
 
@@ -184,8 +181,8 @@ class EnhancedUploadService {
       );
 
       // Check connectivity
-      final connectivity = await _connectivity.checkConnectivity();
-      final isOnline = connectivity != ConnectivityResult.none;
+      final result = await _connectivity.checkConnectivity();
+      final isOnline = result.isNotEmpty && result.first != ConnectivityResult.none;
 
       if (isOnline) {
         // Add to active uploads
@@ -283,7 +280,6 @@ class EnhancedUploadService {
           'original_filename': upload.fileName,
         },
         onProgress: (progress) {
-          final updatedUpload = upload.copyWith(progress: progress);
           _progressController.add(UploadProgress(
             uploadId: upload.id,
             progress: progress,
@@ -365,8 +361,8 @@ class EnhancedUploadService {
   Future<void> _processOfflineQueue() async {
     if (_offlineQueue.isEmpty) return;
 
-    final connectivity = await _connectivity.checkConnectivity();
-    if (connectivity == ConnectivityResult.none) return;
+    final result = await _connectivity.checkConnectivity();
+    if (result.isEmpty || result.first == ConnectivityResult.none) return;
 
     debugPrint('📤 Processing ${_offlineQueue.length} offline uploads');
 
@@ -392,8 +388,8 @@ class EnhancedUploadService {
   Future<void> _processOfflineQueueInBackground() async {
     debugPrint('🔄 Background processing of offline queue');
 
-    final connectivity = await _connectivity.checkConnectivity();
-    if (connectivity == ConnectivityResult.none) return;
+    final result = await _connectivity.checkConnectivity();
+    if (result.isEmpty || result.first == ConnectivityResult.none) return;
 
     final itemsToProcess = _offlineQueue.take(5).toList(); // Process fewer in background
 

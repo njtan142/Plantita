@@ -11,8 +11,11 @@ import '../services/performance_monitor_service.dart' show PerformanceEventType;
 import '../services/network_optimization_service.dart';
 import '../services/memory_management_service.dart';
 import '../services/enhanced_upload_service.dart';
-import '../services/web_performance_service.dart' if (dart.library.html) '';
-import '../services/mobile_performance_service.dart' if (dart.library.html) '';
+
+import '../services/web_performance_service_stub.dart'
+    if (dart.library.html) '../services/web_performance_service.dart';
+import '../services/mobile_performance_service_stub.dart'
+    if (dart.library.io) '../services/mobile_performance_service.dart';
 
 /// Comprehensive performance utilities for the Flutter uploader app
 class PerformanceUtils {
@@ -172,12 +175,12 @@ class PerformanceUtils {
   Future<void> _initializePlatformSpecificServices() async {
     if (kIsWeb) {
       // Web-specific services would be initialized here
-      // _webPerformance = WebPerformanceService(performanceMonitor: _performanceMonitor);
-      // await _webPerformance?.initialize();
+      _webPerformance = WebPerformanceService(performanceMonitor: _performanceMonitor);
+      await _webPerformance?.initialize();
     } else {
       // Mobile-specific services would be initialized here
-      // _mobilePerformance = MobilePerformanceService(performanceMonitor: _performanceMonitor);
-      // await _mobilePerformance?.initialize();
+      _mobilePerformance = MobilePerformanceService(performanceMonitor: _performanceMonitor);
+      await _mobilePerformance?.initialize();
     }
   }
 
@@ -423,8 +426,9 @@ class PerformanceUtils {
     // This would update the configuration and reinitialize services if needed
     debugPrint('Performance configuration updated');
   }
-/// Convert PerformanceStats to Map for compatibility
-  Map<String, dynamic> _convertPerformanceStats(performance_monitor_service.PerformanceStats stats) {
+
+  /// Convert PerformanceMonitorStats to Map for compatibility
+  Map<String, dynamic> _convertPerformanceStats(PerformanceMonitorStats stats) {
     return {
       'totalEvents': stats.totalEvents,
       'networkRequests': stats.networkRequests,

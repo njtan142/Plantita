@@ -3,7 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import 'package:uploader_app/models/upload_model.dart';
+import 'package:uploader_app/models/api_response_model.dart';
+import 'package:uploader_app/models/upload_model.dart' show Upload, UploadStatus;
 import 'package:uploader_app/models/employee_model.dart';
 import 'package:uploader_app/services/upload_service.dart';
 import '../mocks/mocks.mocks.dart';
@@ -47,13 +48,15 @@ void main() {
           .thenAnswer((_) async => [ConnectivityResult.wifi]);
 
       // Setup mock to throw an exception
-      when(mockHttpClient.uploadFile(
+      when(mockHttpClient.uploadFile<dynamic>(
         any,
         any,
         any,
         any,
         any,
         fields: anyNamed('fields'),
+        headers: anyNamed('headers'),
+        fromJson: anyNamed('fromJson'),
         onProgress: anyNamed('onProgress'),
       )).thenThrow(Exception('Network error'));
 

@@ -1,15 +1,19 @@
-
+import 'package:flutter/foundation.dart';
 import 'package:user_app/services/api_service.dart';
-import 'package:user_app/utils/logger.dart'; // Import the logger
-import 'package:user_app/services/cache_service.dart'; // Import CacheService
-import 'package:user_app/main.dart'; // Import getIt
+import 'package:user_app/utils/logger.dart';
+import 'package:user_app/services/cache_service.dart';
+import 'package:user_app/main.dart';
 
 class AuthService {
   final ApiService _apiService;
-  final CacheService _cacheService;
   static const String _authTokenKey = 'authToken';
+  
+  // For testing
+  dynamic _mockUser;
 
-  AuthService(this._apiService) : _cacheService = getIt<CacheService>();
+  AuthService(this._apiService);
+
+  CacheService get _cacheService => getIt<CacheService>();
 
   bool get isAuthenticated => _cacheService.getData(_authTokenKey) != null;
 
@@ -63,4 +67,12 @@ class AuthService {
       return false;
     }
   }
+
+  @visibleForTesting
+  void setUserForTesting(dynamic user) {
+    _mockUser = user;
+  }
+  
+  @visibleForTesting
+  dynamic get mockUser => _mockUser;
 }

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/layout/LoadingSpinner';
 import { userService } from '@/services/userService';
-import { User, UserRole, UserStatus, UserQueryParams } from '@/types/api';
+import { User, UserStatus, UserQueryParams } from '@/types/api';
 import { toast } from 'sonner';
 import { CreateUserForm } from '@/components/users/CreateUserForm';
 import { UserForm } from '@/components/users/UserForm';

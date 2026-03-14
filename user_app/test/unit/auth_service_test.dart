@@ -6,8 +6,29 @@ import 'package:user_app/services/cache_service.dart';
 import 'package:user_app/main.dart'; // Import getIt
 
 // Create a MockApiService using Mockito
-class MockApiService extends Mock implements ApiService {}
-class MockCacheService extends Mock implements CacheService {}
+class MockApiService extends Mock implements ApiService {
+  @override
+  Future<Map<String, dynamic>> post(String? endpoint, Map<String, dynamic>? data) => 
+    super.noSuchMethod(Invocation.method(#post, [endpoint, data]), 
+    returnValue: Future<Map<String, dynamic>>.value(<String, dynamic>{}));
+}
+
+class MockCacheService extends Mock implements CacheService {
+  @override
+  Future<bool> saveData(String? key, String? value) => 
+    super.noSuchMethod(Invocation.method(#saveData, [key, value]), 
+    returnValue: Future<bool>.value(true));
+    
+  @override
+  String? getData(String? key) => 
+    super.noSuchMethod(Invocation.method(#getData, [key]), 
+    returnValue: null);
+
+  @override
+  Future<bool> removeData(String? key) => 
+    super.noSuchMethod(Invocation.method(#removeData, [key]), 
+    returnValue: Future<bool>.value(true));
+}
 
 void main() {
   group('AuthService', () {
@@ -35,19 +56,19 @@ void main() {
     });
 
     test('isAuthenticated returns true when token is in cache', () {
-      when(mockCacheService.getData('authToken')).thenReturn('some_token');
+      when(mockCacheService.getData(any)).thenReturn('some_token');
       expect(authService.isAuthenticated, isTrue);
     });
 
     test('isAuthenticated returns false when token is not in cache', () {
-      when(mockCacheService.getData('authToken')).thenReturn(null);
+      when(mockCacheService.getData(any)).thenReturn(null);
       expect(authService.isAuthenticated, isFalse);
     });
 
     test('login returns true on successful authentication and saves token', () async {
-      when(mockApiService.post('auth/login', any))
+      when(mockApiService.post(any, any))
           .thenAnswer((_) async => {'token': 'some_token'});
-      when(mockCacheService.saveData('authToken', 'some_token'))
+      when(mockCacheService.saveData(any, any))
           .thenAnswer((_) async => true);
 
       final result = await authService.login('testuser', 'password');
@@ -56,7 +77,7 @@ void main() {
     });
 
     test('login returns false on failed authentication', () async {
-      when(mockApiService.post('auth/login', any))
+      when(mockApiService.post(any, any))
           .thenAnswer((_) async => {'message': 'Invalid credentials'});
 
       final result = await authService.login('wronguser', 'wrongpass');
@@ -65,7 +86,7 @@ void main() {
     });
 
     test('login returns false on API error', () async {
-      when(mockApiService.post('auth/login', any))
+      when(mockApiService.post(any, any))
           .thenThrow(Exception('Network error'));
 
       final result = await authService.login('testuser', 'password');
@@ -74,7 +95,7 @@ void main() {
     });
 
     test('logout performs necessary cleanup', () async {
-      when(mockCacheService.removeData('authToken')).thenAnswer((_) async => true);
+      when(mockCacheService.removeData(any)).thenAnswer((_) async => true);
 
       await authService.logout();
 
@@ -82,17 +103,17 @@ void main() {
     });
 
     test('getToken returns token from cache', () {
-      when(mockCacheService.getData('authToken')).thenReturn('my_cached_token');
+      when(mockCacheService.getData(any)).thenReturn('my_cached_token');
       expect(authService.getToken(), 'my_cached_token');
     });
 
     test('getToken returns null if token not in cache', () {
-      when(mockCacheService.getData('authToken')).thenReturn(null);
+      when(mockCacheService.getData(any)).thenReturn(null);
       expect(authService.getToken(), isNull);
     });
 
     test('register returns true on successful registration', () async {
-      when(mockApiService.post('auth/register', any))
+      when(mockApiService.post(any, any))
           .thenAnswer((_) async => {'success': true});
 
       final result = await authService.register('testuser', 'test@test.com', 'password');
@@ -100,7 +121,7 @@ void main() {
     });
 
     test('register returns false on failed registration', () async {
-      when(mockApiService.post('auth/register', any))
+      when(mockApiService.post(any, any))
           .thenAnswer((_) async => {'success': false, 'message': 'Username taken'});
 
       final result = await authService.register('testuser', 'test@test.com', 'password');
@@ -108,7 +129,7 @@ void main() {
     });
 
     test('register returns false on API error', () async {
-      when(mockApiService.post('auth/register', any))
+      when(mockApiService.post(any, any))
           .thenThrow(Exception('Network error'));
 
       final result = await authService.register('testuser', 'test@test.com', 'password');

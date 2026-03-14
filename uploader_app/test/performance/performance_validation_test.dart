@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uploader_app/services/memory_management_service.dart';
 import 'package:uploader_app/services/performance_monitor_service.dart';
 import 'package:uploader_app/utils/bundle_optimization_utils.dart';
 import 'package:uploader_app/utils/performance_utils.dart';
+import 'package:uploader_app/models/models.dart';
+import 'package:uploader_app/services/http_client_service.dart';
 
 void main() {
   group('Performance Validation Tests', () {
@@ -16,11 +17,6 @@ void main() {
 
     setUpAll(() async {
       TestWidgetsFlutterBinding.ensureInitialized();
-
-      // Initialize services
-      performanceMonitor = PerformanceMonitorService();
-      memoryManager = MemoryManagementService();
-      bundleUtils = BundleOptimizationUtils.instance;
 
       // Mock SharedPreferences for testing
       SharedPreferences.setMockInitialValues({});
@@ -42,6 +38,10 @@ void main() {
       );
 
       await performanceUtils.initialize();
+      
+      performanceMonitor = performanceUtils.performanceMonitor;
+      memoryManager = performanceUtils.memoryManager;
+      bundleUtils = BundleOptimizationUtils.instance;
     });
 
     tearDownAll(() {
@@ -51,12 +51,14 @@ void main() {
     test('Performance Monitor Service - Basic Functionality', () {
       expect(performanceMonitor, isNotNull);
 
+      final initialEvents = performanceMonitor.getStats().totalEvents;
+
       // Test event tracking
       performanceMonitor.startTracking('test_operation');
-      expect(performanceMonitor.getStats().totalEvents, equals(1));
+      expect(performanceMonitor.getStats().totalEvents, equals(initialEvents + 1));
 
       performanceMonitor.endTracking('test_operation');
-      expect(performanceMonitor.getStats().totalEvents, equals(2));
+      expect(performanceMonitor.getStats().totalEvents, equals(initialEvents + 2));
     });
 
     test('Memory Management Service - Object Pooling', () {
@@ -64,13 +66,13 @@ void main() {
 
       // Test object acquisition and release
       final pool = memoryManager.getPool<String>('test_pool', () => 'test_object');
-      final obj1 = memoryManager.acquireFromPool('test_pool', () => 'test_object');
-      final obj2 = memoryManager.acquireFromPool('test_pool', () => 'test_object');
+      final obj1 = memoryManager.acquire<String>('test_pool', () => 'test_object');
+      final obj2 = memoryManager.acquire<String>('test_pool', () => 'test_object');
 
       expect(obj1, equals('test_object'));
       expect(obj2, equals('test_object'));
 
-      memoryManager.releaseToPool('test_pool', obj1);
+      memoryManager.release('test_pool', obj1);
       expect(pool.availableCount, equals(1));
     });
 
@@ -94,6 +96,8 @@ void main() {
     });
 
     test('Performance Metrics Collection', () async {
+      final initialEvents = performanceMonitor.getStats().totalEvents;
+      
       // Track a mock operation
       performanceMonitor.startTracking('validation_test');
 
@@ -104,7 +108,7 @@ void main() {
 
       // Check metrics
       final stats = performanceMonitor.getStats();
-      expect(stats.totalEvents, greaterThan(0));
+      expect(stats.totalEvents, greaterThan(initialEvents));
     });
 
     test('Memory Usage Tracking', () async {
@@ -149,6 +153,7 @@ void main() {
 
     test('Resource Cleanup', () {
       // Test that resources are properly cleaned up
+      memoryManager.acquire<String>('cleanup_pool', () => 'test');
       memoryManager.clearAll();
 
       final stats = memoryManager.getMemoryStats();
@@ -199,45 +204,59 @@ void main() {
       final endTime = DateTime.now();
       final duration = endTime.difference(startTime);
 
-      expect(duration.inMilliseconds, greaterThanOrEqual(0));
+      expect(duration.inMilliseconds, greaterThanOrEqualTo(0));
     });
   });
 }
 
 // Mock HttpClientService for testing
-class MockHttpClientService {
-  Future<ApiResponse<T>> get<T>(String path) async {
+class MockHttpClientService implements HttpClientService {
+  @override
+  String get baseUrl => 'https://api.example.com';
+
+  @override
+  AuthTokenModel? get currentToken => null;
+
+  @override
+  Employee? get currentUser => null;
+
+  @override
+  bool get isAuthenticated => false;
+
+  @override
+  void clearAuth() {}
+
+  @override
+  void dispose() {}
+
+  @override
+  Future<ApiResponse<T>> delete<T>(String path, {dynamic body, Map<String, String>? headers, T Function(Map<String, dynamic>)? fromJson, bool retryOnFailure = true}) async {
     return ApiResponse.success(null as T);
   }
 
-  Future<ApiResponse<T>> post<T>(String path, {dynamic body}) async {
+  @override
+  Future<ApiResponse<T>> get<T>(String path, {Map<String, dynamic>? queryParams, Map<String, String>? headers, T Function(Map<String, dynamic>)? fromJson, bool retryOnFailure = true}) async {
     return ApiResponse.success(null as T);
   }
 
-  Future<ApiResponse<T>> uploadFile<T>(
-    String path,
-    String fieldName,
-    List<int> fileBytes,
-    String fileName,
-    String mimeType,
-    Map<String, String> fields,
-  ) async {
+  @override
+  Future<ApiResponse<T>> post<T>(String path, {dynamic body, Map<String, String>? headers, T Function(Map<String, dynamic>)? fromJson, bool retryOnFailure = true}) async {
     return ApiResponse.success(null as T);
   }
-}
 
-// Mock ApiResponse for testing
-class ApiResponse<T> {
-  final bool success;
-  final T? data;
-  final String? message;
-  final int statusCode;
+  @override
+  Future<ApiResponse<T>> put<T>(String path, {dynamic body, Map<String, String>? headers, T Function(Map<String, dynamic>)? fromJson, bool retryOnFailure = true}) async {
+    return ApiResponse.success(null as T);
+  }
 
-  ApiResponse.success(this.data, {this.statusCode = 200})
-      : success = true,
-        message = null;
+  @override
+  void setToken(AuthTokenModel token) {}
 
-  ApiResponse.error({required this.message, this.statusCode = 400})
-      : success = false,
-        data = null;
+  @override
+  void setUser(Employee user) {}
+
+  @override
+  Future<ApiResponse<T>> uploadFile<T>(String path, String fieldName, List<int> fileBytes, String fileName, String mimeType, {Map<String, String>? fields, Map<String, String>? headers, T Function(Map<String, dynamic>)? fromJson, Function(double)? onProgress}) async {
+    return ApiResponse.success(null as T);
+  }
 }

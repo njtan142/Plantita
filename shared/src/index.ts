@@ -108,11 +108,7 @@ export class ApiError extends Error {
   public statusCode: number;
   public code?: string;
 
-  constructor(
-    message: string,
-    statusCode: number = 500,
-    code?: string
-  ) {
+  constructor(message: string, statusCode: number = 500, code?: string) {
     super(message);
     this.name = 'ApiError';
     this.statusCode = statusCode;
@@ -125,10 +121,7 @@ export class ApiError extends Error {
 export class ValidationError extends Error {
   public field?: string;
 
-  constructor(
-    message: string,
-    field?: string
-  ) {
+  constructor(message: string, field?: string) {
     super(message);
     this.name = 'ValidationError';
     if (field !== undefined) {

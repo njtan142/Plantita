@@ -50,7 +50,7 @@ class PerformanceEvent {
 }
 
 /// Performance statistics
-class PerformanceStats {
+class PerformanceMonitorStats {
   final int totalEvents;
   final int networkRequests;
   final int imageOperations;
@@ -61,7 +61,7 @@ class PerformanceStats {
   final int slowNetworkRequests;
   final int slowImageOperations;
 
-  const PerformanceStats({
+  const PerformanceMonitorStats({
     required this.totalEvents,
     required this.networkRequests,
     required this.imageOperations,
@@ -79,7 +79,7 @@ class PerformanceStats {
 
   @override
   String toString() {
-    return 'PerformanceStats('
+    return 'PerformanceMonitorStats('
         'events: $totalEvents, '
         'network: $networkRequests (${averageNetworkTime.inMilliseconds}ms avg), '
         'images: $imageOperations (${averageImageProcessingTime.inMilliseconds}ms avg), '

@@ -13,15 +13,15 @@ class ApiService {
 
   ApiService({http.Client? client})
       : _baseUrl = getIt<EnvironmentConfig>().baseUrl,
-        _client = client ?? http.Client() {
-    _authService = getIt<AuthService>();
-  }
+        _client = client ?? http.Client();
+
   final int _maxRetries = 3;
   final Duration _timeout = const Duration(seconds: 10);
 
   Future<http.BaseRequest> _requestInterceptor(http.BaseRequest request) async {
     logger.d('Intercepting Request: ${request.method} ${request.url}');
-    String? token = _authService.getToken();
+    final authService = getIt<AuthService>();
+    String? token = authService.getToken();
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }

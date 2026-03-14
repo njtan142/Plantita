@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:uploader_app/utils/error_handler.dart';
+import 'package:uploader_app/models/error_models.dart';
 
 void main() {
   group('AppError', () {

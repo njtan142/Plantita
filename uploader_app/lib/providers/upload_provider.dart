@@ -7,7 +7,6 @@ import 'user_selection_provider.dart';
 
 class UploadModelProvider extends BaseProvider {
   final UploadService _uploadService;
-  final FileSelectionService _fileSelectionService;
   final UserSelectionProvider _userSelectionProvider;
 
   final List<UploadModel> _uploadQueue = [];
@@ -17,7 +16,6 @@ class UploadModelProvider extends BaseProvider {
 
   UploadModelProvider(
     this._uploadService,
-    this._fileSelectionService,
     this._userSelectionProvider,
   );
 

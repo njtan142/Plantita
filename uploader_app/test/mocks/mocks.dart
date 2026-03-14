@@ -9,18 +9,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:uploader_app/services/services.dart';
 
-@GenerateMocks([
-  HttpClientService,
-  AuthService,
-  UserService,
-  UploadService,
-  WebCameraService,
-  FileSelectionService,
-  SharedPreferences,
-  Connectivity,
-  FlutterSecureStorage,
+@GenerateNiceMocks([
+  MockSpec<HttpClientService>(),
+  MockSpec<AuthService>(),
+  MockSpec<UserService>(),
+  MockSpec<UploadService>(),
+  MockSpec<WebCameraService>(),
+  MockSpec<FileSelectionService>(),
+  MockSpec<SharedPreferences>(),
+  MockSpec<Connectivity>(),
+  MockSpec<FlutterSecureStorage>(),
 ])
 void main() {}
-
-// Import the generated mocks
-// import 'mocks.mocks.dart';

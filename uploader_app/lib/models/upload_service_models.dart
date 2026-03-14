@@ -1,3 +1,5 @@
+import 'dart:io' if (dart.library.html) 'dart:html' as html;
+import 'package:http/http.dart' as http;
 import 'upload_model.dart';
 
 /// Upload queue item for managing concurrent uploads
@@ -5,6 +7,8 @@ class UploadQueueItem {
   final Upload upload;
   final List<int>? fileBytes;
   final String? filePath;
+  final http.MultipartFile? multipartFile;
+  final html.File? webFile;
   final Function(double)? onProgress;
   final Function(Upload)? onComplete;
   final Function(String)? onError;
@@ -14,6 +18,8 @@ class UploadQueueItem {
     required this.upload,
     this.fileBytes,
     this.filePath,
+    this.multipartFile,
+    this.webFile,
     this.onProgress,
     this.onComplete,
     this.onError,
@@ -24,6 +30,8 @@ class UploadQueueItem {
     Upload? upload,
     List<int>? fileBytes,
     String? filePath,
+    http.MultipartFile? multipartFile,
+    html.File? webFile,
     Function(double)? onProgress,
     Function(Upload)? onComplete,
     Function(String)? onError,
@@ -33,6 +41,8 @@ class UploadQueueItem {
       upload: upload ?? this.upload,
       fileBytes: fileBytes ?? this.fileBytes,
       filePath: filePath ?? this.filePath,
+      multipartFile: multipartFile ?? this.multipartFile,
+      webFile: webFile ?? this.webFile,
       onProgress: onProgress ?? this.onProgress,
       onComplete: onComplete ?? this.onComplete,
       onError: onError ?? this.onError,

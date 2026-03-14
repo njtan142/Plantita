@@ -1,10 +1,10 @@
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:uploader_app/models/models.dart';
 import 'package:uploader_app/providers/upload_provider.dart';
-import 'package:uploader_app/services/file_selection_service.dart';
 import 'package:uploader_app/services/upload_service.dart';
 import 'package:uploader_app/providers/user_selection_provider.dart';
 
@@ -14,52 +14,50 @@ class MockUploadService extends Mock implements UploadService {
     required String fileName,
     required List<int> fileBytes,
     required String mimeType,
-    required String userId,
-    Function(double)? onProgress,
+    int? userId,
     Map<String, String>? additionalFields,
+    Function(double)? onProgress,
+    Function(Upload)? onComplete,
+    Function(String)? onError,
   }) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 100));
-    return ApiResponse<Upload>(
-      success: true,
-      data: Upload(
-        id: '123',
-        mediaUrl: 'http://example.com/\$fileName',
-        thumbnailUrl: null,
-        type: 'image',
-        createdAt: DateTime.now(),
-        fileName: fileName,
-        fileSize: 1024,
-        mimeType: mimeType,
-      ),
+    final upload = Upload(
+      id: '123',
+      fileName: fileName,
+      filePath: fileName,
+      fileSize: 1024,
+      mimeType: mimeType,
+      userId: userId,
+      uploadedBy: 1,
+      createdAt: DateTime.now(),
+    );
+    return ApiResponse<Upload>.success(
+      upload,
     );
   }
 }
 
-class MockFileSelectionService extends Mock implements FileSelectionService {}
-
 class MockUserSelectionProvider extends Mock implements UserSelectionProvider {
   @override
-  UserModel? get selectedUser => const UserModel(
-        id: 'user1',
+  UserModel? get selectedUser => UserModel(
+        id: 1,
         username: 'testuser',
         email: 'test@example.com',
-        displayName: 'Test User',
-        followersCount: 0,
-        followingCount: 0,
-        createdAt: null,
+        firstName: 'Test',
+        lastName: 'User',
+        isActive: true,
+        createdAt: DateTime.now(),
       );
 }
 
 void main() {
   test('Performance test for uploading files', () async {
     final uploadService = MockUploadService();
-    final fileSelectionService = MockFileSelectionService();
     final userSelectionProvider = MockUserSelectionProvider();
 
     final provider = UploadModelProvider(
       uploadService,
-      fileSelectionService,
       userSelectionProvider,
     );
 
@@ -67,7 +65,7 @@ void main() {
     final mockFiles = List.generate(
       20,
       (index) => PlatformFile(
-        name: 'file_\$index.jpg',
+        name: 'file_$index.jpg',
         size: 1024,
         bytes: Uint8List.fromList([0, 1, 2, 3]),
       ),
@@ -79,7 +77,7 @@ void main() {
     await provider.startUploadModel();
     stopwatch.stop();
 
-    print('Upload completed in \${stopwatch.elapsedMilliseconds}ms');
+    debugPrint('Upload completed in ${stopwatch.elapsedMilliseconds}ms');
     expect(provider.completedUploadModels.length, 20);
   });
 }

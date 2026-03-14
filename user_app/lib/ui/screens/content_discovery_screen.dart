@@ -5,8 +5,8 @@ import 'package:user_app/state_management/content_provider.dart';
 import 'package:user_app/ui/widgets/error_state_widget.dart';
 import 'package:user_app/data/models/reel.dart';
 import 'package:user_app/data/models/timelapse.dart';
-import 'components/horizontal_content_list.dart';
-import 'components/main_content_grid.dart';
+import 'content_discovery/components/horizontal_content_list.dart';
+import 'content_discovery/components/main_content_grid.dart';
 
 class ContentDiscoveryScreen extends StatefulWidget {
   const ContentDiscoveryScreen({super.key});

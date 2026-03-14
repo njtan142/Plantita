@@ -21,7 +21,7 @@ class NetworkOptimizationService {
 
   // Caching
   final Map<String, CachedResponse> _memoryCache = {};
-  final Map<String, Completer<http.Response>> _pendingRequests = {};
+  final Map<String, Completer<OptimizedResponse>> _pendingRequests = {};
   final int _maxCacheSize;
   final Duration _defaultCacheDuration;
   final Map<String, Duration> _cacheDurations = {};
@@ -161,7 +161,7 @@ class NetworkOptimizationService {
 
     // Create pending request
     final completer = Completer<OptimizedResponse>();
-    _pendingRequests[cacheKey] = completer as Completer<http.Response>;
+    _pendingRequests[cacheKey] = completer;
 
     try {
       // Get connection from pool
@@ -313,15 +313,7 @@ class NetworkOptimizationService {
   Future<OptimizedResponse> _waitForPendingRequest(String cacheKey) {
     final completer = _pendingRequests[cacheKey];
     if (completer != null) {
-      return completer.future.then((response) {
-        if (response is OptimizedResponse) return response;
-        
-        return OptimizedResponse.fromApiResponse(
-          ApiResponse.success(response, message: 'Request completed'),
-          false,
-          Duration.zero,
-        );
-      });
+      return completer.future;
     }
     throw NetworkOptimizationException('No pending request found');
   }

@@ -1,7 +1,8 @@
 import 'dart:typed_data';
-import '../services/network_optimization_service.dart';
-import '../services/memory_management_service.dart';
 import 'upload_events.dart';
+import 'network_models.dart';
+import 'memory_models.dart';
+import 'image_models.dart';
 
 /// Performance configuration
 class PerformanceConfig {
@@ -138,18 +139,3 @@ class PerformanceStats {
   }
 }
 
-/// Image quality settings
-enum ImageQuality {
-  low,
-  medium,
-  high,
-  original,
-}
-
-/// Image format options
-enum ImageFormat {
-  auto,
-  jpeg,
-  png,
-  webp,
-}

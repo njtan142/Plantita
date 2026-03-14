@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../upload_types.dart';
-import '../../utils/responsive_config.dart';
+import '../../../utils/responsive_config.dart';
 
 class UploadQueueItem extends StatelessWidget {
   final UploadItem item;
