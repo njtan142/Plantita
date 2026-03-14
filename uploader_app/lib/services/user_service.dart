@@ -3,21 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
+import '../models/user_service_models.dart';
 import 'http_client_service.dart';
-
-class _CachedSearchUser {
-  final UserModel user;
-  final String usernameLower;
-  final String firstNameLower;
-  final String lastNameLower;
-  final String emailLower;
-
-  _CachedSearchUser(this.user)
-      : usernameLower = user.username.toLowerCase(),
-        firstNameLower = user.firstName.toLowerCase(),
-        lastNameLower = user.lastName.toLowerCase(),
-        emailLower = user.email.toLowerCase();
-}
 
 /// User Management Service for handling user operations and caching
 class UserService {
@@ -30,11 +17,11 @@ class UserService {
 
   // In-memory cache
   List<UserModel> _cachedUsers = [];
-  List<_CachedSearchUser> _searchableUsers = [];
+  List<CachedSearchUser> _searchableUsers = [];
 
   void _updateCachedUsers(List<UserModel> users) {
     _cachedUsers = users;
-    _searchableUsers = _cachedUsers.map((u) => _CachedSearchUser(u)).toList();
+    _searchableUsers = _cachedUsers.map((u) => CachedSearchUser(u)).toList();
     _usersController.add(_cachedUsers);
   }
 
@@ -78,11 +65,9 @@ class UserService {
   Future<void> initialize() async {
     await _loadCachedUsers();
 
-    // Load from cache if valid
     if (_isCacheValid && _cachedUsers.isNotEmpty) {
       _usersController.add(_cachedUsers);
     } else {
-      // Fetch fresh data in background
       fetchUsers();
     }
   }
@@ -92,13 +77,11 @@ class UserService {
     bool forceRefresh = false,
     Map<String, dynamic>? filters,
   }) async {
-    // Return cached data if valid and not forcing refresh
     if (!forceRefresh && _isCacheValid && _cachedUsers.isNotEmpty) {
       return ApiResponse.success(_cachedUsers);
     }
 
     if (_isLoading) {
-      // Wait for current operation to complete
       await loadingStream.firstWhere((loading) => !loading);
       return ApiResponse.success(_cachedUsers);
     }
@@ -124,8 +107,6 @@ class UserService {
       if (response.success && response.data != null) {
         _updateCachedUsers(response.data!.items);
         _lastFetchTime = DateTime.now();
-
-        // Update cache
         await _saveUsersToCache(_cachedUsers);
       }
 
@@ -172,19 +153,6 @@ class UserService {
         },
       );
 
-      if (response.success && response.data != null) {
-        return response;
-      }
-
-      if (response.success && response.data != null) {
-        return response;
-      }
-
-      if (response.success && response.data != null) {
-        // Update cache with search results but don't replace main cache
-        return response;
-      }
-
       return response;
     } catch (e) {
       return ApiResponse.error(message: 'Search failed: ${e.toString()}');
@@ -193,7 +161,6 @@ class UserService {
 
   /// Get user by ID
   Future<ApiResponse<UserModel>> getUserById(int userId) async {
-    // Check cache first
     final cachedUser = _cachedUsers
         .where((user) => user.id == userId)
         .cast<UserModel?>()
@@ -209,7 +176,6 @@ class UserService {
         fromJson: (json) => UserModel.fromJson(json as String),
       );
 
-      // Add to cache if successful
       if (response.success && response.data != null) {
         final updatedUsers = List<UserModel>.from(_cachedUsers)..add(response.data!);
         _updateCachedUsers(updatedUsers);
@@ -269,7 +235,6 @@ class UserService {
     }).map((su) => su.user).toList();
   }
 
-  /// Helper to get a cached list of lowercase searchable fields for a user
   List<String> _getUserSearchFields(UserModel user) {
     var searchFields = _userSearchIndex[user];
     if (searchFields == null) {
@@ -329,7 +294,6 @@ class UserService {
         }
       }
     } catch (e) {
-      // Clear corrupted cache
       await clearCache();
     }
   }
@@ -372,16 +336,12 @@ class UserService {
     _loadingController.close();
   }
 
-  // Testing methods - not for production use
+  // Testing methods
   @visibleForTesting
-  void setCachedUsersForTesting(List<UserModel> users) {
-    _updateCachedUsers(users);
-  }
+  void setCachedUsersForTesting(List<UserModel> users) => _updateCachedUsers(users);
 
   @visibleForTesting
-  void setLastFetchTimeForTesting(DateTime? time) {
-    _lastFetchTime = time;
-  }
+  void setLastFetchTimeForTesting(DateTime? time) => _lastFetchTime = time;
 
   @visibleForTesting
   bool get isCacheValidForTesting => _isCacheValid;
@@ -393,32 +353,8 @@ class UserService {
   List<UserModel> get cachedUsersForTesting => List.unmodifiable(_cachedUsers);
 
   @visibleForTesting
-  void addLoadingStateForTesting(bool isLoading) {
-    _loadingController.add(isLoading);
-  }
+  void addLoadingStateForTesting(bool isLoading) => _loadingController.add(isLoading);
 
   @visibleForTesting
-  void addUsersUpdateForTesting(List<UserModel> users) {
-    _usersController.add(users);
-  }
-}
-
-/// User statistics model
-class UserStats {
-  final int totalUsers;
-  final int activeUsers;
-  final int inactiveUsers;
-  final int recentUsers;
-
-  const UserStats({
-    required this.totalUsers,
-    required this.activeUsers,
-    required this.inactiveUsers,
-    required this.recentUsers,
-  });
-
-  @override
-  String toString() {
-    return 'UserStats(total: $totalUsers, active: $activeUsers, inactive: $inactiveUsers, recent: $recentUsers)';
-  }
+  void addUsersUpdateForTesting(List<UserModel> users) => _usersController.add(users);
 }
