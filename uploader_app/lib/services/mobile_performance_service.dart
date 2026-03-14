@@ -7,6 +7,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uploader_app/services/performance_monitor_service.dart';
+import 'package:uploader_app/models/mobile_performance_models.dart';
 
 /// Mobile-specific performance optimization service
 class MobilePerformanceService {
@@ -211,7 +212,6 @@ class MobilePerformanceService {
     ));
 
     // Force garbage collection
-    // Note: Dart doesn't provide direct GC control, but we can suggest it
     _suggestGarbageCollection();
   }
 
@@ -239,7 +239,7 @@ class MobilePerformanceService {
   /// Initialize touch optimization
   Future<void> _initializeTouchOptimization() async {
     // Set up system UI overlay style for better touch response
-    SystemChrome.setSystemUIOverlayStyle( SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       systemNavigationBarColor: Colors.transparent,
     ));
@@ -277,10 +277,6 @@ class MobilePerformanceService {
 
   /// Initialize memory optimization
   Future<void> _initializeMemoryOptimization() async {
-    // Set up memory pressure monitoring (if available)
-    // Note: Flutter doesn't provide direct memory pressure events
-    // but we can monitor through performance metrics
-
     debugPrint('Memory optimization initialized');
   }
 
@@ -397,12 +393,10 @@ class MobilePerformanceService {
 
   /// Suggest garbage collection
   void _suggestGarbageCollection() {
-    // Create some pressure to suggest GC
     final tempList = <String>[];
     for (int i = 0; i < 5000; i++) {
       tempList.add('temp_$i');
     }
-    // Let it go out of scope
   }
 
   /// Enable power saving mode
@@ -445,40 +439,4 @@ class MobilePerformanceService {
     _lastTouchEvents.clear();
     _eventController.close();
   }
-}
-
-/// Network type enumeration
-enum NetworkType {
-  wifi,
-  mobile,
-  ethernet,
-  vpn,
-  none,
-}
-
-/// Mobile performance event types
-enum MobilePerformanceEventType {
-  initialized,
-  deviceInfoLoaded,
-  batteryStateChanged,
-  criticalBatteryModeEnabled,
-  lowBatteryModeEnabled,
-  batterySavingDisabled,
-  deviceOptimized,
-  networkOptimized,
-  touchEventProcessed,
-  powerSavingEnabled,
-  powerSavingDisabled,
-  error,
-}
-
-/// Mobile performance event data
-class MobilePerformanceEvent {
-  final MobilePerformanceEventType type;
-  final Map<String, dynamic>? metadata;
-
-  const MobilePerformanceEvent({
-    required this.type,
-    this.metadata,
-  });
 }
