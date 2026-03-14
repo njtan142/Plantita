@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import '../config/environment_config.dart';
+import '../models/pwa_models.dart';
 
 /// PWA Service for managing Progressive Web App functionality
 class PWAService {
@@ -76,7 +77,6 @@ class PWAService {
         _serviceWorkerRegistered = true;
         debugPrint('PWA: Service worker registered successfully');
 
-        // Listen for service worker messages
         html.MessageChannel channel = html.MessageChannel();
         registration.active?.postMessage({'type': 'init'}, [channel.port2]);
 
@@ -99,12 +99,11 @@ class PWAService {
       _onlineStatusController.add(_isOnline);
     }
 
-    // Listen for online/offline events
     html.window.addEventListener('online', (event) {
       _isOnline = true;
       _onlineStatusController.add(true);
       debugPrint('PWA: Connection restored');
-      _processSyncQueue(); // Process pending sync tasks
+      _processSyncQueue();
     });
 
     html.window.addEventListener('offline', (event) {
@@ -123,7 +122,6 @@ class PWAService {
       if (permission == 'granted') {
         debugPrint('PWA: Push notifications enabled');
 
-        // Listen for push messages
         html.window.navigator.serviceWorker?.addEventListener('message', (
           event,
         ) {
@@ -146,11 +144,8 @@ class PWAService {
     if (!isBackgroundSyncEnabled) return;
 
     try {
-      // Check if service worker and background sync are supported
       if (html.window.navigator.serviceWorker != null) {
-        // Try to register for background sync by checking if the API is available
         final registration = await html.window.navigator.serviceWorker!.ready;
-        // Background sync is supported if we can access the sync property without error
         if (registration.sync != null) {
           debugPrint('PWA: Background sync available');
         }
@@ -209,7 +204,6 @@ class PWAService {
     if (_isOnline) {
       await _processSyncQueue();
     } else {
-      // Store for later sync
       await _storeSyncTask(task);
     }
   }
@@ -218,8 +212,6 @@ class PWAService {
   Future<void> _processSyncQueue() async {
     if (_syncQueue.isEmpty) return;
 
-    // Group tasks by type to process independent types concurrently
-    // but maintain ordering for tasks of the same type.
     final tasksByType = <String, List<BackgroundSyncTask>>{};
     for (final task in List.from(_syncQueue)) {
       tasksByType.putIfAbsent(task.type, () => []).add(task);
@@ -235,7 +227,6 @@ class PWAService {
             debugPrint('PWA: Sync task completed: ${task.id}');
           } catch (e) {
             debugPrint('PWA: Sync task failed: ${task.id}, error: $e');
-            // Keep failed tasks for retry and stop processing subsequent tasks of the same type
             break;
           }
         }
@@ -245,16 +236,12 @@ class PWAService {
 
   /// Execute sync task
   Future<void> _executeSyncTask(BackgroundSyncTask task) async {
-    // Implement task execution based on task type
     switch (task.type) {
       case 'upload':
-        // Handle upload task
         break;
       case 'delete':
-        // Handle delete task
         break;
       case 'update':
-        // Handle update task
         break;
       default:
         throw Exception('Unknown sync task type: ${task.type}');
@@ -298,7 +285,6 @@ class PWAService {
 
   /// Get PWA installation status
   bool get isInstalled {
-    // Check if app is running in standalone mode (PWA)
     return html.window.matchMedia('(display-mode: standalone)').matches;
   }
 
@@ -317,7 +303,6 @@ class PWAService {
   /// Share content using Web Share API
   Future<bool> shareContent(String title, String text, String url) async {
     try {
-      // Try to use Web Share API - will throw if not supported
       await html.window.navigator.share({
         'title': title,
         'text': text,
@@ -336,79 +321,5 @@ class PWAService {
     _messageController.close();
     _syncController.close();
     _notificationController.close();
-  }
-}
-
-/// Background sync task model
-class BackgroundSyncTask {
-  final String id;
-  final String type;
-  final Map<String, dynamic> data;
-  final DateTime createdAt;
-  final int retryCount;
-
-  BackgroundSyncTask({
-    required this.id,
-    required this.type,
-    required this.data,
-    DateTime? createdAt,
-    this.retryCount = 0,
-  }) : createdAt = createdAt ?? DateTime.now();
-
-  factory BackgroundSyncTask.fromJson(Map<String, dynamic> json) {
-    return BackgroundSyncTask(
-      id: json['id'],
-      type: json['type'],
-      data: Map<String, dynamic>.from(json['data']),
-      createdAt: DateTime.parse(json['createdAt']),
-      retryCount: json['retryCount'] ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'type': type,
-      'data': data,
-      'createdAt': createdAt.toIso8601String(),
-      'retryCount': retryCount,
-    };
-  }
-}
-
-/// Push notification model
-class PushNotification {
-  final String title;
-  final String body;
-  final String? icon;
-  final String? image;
-  final Map<String, dynamic>? data;
-
-  PushNotification({
-    required this.title,
-    required this.body,
-    this.icon,
-    this.image,
-    this.data,
-  });
-
-  factory PushNotification.fromJson(Map<String, dynamic> json) {
-    return PushNotification(
-      title: json['title'],
-      body: json['body'],
-      icon: json['icon'],
-      image: json['image'],
-      data: json['data'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'body': body,
-      'icon': icon,
-      'image': image,
-      'data': data,
-    };
   }
 }
